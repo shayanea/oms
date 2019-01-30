@@ -1,0 +1,44 @@
+.menu-container {
+  position: fixed;
+  top: 0;
+  right: 0;
+  bottom: 0;
+  z-index: 10;
+  width: 250px;
+  background-color: #fff;
+  box-shadow: 0 2px 4px 0 #e3e9f3;
+  padding: 50px 0;
+  transform: translateX(100%);
+  transition: transform .3s ease;
+}
+
+.menu-container.active {
+  transform: translateX(0);
+  transition: transform .3s ease;
+}
+
+.menu-container ul li {
+  display: block;
+}
+
+.menu-container ul li a {
+  display: block;
+  padding: 15px 25px;
+  text-align: right;
+  font-size: 14px;
+  font-family: "SAMIMBOLD";
+  color: #444;
+  border-bottom: 1px solid #e3e9f3;
+  transition: all .3s ease;
+}
+
+.menu-container ul li a:hover,
+.menu-container ul li a.active {
+  background-color: #FFCC2B;
+  color: #444;
+  transition: all .3s ease;
+}
+
+.menu-container ul li:last-child a {
+  border-bottom: 0;
+}

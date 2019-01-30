@@ -1,0 +1,271 @@
+@import url('./login.css');
+@import url('./navbar.css');
+@import url('./menu.css');
+@import url('./dashboard.css');
+@font-face {
+  font-family: "SAMIMBOLD";
+  src: url("../font/Samim-Bold-FD.woff") format("woff"), url("../font/Samim-Bold-FD.ttf") format("truetype");
+  font-weight: normal;
+  font-style: normal;
+}
+
+@font-face {
+  font-family: "SAMIM";
+  src: url("../font/Samim-FD.woff") format("woff"), url("../font/Samim-FD.ttf") format("truetype");
+  font-weight: normal;
+  font-style: normal;
+}
+
+html,
+body {
+  display: block;
+  position: relative;
+  margin: 0;
+  padding: 0;
+  font-family: "SAMIM";
+  overflow-x: hidden;
+  /* height: 100%; */
+}
+
+a {
+  text-decoration: none;
+  outline: none;
+}
+
+.dashboard,
+#root {
+  background-color: #f9f9f9;
+  margin-top: 50px;
+  height: calc(100% - 50px);
+}
+
+input:-webkit-autofill,
+input:-webkit-autofill:hover,
+input:-webkit-autofill:focus textarea:-webkit-autofill,
+textarea:-webkit-autofill:hover textarea:-webkit-autofill:focus,
+select:-webkit-autofill,
+select:-webkit-autofill:hover,
+select:-webkit-autofill:focus {
+  -webkit-text-fill-color: #222;
+  -webkit-box-shadow: inset 0 0 0px 9999px white !important;
+}
+
+.error-boundray {
+  position: fixed;
+  top: 0;
+  right: 0;
+  bottom: 0;
+  left: 0;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex-direction: column;
+  background-color: #fff;
+}
+
+.error-boundray svg {
+  width: 400px;
+  margin-bottom: 50px;
+}
+
+.error-boundray .zent-alert.zent-alert-style-warning {
+  width: auto;
+  text-align: center;
+  border-radius: 10px;
+}
+
+.error-boundray .zent-alert.zent-alert-style-warning span {
+  font-weight: bold;
+}
+
+.affix {
+  height: 60px !important;
+}
+
+.loader-overlay {
+  position: fixed;
+  top: 60px;
+  right: 50px;
+  bottom: 0;
+  left: 0;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background-color: rgba(255, 255, 255, 0.3);
+  z-index: 20;
+  opacity: 1;
+  visibility: visible;
+  transition: all 0.2s ease;
+}
+
+.container.menu-is-open .loader-overlay {
+  right: 250px;
+}
+
+.loader-overlay.disable {
+  opacity: 0;
+  visibility: hidden;
+  transition: all 0.2s ease;
+}
+
+.inline-loader {
+  position: relative;
+  display: inline-block;
+}
+
+.zent-notify-content {
+  font-weight: bold;
+}
+
+.zent-loading-container-static .zent-page-mask {
+  background: rgba(0, 0, 0, 0.1);
+}
+
+.zent-page-loading .zent-page-mask::before,
+.zent-page-loading .zent-page-mask::after {
+  border: 3px solid transparent;
+}
+
+.zent-page-loading .zent-page-mask::before {
+  background-image: none !important;
+}
+
+.zent-page-loading .zent-page-mask::after {
+  background-color: transparent;
+  border-color: #fff transparent transparent;
+  z-index: 20;
+}
+
+.zent-table .tfoot__page {
+  float: none;
+  display: block;
+}
+
+.zent-pagination {
+  text-align: center;
+}
+
+.zent-dialog-r-backdrop {
+  background-color: rgba(0, 0, 0, 0.2);
+}
+
+.custom-sweetalert {
+  padding: 50px;
+}
+
+.custom-sweetalert .zent-dialog-r-header {
+  display: none;
+}
+
+.custom-sweetalert .zent-dialog-r-body {
+  text-align: center;
+  font-weight: bold;
+  font-size: 1em;
+}
+
+.zent-sweetalert-confirm .sweet-confirm-actions {
+  text-align: center;
+}
+
+.custom-width-dropdown .zent-select-popup {
+  padding-right: 0;
+}
+
+.zent-select-popup .zent-select-option {
+  text-align: right;
+}
+
+.custom-sweetalert .zent-btn {
+  border-radius: 6px;
+  width: 145px;
+}
+
+.custom-sweetalert .zent-btn span {
+  font-size: 15px;
+}
+
+.custom-sweetalert .zent-sweetalert-confirm-btn-cancel {
+  border-color: transparent;
+  background-color: #efefef;
+  color: #444;
+}
+
+.custom-sweetalert .zent-sweetalert-confirm-btn-cancel:hover {
+  opacity: 0.7;
+}
+
+.zent-table-container {
+  margin-bottom: 0;
+}
+
+.zent-sweetalert-confirm .zent-btn {
+  height: 40px;
+  line-height: 40px;
+  padding: 0 20px;
+  font-size: 15px;
+}
+
+.zent-sweetalert-confirm .zent-btn+.zent-btn {
+  margin-left: 0;
+  margin-right: 10px;
+}
+
+input:-webkit-autofill,
+textarea:-webkit-autofill,
+select:-webkit-autofill {
+  background-color: #eee !important;
+}
+
+.container {
+  display: block;
+  min-height: 100%;
+  padding: 25px 0;
+  margin: 0 50px;
+}
+
+.container .page-title {
+  font-family: "SAMIMBOLD";
+  margin-bottom: 20px;
+}
+
+.container .zent-breadcrumb {
+  background-color: #fff;
+  padding: 15px;
+  border-radius: 4px;
+}
+
+.container .zent-breadcrumb a,
+.container .zent-breadcrumb span {
+  font-size: 13px;
+}
+
+.container .zent-search-input .zent-input-wrapper {
+  height: 40px;
+  line-height: 46px;
+}
+
+.container .zent-search-input .zent-input-wrapper .zent-input {
+  border-radius: 4px;
+  border-color: #e3e9f3;
+}
+
+.container .zent-search-input .zenticon-search {
+  color: #999;
+}
+
+.container .zent-table .tfoot {
+  display: none;
+}
+
+.container .zent-table-container .cell__child-container {
+  text-align: center;
+}
+
+.container .zent-table .cell .select-check {
+  left: auto;
+  right: 10px;
+}
+
+.container .zent-table .zent-checkbox-wrap {
+  margin-right: 0;
+}
