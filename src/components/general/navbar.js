@@ -23,7 +23,7 @@ class Navbar extends Component {
 			confirmType: "success",
 			confirmText: "بله",
 			cancelText: "منصرف شدم",
-			content: "آیا مطمئن به خارج شدن از پنل تولگرام خود هستید ؟",
+			content: "آیا مطمئن به خارج شدن از پنل OMS خود هستید ؟",
 			title: "",
 			className: "custom-sweetalert",
 			maskClosable: true,
