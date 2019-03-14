@@ -4,7 +4,7 @@ import { LOGOUT } from "../actions/type";
 import { history } from "./history";
 
 var axiosInstance = axios.create({
-	baseURL: "http://37.156.29.54:8082/api/",
+	baseURL: "http://37.156.29.54:8081/",
 	responseType: "json",
 	headers: {
 		"Content-Type": "application/json;charset=UTF-8",
@@ -14,7 +14,9 @@ var axiosInstance = axios.create({
 
 axiosInstance.interceptors.request.use(config => {
 	let userInfo = JSON.parse(localStorage.getItem("USER_INFO"));
-	config.headers.Authorization = userInfo ? `bearer ${userInfo.token}` : "";
+	config.headers.Authorization = userInfo
+		? `bearer ${userInfo.accessToken}`
+		: "";
 	return config;
 });
 

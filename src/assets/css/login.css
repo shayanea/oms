@@ -56,7 +56,8 @@
 
 .login-container .login-form .zent-input-wrapper .zent-input:focus,
 .login-container .login-form .zent-input-wrapper .zent-input:active {
-  box-shadow: 0 0 5px #e3e9f3;
+  box-shadow: 0 0 5px #bdf;
+  border: 1px solid #38f;
 }
 
 .login-container .login-form .zent-input-wrapper {
@@ -83,4 +84,37 @@
 
 .login-container .forgot-password__btn a {
   color: #3498db;
+}
+
+.verify-container {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex-direction: column;
+  min-height: 100vh;
+}
+
+.verify-container .logo {
+  width: 80px;
+  margin-bottom: 25px;
+}
+
+.verify-container .container {
+  position: relative;
+  padding: 20px;
+  min-width: 300px;
+  background-color: #fff;
+  border-radius: 4px;
+  box-shadow: 0 2px 4px 0 #e3e9f3;
+  overflow: hidden;
+  text-align: center;
+}
+
+.verify-container .container p {
+  font-size: 14px;
+  color: #222;
+}
+
+.verify-container .zent-page-loading .zent-page-mask::after {
+  border-color: #444 transparent transparent;
 }

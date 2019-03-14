@@ -46,8 +46,7 @@ class Navbar extends Component {
 						<p>OMS</p>
 					</div>
 					<div className="user-information">
-						{this.userInfo.user.firstname} {this.userInfo.user.lastname} خوش
-						آمدی
+						{this.userInfo.fullname} خوش آمدی
 					</div>
 				</div>
 				<div className="navbar-col">

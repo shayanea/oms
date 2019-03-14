@@ -10,115 +10,170 @@ import "./assets/css/style.css";
 import MainView from "./components/general/mainView";
 
 import Login from "./pages/auth/login";
+import Email from "./pages/auth/email";
 import Dashboard from "./pages/dashboard";
 // Order
-import AddOrder from "./pages/order/add";
-import AssingOrder from "./pages/order/assign";
 import ManageOrder from "./pages/order/manage";
+import OrderList from "./pages/order/list";
+import AssingOrder from "./pages/order/assign";
+import AddOrder from "./pages/order/add";
+// Products
+import ProductList from "./pages/product/list";
+import AddProduct from "./pages/product/add";
+import EditProduct from "./pages/product/edit";
+// Users
+import UserList from "./pages/user/list";
+import AddUser from "./pages/user/add";
+import EditUser from "./pages/user/edit";
+// Courier
+import CourierList from "./pages/courier/list";
+import AddCourier from "./pages/courier/add";
+import EditCourier from "./pages/courier/edit";
+// Adviser
+import AdviserList from "./pages/adviser/list";
+import AddAdviser from "./pages/adviser/add";
+import EditAdviser from "./pages/adviser/edit";
 
 const isAuthenticated = () => {
-	return (
-		store.getState().auth.isAuthenticated && localStorage.getItem("USER_INFO")
-	);
+  return store.getState().auth.isAuthenticated && localStorage.getItem("USER_INFO");
 };
 
 const AuthRoute = ({ component: Component, ...rest }) => (
-	<Route
-		{...rest}
-		render={props =>
-			isAuthenticated() ? (
-				<Component {...props} />
-			) : (
-				<Redirect
-					to={{
-						pathname: "/login"
-					}}
-				/>
-			)
-		}
-	/>
+  <Route
+    {...rest}
+    render={props =>
+      isAuthenticated() ? (
+        <Component {...props} />
+      ) : (
+        <Redirect
+          to={{
+            pathname: "/login"
+          }}
+        />
+      )
+    }
+  />
 );
 
 const NoMatch = ({ location }) => {
-	return store.getState().auth.isAuthenticated &&
-		localStorage.getItem("USER_INFO") ? (
-		<Redirect
-			to={{
-				pathname: "/"
-			}}
-		/>
-	) : (
-		<Redirect
-			to={{
-				pathname: "/login"
-			}}
-		/>
-	);
+  return store.getState().auth.isAuthenticated && localStorage.getItem("USER_INFO") ? (
+    <Redirect
+      to={{
+        pathname: "/"
+      }}
+    />
+  ) : (
+    <Redirect
+      to={{
+        pathname: "/login"
+      }}
+    />
+  );
 };
 
 class Main extends Component {
-	constructor(props) {
-		super(props);
-		this.state = {
-			disable: true
-		};
-	}
+  constructor(props) {
+    super(props);
+    this.state = {
+      disable: true
+    };
+  }
 
-	componentDidMount() {
-		this.changeTitle(history.location.pathname);
-		this.setState({
-			disable: this.checkForNotSafeRoute(history.location.pathname)
-		});
+  componentDidMount() {
+    this.changeTitle(history.location.pathname);
+    this.setState({
+      disable: this.checkForNotSafeRoute(history.location.pathname)
+    });
 
-		history.listen(location => {
-			this.changeTitle(location.pathname);
-			this.setState({
-				disable: this.checkForNotSafeRoute(location.pathname)
-			});
-			window.scrollTo(0, 0);
-		});
-	}
+    history.listen(location => {
+      this.changeTitle(location.pathname);
+      this.setState({
+        disable: this.checkForNotSafeRoute(location.pathname)
+      });
+      window.scrollTo(0, 0);
+    });
+  }
 
-	checkForNotSafeRoute = url => {
-		return url === "/login";
-	};
+  checkForNotSafeRoute = url => {
+    return url === "/login" || url === "/verify/emailAddress";
+  };
 
-	changeTitle = path => {
-		switch (path) {
-			case "/login":
-				return (document.title = "ورود کاربران");
-			default:
-				return this.handleRouteWithParams(path);
-		}
-	};
+  changeTitle = path => {
+    switch (path) {
+      case "/":
+        return (document.title = "پیشخوان");
+      case "/login":
+        return (document.title = "ورود کاربران");
+      case "/verify/emailAddress":
+        return (document.title = "تایید ایمیل");
+      case "/products/list":
+        return (document.title = "لیست کالا");
+      case "/product/add":
+        return (document.title = "درج کالا");
+      case "/users/list":
+        return (document.title = "لیست کاربران");
+      case "/user/add":
+        return (document.title = "درج کاربر");
+      case "/couriers/list":
+        return (document.title = "لیست واحد‌های ارسال");
+      case "/courier/add":
+        return (document.title = "درج واحد ارسال");
+      case "/orders/list":
+        return (document.title = "پیگیری سفارش");
+      case "/orders/manage":
+        return (document.title = "مدیریت سفارش‌ها");
+      case "/orders/assign":
+        return (document.title = "انتصاب سفارش‌ها");
+      case "/order/add":
+        return (document.title = "درج سفارش");
+      default:
+        return this.handleRouteWithParams(path);
+    }
+  };
 
-	handleRouteWithParams = path => {};
+  handleRouteWithParams = path => {};
 
-	render() {
-		const { disable } = this.state;
-		return (
-			<Provider store={store}>
-				<Router history={history}>
-					<main
-						className={disable ? "App dashboard" : "App dashboard enable-zoom"}
-					>
-						{!disable ? <MainView /> : null}
-						<Switch>
-							{/* main route */}
-							<AuthRoute exact path="/" component={Dashboard} />
-							{/* order route */}
-							<AuthRoute exact path="/order/add" component={AddOrder} />
-							<AuthRoute exact path="/order/assign" component={AssingOrder} />
-							<AuthRoute exact path="/order/manage" component={ManageOrder} />
-							{/* account route */}
-							<Route path="/login" component={Login} />
-							{/* 404 */}
-							<Route component={NoMatch} />
-						</Switch>
-					</main>
-				</Router>
-			</Provider>
-		);
-	}
+  render() {
+    const { disable } = this.state;
+    return (
+      <Provider store={store}>
+        <Router history={history}>
+          <main className={disable ? "App dashboard" : "App dashboard enable-zoom"}>
+            {!disable ? <MainView /> : null}
+            <Switch>
+              {/* main route */}
+              <AuthRoute exact path="/" component={Dashboard} />
+              {/* order route */}
+              <AuthRoute exact path="/orders/list" component={OrderList} />
+              <AuthRoute exact path="/orders/manage" component={ManageOrder} />
+              <AuthRoute exact path="/orders/assign" component={AssingOrder} />
+              <AuthRoute exact path="/order/add" component={AddOrder} />
+              {/* product route */}
+              <AuthRoute exact path="/products/list" component={ProductList} />
+              <AuthRoute exact path="/product/add" component={AddProduct} />
+              <AuthRoute exact path="/product/edit/:id" component={EditProduct} />
+              {/* user route */}
+              <AuthRoute exact path="/users/list" component={UserList} />
+              <AuthRoute exact path="/user/add" component={AddUser} />
+              <AuthRoute exact path="/user/edit/:id" component={EditUser} />
+              {/* courier route */}
+              <AuthRoute exact path="/couriers/list" component={CourierList} />
+              <AuthRoute exact path="/courier/add" component={AddCourier} />
+              <AuthRoute exact path="/courier/edit/:id" component={EditCourier} />
+              {/* adviser route */}
+              <AuthRoute exact path="/advisers/list" component={AdviserList} />
+              <AuthRoute exact path="/adviser/add" component={AddAdviser} />
+              <AuthRoute exact path="/adviser/edit/:id" component={EditAdviser} />
+              {/* account route */}
+              <Route path="/login" component={Login} />
+              <Route path="/verify/emailAddress" component={Email} />
+              {/* 404 */}
+              <Route component={NoMatch} />
+            </Switch>
+          </main>
+        </Router>
+      </Provider>
+    );
+  }
 }
 export default Main;

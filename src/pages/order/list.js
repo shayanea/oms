@@ -3,14 +3,14 @@ import { connect } from "react-redux";
 import PropTypes from "prop-types";
 import { Link } from "react-router-dom";
 import * as moment from "moment-jalaali";
-import { getAllOrders } from "../../actions/orderActions";
+import { getAssignOrders } from "../../actions/orderActions";
 import axios from "../../utils/requestConfig";
 import City from "../../assets/city.json";
 
 import { Layout, Breadcrumb, SearchInput, Table, Select, Notify, Sweetalert } from "zent";
 
 const { Col, Row } = Layout;
-const dataList = [{ name: "پیشخوان", href: "/" }, { name: "مدیریت سفارش‌ها" }];
+const dataList = [{ name: "پیشخوان", href: "/" }, { name: "پیگیری سفارش‌ها" }];
 
 class OrderList extends Component {
   constructor(props) {
@@ -29,13 +29,13 @@ class OrderList extends Component {
       searchText: "",
       selectedCityId: null,
       selectedProductId: null,
-      selectedStatusId: null,
+      selectedCourierId: null,
       courierId: ""
     };
   }
 
   componentDidMount() {
-    this.props.getAllOrders(this.props.orders.page, this.props.orders.search);
+    this.props.getAssignOrders(this.props.orders.page, this.props.orders.search);
     this.fetchProducts();
     this.fetchCouriers();
   }
@@ -83,7 +83,7 @@ class OrderList extends Component {
         totalItem: this.props.orders.size
       }
     });
-    this.props.getAllOrders(conf.current, this.props.orders.search);
+    this.props.getAssignOrders(conf.current, this.props.orders.search, this.state.selectedCityId, this.state.selectedProductId, this.state.selectedCourierId);
   }
 
   onSearchChange = evt => {
@@ -91,39 +91,28 @@ class OrderList extends Component {
       searchText: evt.target.value
     });
     if (evt.fromClearButton || evt.target.value === "") {
-      this.props.getAllOrders(this.props.orders.page, "", this.state.selectedCityId, this.state.selectedProductId, this.state.selectedCourierId);
+      this.props.getAssignOrders(this.props.orders.page, "", this.state.selectedCityId, this.state.selectedProductId, this.state.selectedCourierId);
     }
   };
 
   onPressEnter = () => {
-    if (this.state.searchText !== "") this.props.getAllOrders(this.props.orders.page, "", this.state.selectedCityId, this.state.selectedProductId, this.state.selectedCourierId);
+    if (this.state.searchText !== "")
+      this.props.getAssignOrders(this.props.orders.page, this.state.searchText, this.state.selectedCityId, this.state.selectedProductId, this.state.selectedCourierId);
   };
 
   selectProductHandler = (event, selected) => {
     this.setState({ selectedProductId: selected.value });
-    this.props.getAllOrders(this.props.orders.page, this.state.searchText, this.state.selectedCityId, selected.value, this.state.selectedCourierId);
+    this.props.getAssignOrders(this.props.orders.page, this.state.searchText, this.state.selectedCityId, selected.value, this.state.selectedCourierId);
   };
 
   selectCityHandler = (event, selected) => {
     this.setState({ selectedCityId: selected.value });
-    this.props.getAllOrders(this.props.orders.page, this.state.searchText, selected.value, this.state.selectedProductId, this.state.selectedCourierId);
+    this.props.getAssignOrders(this.props.orders.page, this.state.searchText, selected.value, this.state.selectedProductId, this.state.selectedCourierId);
   };
 
   selectCourierHandler = (event, selected) => {
     this.setState({ selectedCourierId: selected.value });
-    this.props.getAllOrders(this.props.orders.page, this.state.searchText, this.state.selectedCityId, this.state.selectedProductId, selected.value);
-  };
-
-  selectStatusHandler = (event, selected) => {
-    this.setState({ selectedCourierId: selected.value });
-    this.props.getAllOrders(
-      this.props.orders.page,
-      this.state.searchText,
-      this.state.selectedCityId,
-      this.state.selectedProductId,
-      this.state.selectedCourierId,
-      this.state.selectedStatusId
-    );
+    this.props.getAssignOrders(this.props.orders.page, this.state.searchText, this.state.selectedCityId, this.state.selectedProductId, selected.value);
   };
 
   findStatusById = type => {
@@ -194,14 +183,7 @@ class OrderList extends Component {
     return axios
       .delete(`/orders/${id}`)
       .then(res => {
-        this.props.getAllOrders(
-          this.props.orders.page,
-          this.state.searchText,
-          this.state.selectedCityId,
-          this.state.selectedProductId,
-          this.state.selectedCourierId,
-          this.state.selectedStatusId
-        );
+        this.props.getAssignOrders(this.props.orders.page, this.state.searchText, this.state.selectedCityId, this.state.selectedProductId, this.state.selectedCourierId);
       })
       .catch(err => {
         Notify.error(err.data !== null && typeof err.data !== "undefined" ? err.data.error.errorDescription : "در برقراری ارتباط مشکلی به وجود آمده است.", 5000);
@@ -279,37 +261,12 @@ class OrderList extends Component {
     ];
     return (
       <div className="container">
-        <h2 className="page-title">مدیریت سفارش‌ها</h2>
+        <h2 className="page-title">پیگیری سفارش‌ها</h2>
         <Breadcrumb breads={dataList} />
         <Row className="grid-layout__container">
           <Col span={24}>
             <div className="control-contaianer">
               <div className="right-control">
-                <Select
-                  name="status"
-                  placeholder="انتخاب وضعیت سفارش"
-                  data={[
-                    { id: null, title: "همه" },
-                    { id: 101, title: "ثبت شده" },
-                    { id: 201, title: "ارجاع به واحد ارسال" },
-                    { id: 301, title: "مرجوعی - عدم موجودی کالا" },
-                    { id: 302, title: "مرجوعی - خارج از محدوده" },
-                    { id: 303, title: "مرجوعی - تکمیل ظرفیت ارسال" },
-                    { id: 304, title: "مرجوعی - به درخواست فروشگاه" },
-                    { id: 401, title: "هماهنگی ارسال برای مشتری" },
-                    { id: 501, title: "وصول شد" },
-                    { id: 601, title: "کنسلی - آدرس اشتباه" },
-                    { id: 602, title: "کنسلی - کنسلی تلفنی" },
-                    { id: 603, title: "کنسلی - عدم حضور مشتری" },
-                    { id: 604, title: "کنسلی - کالای معیوب" },
-                    { id: 605, title: "کنسلی - کنسلی حضوری" },
-                    { id: 606, title: "کنسلی - مشتری بعدا سفارش خواهد داد" }
-                  ]}
-                  autoWidth
-                  optionValue="id"
-                  optionText="title"
-                  onChange={this.selectStatusHandler}
-                />
                 <Select
                   name="courier"
                   placeholder="انتخاب واحد ارسال"
@@ -376,6 +333,6 @@ OrderList.propTypes = {
 export default connect(
   mapStateToProps,
   {
-    getAllOrders
+    getAssignOrders
   }
 )(OrderList);

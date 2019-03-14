@@ -1,55 +1,53 @@
 import React, { Component } from "react";
 import { Link } from "react-router-dom";
+import ClickOutside from "react-click-outside";
 
-export default class menu extends Component {
-	getActiveMenu = url => {
-		return url === this.props.history.pathname;
-	};
+class Menu extends Component {
+  getActiveMenu = url => {
+    return url === this.props.history.pathname;
+  };
 
-	render() {
-		const { toggle } = this.props;
-		return (
-			<div className={`menu-container ${toggle && "active"}`}>
-				<ul>
-					<li>
-						<Link to="/" className={`${this.getActiveMenu("/") && "active"}`}>
-							پیشخوان
-						</Link>
-					</li>
-					<li>
-						<Link
-							to="/orders"
-							className={`${this.getActiveMenu("/orders") && "active"}`}
-						>
-							مدیریت سفارش‌ها
-						</Link>
-					</li>
-					<li>
-						<Link
-							to="/products"
-							className={`${this.getActiveMenu("/products") && "active"}`}
-						>
-							مدیریت کالا‌ها
-						</Link>
-					</li>
-					<li>
-						<Link
-							to="/users"
-							className={`${this.getActiveMenu("/users") && "active"}`}
-						>
-							مدیریت کاربران
-						</Link>
-					</li>
-					<li>
-						<Link
-							to="/units"
-							className={`${this.getActiveMenu("/units") && "active"}`}
-						>
-							گزارش واحد‌ها
-						</Link>
-					</li>
-				</ul>
-			</div>
-		);
-	}
+  handleClickOutside = () => this.props.onClose();
+
+  render() {
+    const { toggle } = this.props;
+    return (
+      <div className={`menu-container ${toggle && "active"}`}>
+        <ul>
+          <li>
+            <Link to="/" className={`${this.getActiveMenu("/") && "active"}`}>
+              پیشخوان
+            </Link>
+          </li>
+          <li>
+            <Link to="/orders/manage" className={`${this.getActiveMenu("/orders/manage") && "active"}`}>
+              مدیریت سفارش‌ها
+            </Link>
+          </li>
+          <li>
+            <Link to="/products/list" className={`${this.getActiveMenu("/products/list") && "active"}`}>
+              مدیریت کالا‌
+            </Link>
+          </li>
+          <li>
+            <Link to="/users/list" className={`${this.getActiveMenu("/users/list") && "active"}`}>
+              مدیریت کاربران
+            </Link>
+          </li>
+          <li>
+            <Link to="/couriers/list" className={`${this.getActiveMenu("/couriers/list") && "active"}`}>
+              مدیریت واحد‌های ارسال
+            </Link>
+          </li>
+          <li>
+            <Link to="/advisers/list" className={`${this.getActiveMenu("/advisers/list") && "active"}`}>
+              مدیریت مشاور‌ها
+            </Link>
+          </li>
+        </ul>
+      </div>
+    );
+  }
 }
+
+export default ClickOutside(Menu);

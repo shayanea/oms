@@ -1,23 +1,23 @@
 import * as type from "../actions/type";
 
 const initalState = {
-  items: [],
   isLoading: false,
-  page: 1,
-  total: 0,
-  search: ""
+  items: [],
+  accounts: [],
+  pageNumber: 1,
+  total: 0
 };
 
 export default function(state = initalState, action) {
   switch (action.type) {
-    case type.FETCH_ORDERS:
+    case type.FETCH_USERS:
       return {
         ...state,
         items: action.payload.items,
-        isLoading: action.payload.isLoading,
+        accounts: action.payload.accounts,
+        pageNumber: action.payload.pageNumber,
         total: action.payload.total,
-        page: action.payload.page,
-        search: action.payload.search
+        isLoading: action.payload.isLoading
       };
     default:
       return state;

@@ -98,7 +98,8 @@
 }
 
 .grid-layout__container .zent-table-container .remove-item,
-.grid-layout__container .zent-table-container .edit-item {
+.grid-layout__container .zent-table-container .edit-item,
+.zent-table-container .select-item {
   cursor: pointer;
   display: inline-block;
   width: 15px;
@@ -115,6 +116,10 @@
 .grid-layout__container .zent-table-container .remove-item {
   background-image: url(data:image/svg+xml;utf8;base64,PD94bWwgdmVyc2lvbj0iMS4wIiBlbmNvZGluZz0iaXNvLTg4NTktMSI/Pgo8IS0tIEdlbmVyYXRvcjogQWRvYmUgSWxsdXN0cmF0b3IgMTYuMC4wLCBTVkcgRXhwb3J0IFBsdWctSW4gLiBTVkcgVmVyc2lvbjogNi4wMCBCdWlsZCAwKSAgLS0+CjwhRE9DVFlQRSBzdmcgUFVCTElDICItLy9XM0MvL0RURCBTVkcgMS4xLy9FTiIgImh0dHA6Ly93d3cudzMub3JnL0dyYXBoaWNzL1NWRy8xLjEvRFREL3N2ZzExLmR0ZCI+CjxzdmcgeG1sbnM9Imh0dHA6Ly93d3cudzMub3JnLzIwMDAvc3ZnIiB4bWxuczp4bGluaz0iaHR0cDovL3d3dy53My5vcmcvMTk5OS94bGluayIgdmVyc2lvbj0iMS4xIiBpZD0iQ2FwYV8xIiB4PSIwcHgiIHk9IjBweCIgd2lkdGg9IjEyOHB4IiBoZWlnaHQ9IjEyOHB4IiB2aWV3Qm94PSIwIDAgOTAwLjUgOTAwLjUiIHN0eWxlPSJlbmFibGUtYmFja2dyb3VuZDpuZXcgMCAwIDkwMC41IDkwMC41OyIgeG1sOnNwYWNlPSJwcmVzZXJ2ZSI+CjxnPgoJPHBhdGggZD0iTTE3Ni40MTUsODgwLjVjMCwxMS4wNDYsOC45NTQsMjAsMjAsMjBoNTA3LjY3YzExLjA0NiwwLDIwLTguOTU0LDIwLTIwVjIzMi40ODdoLTU0Ny42N1Y4ODAuNUwxNzYuNDE1LDg4MC41eiAgICBNNTYyLjc1LDM0Mi43NjZoNzV2NDM2LjAyOWgtNzVWMzQyLjc2NnogTTQxMi43NSwzNDIuNzY2aDc1djQzNi4wMjloLTc1VjM0Mi43NjZ6IE0yNjIuNzUsMzQyLjc2Nmg3NXY0MzYuMDI5aC03NVYzNDIuNzY2eiIgZmlsbD0iIzQ0NDQ0NCIvPgoJPHBhdGggZD0iTTYxOC44MjUsOTEuOTExVjIwYzAtMTEuMDQ2LTguOTU0LTIwLTIwLTIwaC0yOTcuMTVjLTExLjA0NiwwLTIwLDguOTU0LTIwLDIwdjcxLjkxMXYxMi41djEyLjVIMTQxLjg3NCAgIGMtMTEuMDQ2LDAtMjAsOC45NTQtMjAsMjB2NTAuNTc2YzAsMTEuMDQ1LDguOTU0LDIwLDIwLDIwaDM0LjU0MWg1NDcuNjdoMzQuNTQxYzExLjA0NiwwLDIwLTguOTU1LDIwLTIwdi01MC41NzYgICBjMC0xMS4wNDYtOC45NTQtMjAtMjAtMjBINjE4LjgyNXYtMTIuNVY5MS45MTF6IE01NDMuODI1LDExMi43OTloLTE4Ny4xNXYtOC4zODl2LTEyLjVWNzVoMTg3LjE1djE2LjkxMXYxMi41VjExMi43OTl6IiBmaWxsPSIjNDQ0NDQ0Ii8+CjwvZz4KPGc+CjwvZz4KPGc+CjwvZz4KPGc+CjwvZz4KPGc+CjwvZz4KPGc+CjwvZz4KPGc+CjwvZz4KPGc+CjwvZz4KPGc+CjwvZz4KPGc+CjwvZz4KPGc+CjwvZz4KPGc+CjwvZz4KPGc+CjwvZz4KPGc+CjwvZz4KPGc+CjwvZz4KPGc+CjwvZz4KPC9zdmc+Cg==);
   margin-left: 10px;
+}
+
+.zent-table-container .select-item {
+  background-image: url(data:image/svg+xml;utf8;base64,PD94bWwgdmVyc2lvbj0iMS4wIiBlbmNvZGluZz0iaXNvLTg4NTktMSI/Pgo8c3ZnIHhtbG5zPSJodHRwOi8vd3d3LnczLm9yZy8yMDAwL3N2ZyIgeG1sbnM6eGxpbms9Imh0dHA6Ly93d3cudzMub3JnLzE5OTkveGxpbmsiIHZlcnNpb249IjEuMSIgdmlld0JveD0iMCAwIDQ0IDQ0IiBlbmFibGUtYmFja2dyb3VuZD0ibmV3IDAgMCA0NCA0NCIgd2lkdGg9IjY0cHgiIGhlaWdodD0iNjRweCI+CiAgPHBhdGggZD0ibTIyLDBjLTEyLjIsMC0yMiw5LjgtMjIsMjJzOS44LDIyIDIyLDIyIDIyLTkuOCAyMi0yMi05LjgtMjItMjItMjJ6bTEyLjcsMTUuMWwwLDAtMTYsMTYuNmMtMC4yLDAuMi0wLjQsMC4zLTAuNywwLjMtMC4zLDAtMC42LTAuMS0wLjctMC4zbC03LjgtOC40LS4yLS4yYy0wLjItMC4yLTAuMy0wLjUtMC4zLTAuN3MwLjEtMC41IDAuMy0wLjdsMS40LTEuNGMwLjQtMC40IDEtMC40IDEuNCwwbC4xLC4xIDUuNSw1LjljMC4yLDAuMiAwLjUsMC4yIDAuNywwbDEzLjQtMTMuOWgwLjFjMC40LTAuNCAxLTAuNCAxLjQsMGwxLjQsMS40YzAuNCwwLjMgMC40LDAuOSAwLDEuM3oiIGZpbGw9IiMwMDAwMDAiLz4KPC9zdmc+Cg==);
 }
 
 .grid-layout__container .zent-table-container .seperator {
@@ -137,7 +142,7 @@
 
 .grid-layout__container .control-contaianer .right-control .zent-select-text {
   width: 200px;
-  margin-left: 15px;
+  margin: 0 5px;
 }
 
 .grid-layout__container .zent-select {
@@ -163,8 +168,11 @@
 }
 
 .grid-layout__container .zent-form .zent-input-wrapper .zent-input:focus,
-.grid-layout__container .zent-form .zent-input-wrapper .zent-input:active {
-  box-shadow: 0 0 5px #e3e9f3;
+.grid-layout__container .zent-form .zent-input-wrapper .zent-input:active,
+.grid-layout__container .zent-form .zent-input-wrapper .zent-textarea:focus,
+.grid-layout__container .zent-form .zent-input-wrapper .zent-textarea:active {
+  box-shadow: 0 0 5px #bdf;
+  border: 1px solid #38f;
 }
 
 .grid-layout__container .zent-form .zent-select-text {
@@ -172,7 +180,8 @@
   line-height: 30px;
 }
 
-.grid-layout__container .zent-form .custom-input__date {
+.grid-layout__container .zent-form .custom-input__date,
+.adviserForm .zent-input-wrapper .zent-input {
   height: 40px;
   line-height: 30px;
   outline: none;
@@ -200,8 +209,11 @@
 }
 
 .grid-layout__container .zent-form .custom-input__date:focus,
-.grid-layout__container .zent-form .custom-input__date:active {
-  box-shadow: 0 0 5px #e3e9f3;
+.grid-layout__container .zent-form .custom-input__date:active,
+.adviserForm .zent-input-wrapper .zent-input:focus,
+.adviserForm .zent-input-wrapper .zent-input:active {
+  box-shadow: 0 0 5px #bdf;
+  border: 1px solid #38f;
 }
 
 .grid-layout__container .zent-form .zent-input-wrapper .zent-input {

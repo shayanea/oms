@@ -36,7 +36,7 @@ a {
 #root {
   background-color: #f9f9f9;
   margin-top: 50px;
-  height: calc(100% - 50px);
+  height: calc(100vh - 50px);
 }
 
 input:-webkit-autofill,
@@ -253,19 +253,27 @@ select:-webkit-autofill {
   color: #999;
 }
 
-.container .zent-table .tfoot {
+.zent-table .tfoot {
   display: none;
 }
 
-.container .zent-table-container .cell__child-container {
+.zent-table-container .cell__child-container {
   text-align: center;
 }
 
-.container .zent-table .cell .select-check {
+.zent-table .cell .select-check {
   left: auto;
   right: 10px;
 }
 
-.container .zent-table .zent-checkbox-wrap {
+.zent-table .zent-checkbox-wrap {
   margin-right: 0;
+}
+
+.zent-page-loading .zent-page-mask::after {
+  border-color: #444 transparent transparent;
+}
+
+.adviser-tabel .cell:last-child .cell__child-container {
+  text-align: center;
 }

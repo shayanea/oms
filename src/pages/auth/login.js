@@ -19,7 +19,7 @@ class Login extends Component {
 
 	submit = data => {
 		this.props.loginUser({
-			username: data.username,
+			email: data.email,
 			password: data.password
 		});
 	};
@@ -37,16 +37,18 @@ class Login extends Component {
 						onSubmit={handleSubmit(this.submit)}
 					>
 						<FormInputField
-							name="username"
-							type="text"
+							name="email"
+							type="email"
 							label="ایمیل"
 							validateOnChange={false}
 							validateOnBlur={false}
 							validations={{
-								required: true
+								required: true,
+								isEmail: true
 							}}
 							validationErrors={{
-								required: " ایمیل اجباری است."
+								required: " ایمیل اجباری است.",
+								isEmail: "فرمت ایمیل وارد شده اشتباه است."
 							}}
 						/>
 						<FormInputField
