@@ -12,7 +12,7 @@ import ProductModal from "../../components/order/selectProduct";
 moment.loadPersian({ dialect: "persian-modern" });
 const { createForm, FormInputField, FormSelectField, FormCheckboxField } = Form;
 const { Col, Row } = Layout;
-const dataList = [{ name: "پیشخوان", href: "/" }, { name: "ثبت سفارش" }];
+const dataList = [{ name: "پیشخوان", href: "/" }, { name: "ویرایش سفارش" }];
 
 class AddOrder extends Component {
   constructor(props) {
@@ -22,16 +22,11 @@ class AddOrder extends Component {
       month: moment().format("jM"),
       day: moment().format("jD"),
       page: {
-        pageSize: this.props.orders.size,
+        pageSize: 10,
         current: 0,
-        totalItem: this.props.orders.page
+        totalItem: this.props.orders.total
       },
       datasets: [],
-      productPage: {
-        pageSize: 0,
-        current: 0,
-        totalItem: 1
-      },
       loading: true,
       searchText: "",
       productModalStatus: false,
@@ -40,7 +35,25 @@ class AddOrder extends Component {
       advisers: [],
       selectedProduct: [],
       pageNumber: 1,
-      isLoading: false
+      isLoading: false,
+      hasHighPriority: false,
+      orderObject: {
+        adviserId: null,
+        deliveryCost: 0,
+        totalProductPrices: 0,
+        discount: 0,
+        finalAmount: 0,
+        name: "",
+        postalCode: "",
+        address: "",
+        firstPhoneNumber: "",
+        secondPhoneNumber: "",
+        deliveryTimeId: null,
+        deliveryDate: "",
+        notes: "",
+        hasHighPriority: false,
+        courierId: null
+      }
     };
   }
 
@@ -48,6 +61,7 @@ class AddOrder extends Component {
     this.props.getOrders(this.props.orders.page, this.props.orders.search);
     this.fetchProducts();
     this.fetchAdvisers();
+    this.fetchOrderById(this.props.match.params.id);
   }
 
   fetchProducts = (page = 1) => {
@@ -72,12 +86,48 @@ class AddOrder extends Component {
       });
   };
 
+  fetchOrderById = id => {
+    return axios
+      .get(`/orders/${id}`)
+      .then(res => {
+        let array = [];
+        res.data.data.products.forEach(item => {
+          array.push({ id: item.productId, number: item.count, price: item.perUnitPrice });
+        });
+        this.setState({
+          orderObject: {
+            adviserId: res.data.data.adviserId,
+            name: res.data.data.name,
+            cityId: res.data.data.cityId,
+            postalCode: res.data.data.postalCode,
+            address: res.data.data.address,
+            firstPhoneNumber: res.data.data.firstPhoneNumber,
+            secondPhoneNumber: res.data.data.secondPhoneNumber,
+            deliveryTimeId: res.data.data.deliveryTimeId,
+            notes: res.data.data.notes,
+            hasHighPriority: res.data.data.hasHighPriority,
+            deliveryCostId: res.data.data.deliveryCostId,
+            discount: res.data.data.discount
+          },
+          day: Number(moment(res.data.data.deliveryDate).jDate()),
+          month: Number(moment(res.data.data.deliveryDate).format("jMM")),
+          year: Number(moment(res.data.data.deliveryDate).jYear()),
+          selectedProduct: array,
+          statusId: res.data.data.statusId
+        });
+      })
+      .catch(err => {
+        Notify.error(err.data !== null && typeof err.data !== "undefined" ? err.data.error.errorDescription : "در برقراری ارتباط مشکلی به وجود آمده است.", 5000);
+      });
+  };
+
   componentDidUpdate(prevProps) {
     if (prevProps.orders.items !== this.props.orders.items) {
       this.setState({
         page: {
+          pageSize: 10,
           current: this.props.orders.page,
-          totalItem: this.props.orders.size
+          totalItem: this.props.orders.total
         },
         loading: this.props.orders.loading,
         datasets: this.props.orders.items
@@ -90,7 +140,7 @@ class AddOrder extends Component {
       page: {
         pageSize: 10,
         current: conf.current,
-        totalItem: this.props.orders.size
+        totalItem: this.props.orders.total
       }
     });
     this.props.getOrders(conf.current, this.props.orders.search);
@@ -126,7 +176,7 @@ class AddOrder extends Component {
   calculateTotalPrice = () => {
     if (this.state.selectedProduct.length) {
       let productTotalAmount = 0;
-      this.state.selectedProduct.forEach(item => (productTotalAmount += item.total));
+      this.state.selectedProduct.forEach(item => (productTotalAmount += item.number * item.price));
       return productTotalAmount;
     }
     return 0;
@@ -149,7 +199,7 @@ class AddOrder extends Component {
         array.push({ productId: item.id, count: item.number });
       });
       axios
-        .post("/orders", {
+        .put(`/orders/${this.props.match.params.id}`, {
           adviserId: data.adviserId,
           deliveryCostId: data.deliveryCostId,
           discount: data.discount === "" ? 0 : data.discount,
@@ -162,8 +212,9 @@ class AddOrder extends Component {
           deliveryTimeId: data.deliveryTimeId,
           deliveryDate: this.calculateDate(this.state.day, this.state.month, this.state.year),
           notes: data.notes,
-          hasHighPriority: data.hasHighPriority,
-          products: array
+          hasHighPriority: this.state.hasHighPriority,
+          products: array,
+          statusId: this.state.statusId
         })
         .then(res => {
           this.setState({ isLoading: false, selectedProduct: [], selectedCity: null });
@@ -179,7 +230,7 @@ class AddOrder extends Component {
 
   render() {
     const { handleSubmit } = this.props;
-    const { year, month, day, searchText, page, datasets, selectedProduct, productModalStatus, products, advisers, isLoading } = this.state;
+    const { year, month, day, searchText, page, datasets, selectedProduct, productModalStatus, products, advisers, isLoading, orderObject } = this.state;
     const columns1 = [
       {
         title: "شماره فاکتور",
@@ -245,7 +296,7 @@ class AddOrder extends Component {
         title: "مجموع",
         width: "25%",
         bodyRender: data => {
-          return <React.Fragment>{parseFloat(data.total).toLocaleString("fa")} تومان</React.Fragment>;
+          return <React.Fragment>{parseFloat(data.price * data.number).toLocaleString("fa")} تومان</React.Fragment>;
         }
       }
     ];
@@ -283,11 +334,11 @@ class AddOrder extends Component {
                 optionValue="id"
                 optionText="lastName"
                 searchPlaceholder="جستجو"
-                // onChange={item => this.setState({ selectedCity: item })}
                 filter={(item, keyword) => item.lastName.indexOf(keyword) > -1}
                 required
                 validations={{ required: true }}
                 validationErrors={{ required: "مشاور اجباری است." }}
+                value={orderObject.adviserId}
               />
               <FormInputField
                 name="name"
@@ -301,10 +352,11 @@ class AddOrder extends Component {
                 validationErrors={{
                   required: " نام و نام خانوادگی سفارش دهنده اجباری است."
                 }}
+                value={orderObject.name}
               />
               <Row>
                 <Col className="col-padding" span={12}>
-                  <FormInputField name="postalCode" type="text" placeholder="کد پستی" />
+                  <FormInputField name="postalCode" type="text" placeholder="کد پستی" value={orderObject.postalCode} />
                 </Col>
                 <Col className="col-padding" span={12}>
                   <FormSelectField
@@ -320,6 +372,7 @@ class AddOrder extends Component {
                     required
                     validations={{ required: true }}
                     validationErrors={{ required: "شهر یا استان اجباری است." }}
+                    value={orderObject.cityId}
                   />
                 </Col>
               </Row>
@@ -337,8 +390,9 @@ class AddOrder extends Component {
                     validationErrors={{
                       required: " شماره تماس ۱ اجباری است."
                     }}
+                    value={orderObject.firstPhoneNumber}
                   />
-                  <FormInputField name="secondPhoneNumber" type="number" placeholder="شماره تماس ۲" />
+                  <FormInputField name="secondPhoneNumber" type="number" placeholder="شماره تماس ۲" value={orderObject.secondPhoneNumber} />
                 </Col>
                 <Col className="col-padding" span={12}>
                   <FormInputField
@@ -354,6 +408,7 @@ class AddOrder extends Component {
                     validationErrors={{
                       required: " آدرس اجباری است."
                     }}
+                    value={orderObject.address}
                   />
                 </Col>
               </Row>
@@ -362,32 +417,35 @@ class AddOrder extends Component {
                   <input
                     type="number"
                     className={"custom-input__date"}
-                    defaultValue={year}
+                    // defaultValue={year}
                     name="year"
                     min="1397"
                     max="1405"
                     placeholder="سال"
                     onChange={e => this.setState({ year: e.target.value })}
+                    value={year}
                   />
                   <input
                     type="number"
                     className={"custom-input__date"}
-                    defaultValue={month}
+                    // defaultValue={month}
                     name="month"
                     min="1"
                     max="12"
                     placeholder="ماه"
                     onChange={e => this.setState({ month: e.target.value })}
+                    value={month}
                   />
                   <input
                     type="number"
                     className={"custom-input__date"}
-                    defaultValue={day}
+                    // defaultValue={day}
                     name="day"
                     min="1"
                     max="31"
                     placeholder="روز"
                     onChange={e => this.setState({ day: e.target.value })}
+                    value={day}
                   />
                 </Col>
                 <Col className="col-padding" span={12}>
@@ -424,11 +482,14 @@ class AddOrder extends Component {
                     validationErrors={{
                       required: "بازه زمانی ارسال اجباری است."
                     }}
+                    value={orderObject.deliveryTimeId}
                   />
                 </Col>
               </Row>
-              <FormInputField name="notes" type="textarea" placeholder="توضیحات" />
-              <FormCheckboxField name="hasHighPriority">ارسال فوری سفارش در الویت ارسال قرار گیرد</FormCheckboxField>
+              <FormInputField name="notes" type="textarea" placeholder="توضیحات" value={orderObject.notes} />
+              <FormCheckboxField name="hasHighPriority" checked={orderObject.hasHighPriority} onChange={e => this.setState({ isActive: e.target.checked })}>
+                ارسال فوری سفارش در الویت ارسال قرار گیرد
+              </FormCheckboxField>
               <div className="border-line" />
               <div className="product-list__header">
                 <h2>کالا</h2>
@@ -449,7 +510,7 @@ class AddOrder extends Component {
               </div>
               <Row>
                 <Col span={12} className="col-padding">
-                  <FormInputField name="discount" type="text" placeholder="تخفیف" />
+                  <FormInputField name="discount" type="text" placeholder="تخفیف" value={orderObject.discount} />
                 </Col>
                 <Col span={12} className="col-padding">
                   <FormSelectField
@@ -490,11 +551,12 @@ class AddOrder extends Component {
                     validationErrors={{
                       required: "هزینه حمل اجباری است."
                     }}
+                    value={orderObject.deliveryCostId}
                   />
                 </Col>
               </Row>
               <Button htmlType="submit" className="submit-btn" type="primary" size="large" loading={isLoading}>
-                ثبت سفارش
+                ویرایش سفارش
               </Button>
             </Form>
           </Col>

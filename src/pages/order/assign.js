@@ -19,7 +19,7 @@ class AssingOrder extends Component {
     moment.loadPersian({ dialect: "persian-modern" });
     this.state = {
       page: {
-        pageSize: 10,
+        pageSize: 30,
         current: 0,
         totalItem: this.props.orders.page
       },
@@ -54,6 +54,7 @@ class AssingOrder extends Component {
     if (prevProps.orders.items !== this.props.orders.items) {
       this.setState({
         page: {
+          pageSize: 30,
           current: this.props.orders.page,
           totalItem: this.props.orders.total
         },
@@ -66,7 +67,7 @@ class AssingOrder extends Component {
   onChange(conf) {
     this.setState({
       page: {
-        pageSize: 10,
+        pageSize: 30,
         current: conf.current,
         totalItem: this.props.orders.total
       }
@@ -201,7 +202,6 @@ class AssingOrder extends Component {
               </div>
               <SearchInput value={searchText} onChange={this.onSearchChange} placeholder="جستجو" onPressEnter={this.onPressEnter} />
             </div>
-
             <Table
               emptyLabel={"هیچ آیتمی در این لیست وجود ندارد."}
               columns={columns}
@@ -246,7 +246,6 @@ AssingOrder.propTypes = {
     isLoading: PropTypes.bool.isRequired,
     items: PropTypes.array.isRequired,
     page: PropTypes.number.isRequired,
-    total: PropTypes.number.isRequired,
     search: PropTypes.string.isRequired
   })
 };

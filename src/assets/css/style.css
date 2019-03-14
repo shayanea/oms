@@ -24,6 +24,7 @@ body {
   padding: 0;
   font-family: "SAMIM";
   overflow-x: hidden;
+  background-color: #f9f9f9;
   /* height: 100%; */
 }
 
@@ -34,9 +35,7 @@ a {
 
 .dashboard,
 #root {
-  background-color: #f9f9f9;
   margin-top: 50px;
-  height: calc(100vh - 50px);
 }
 
 input:-webkit-autofill,
@@ -139,6 +138,11 @@ select:-webkit-autofill:focus {
 .zent-table .tfoot__page {
   float: none;
   display: block;
+}
+
+.zent-table .zent-pagination__info,
+.products-table .zent-pagination__info {
+  display: none;
 }
 
 .zent-pagination {
@@ -251,10 +255,6 @@ select:-webkit-autofill {
 
 .container .zent-search-input .zenticon-search {
   color: #999;
-}
-
-.zent-table .tfoot {
-  display: none;
 }
 
 .zent-table-container .cell__child-container {

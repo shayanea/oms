@@ -7,13 +7,17 @@ const { Col, Row } = Layout;
 const dataList = [{ name: "پیشخوان", href: "/" }, { name: "ویرایش کاربر" }];
 
 class EditUser extends Component {
-  state = {
-    isLoading: false,
-    name: "",
-    email: "",
-    phoneNumber: "",
-    password: ""
-  };
+  constructor() {
+    super();
+    this.userInfo = JSON.parse(localStorage.getItem("USER_INFO"));
+    this.state = {
+      isLoading: false,
+      name: "",
+      email: "",
+      phoneNumber: "",
+      password: ""
+    };
+  }
 
   componentDidMount() {
     this.fetchUserAndProfileById(this.props.match.params.id);
@@ -35,7 +39,6 @@ class EditUser extends Component {
           email: res[0].data.data[0].email,
           phoneNumber: res[0].data.data[0].phoneNumber
         });
-        Notify.success("اطلاعات شما با موفقیت به روز رسانی گردید.", 5000);
       })
       .catch(err => {
         Notify.error(err.data !== null && typeof err.data !== "undefined" ? err.data.error.errorDescription : "در برقراری ارتباط مشکلی به وجود آمده است.", 5000);
@@ -53,6 +56,7 @@ class EditUser extends Component {
         password: data.password
       })
       .then(res => {
+        Notify.success("اطلاعات شما با موفقیت به روز رسانی گردید.", 5000);
         this.props.history.push("/user/list");
       })
       .catch(err => {

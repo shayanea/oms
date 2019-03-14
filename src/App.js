@@ -17,6 +17,7 @@ import ManageOrder from "./pages/order/manage";
 import OrderList from "./pages/order/list";
 import AssingOrder from "./pages/order/assign";
 import AddOrder from "./pages/order/add";
+import EditOrder from "./pages/order/edit";
 // Products
 import ProductList from "./pages/product/list";
 import AddProduct from "./pages/product/add";
@@ -148,6 +149,7 @@ class Main extends Component {
               <AuthRoute exact path="/orders/manage" component={ManageOrder} />
               <AuthRoute exact path="/orders/assign" component={AssingOrder} />
               <AuthRoute exact path="/order/add" component={AddOrder} />
+              <AuthRoute exact path="/order/edit/:id" component={EditOrder} />
               {/* product route */}
               <AuthRoute exact path="/products/list" component={ProductList} />
               <AuthRoute exact path="/product/add" component={AddProduct} />

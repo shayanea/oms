@@ -7,7 +7,8 @@ import { getAllOrders } from "../../actions/orderActions";
 import axios from "../../utils/requestConfig";
 import City from "../../assets/city.json";
 
-import { Layout, Breadcrumb, SearchInput, Table, Select, Notify, Sweetalert } from "zent";
+import { Layout, Breadcrumb, SearchInput, Table, Select, Notify, Sweetalert, Button } from "zent";
+import ChangeStatus from "../../components/order/changeStatus";
 
 const { Col, Row } = Layout;
 const dataList = [{ name: "پیشخوان", href: "/" }, { name: "مدیریت سفارش‌ها" }];
@@ -18,19 +19,21 @@ class OrderList extends Component {
     moment.loadPersian({ dialect: "persian-modern" });
     this.state = {
       page: {
-        pageSize: this.props.orders.size,
+        pageSize: 30,
         current: 0,
-        totalItem: this.props.orders.page
+        totalItem: this.props.orders.total
       },
       datasets: [],
       products: [],
       couriers: [],
       loading: true,
       searchText: "",
+      modalStatus: false,
       selectedCityId: null,
       selectedProductId: null,
       selectedStatusId: null,
-      courierId: ""
+      courierId: "",
+      selectedRowKeys: []
     };
   }
 
@@ -66,8 +69,9 @@ class OrderList extends Component {
     if (prevProps.orders.items !== this.props.orders.items) {
       this.setState({
         page: {
+          pageSize: 30,
           current: this.props.orders.page,
-          totalItem: this.props.orders.size
+          totalItem: this.props.orders.total
         },
         loading: this.props.orders.loading,
         datasets: this.props.orders.items
@@ -78,9 +82,9 @@ class OrderList extends Component {
   onChange(conf) {
     this.setState({
       page: {
-        pageSize: 10,
+        pageSize: 30,
         current: conf.current,
-        totalItem: this.props.orders.size
+        totalItem: this.props.orders.total
       }
     });
     this.props.getAllOrders(conf.current, this.props.orders.search);
@@ -125,6 +129,12 @@ class OrderList extends Component {
       this.state.selectedStatusId
     );
   };
+
+  onSelect(selectedRowKeys, selectedRows, currentRow) {
+    this.setState({
+      selectedRowKeys
+    });
+  }
 
   findStatusById = type => {
     switch (Number(type)) {
@@ -208,8 +218,15 @@ class OrderList extends Component {
       });
   };
 
+  onToggleModal = () => this.setState({ modalStatus: !this.state.modalStatus });
+
+  onChangeStatus = () => {
+    this.setState({ modalStatus: false, selectedRowKeys: [] });
+    this.props.getAllOrders(this.props.orders.page, this.state.searchText, this.state.selectedCityId, this.state.selectedProductId, this.state.selectedStatusId);
+  };
+
   render() {
-    const { searchText, datasets, page, products, couriers } = this.state;
+    const { searchText, datasets, page, products, couriers, selectedRowKeys, modalStatus } = this.state;
     const columns = [
       {
         title: "شماره فاکتور",
@@ -277,6 +294,7 @@ class OrderList extends Component {
         }
       }
     ];
+    let self = this;
     return (
       <div className="container">
         <h2 className="page-title">مدیریت سفارش‌ها</h2>
@@ -335,11 +353,11 @@ class OrderList extends Component {
                   placeholder="انتخاب شهر یا استان."
                   data={[{ id: null, fullName: "همه شهر‌ها" }, ...City]}
                   autoWidth
-                  optionValue="value"
-                  optionText="display"
+                  optionValue="id"
+                  optionText="fullName"
                   onChange={this.selectCityHandler}
                   searchPlaceholder="جستجو"
-                  filter={(item, keyword) => item.value.indexOf(keyword) > -1}
+                  filter={(item, keyword) => item.fullName.indexOf(keyword) > -1}
                 />
               </div>
               <SearchInput value={searchText} onChange={this.onSearchChange} placeholder="جستجو" onPressEnter={this.onPressEnter} />
@@ -351,10 +369,29 @@ class OrderList extends Component {
               onChange={this.onChange.bind(this)}
               getRowConf={this.getRowConf}
               pageInfo={page}
-              rowKey="orderId"
+              rowKey="id"
+              selection={{
+                selectedRowKeys: this.state.selectedRowKeys,
+                needCrossPage: true,
+                onSelect: (selectedRowKeys, selectedRows, currentRow) => {
+                  self.onSelect(selectedRowKeys, selectedRows, currentRow);
+                }
+              }}
             />
+            <Button
+              htmlType="submit"
+              className="submit-btn"
+              type="primary"
+              size="large"
+              style={{ marginTop: "15px" }}
+              disabled={!selectedRowKeys.length}
+              onClick={this.onToggleModal}
+            >
+              تغییر وضعیت
+            </Button>
           </Col>
         </Row>
+        <ChangeStatus modalStatus={modalStatus} onToggleModal={this.onToggleModal} onChangeStatus={this.onChangeStatus} selectedRowKeys={selectedRowKeys} />
       </div>
     );
   }

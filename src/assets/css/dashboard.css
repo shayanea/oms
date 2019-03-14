@@ -170,7 +170,9 @@
 .grid-layout__container .zent-form .zent-input-wrapper .zent-input:focus,
 .grid-layout__container .zent-form .zent-input-wrapper .zent-input:active,
 .grid-layout__container .zent-form .zent-input-wrapper .zent-textarea:focus,
-.grid-layout__container .zent-form .zent-input-wrapper .zent-textarea:active {
+.grid-layout__container .zent-form .zent-input-wrapper .zent-textarea:active,
+.container .zent-search-input .zent-input-wrapper .zent-input:focus,
+.container .zent-search-input .zent-input-wrapper .zent-input:active {
   box-shadow: 0 0 5px #bdf;
   border: 1px solid #38f;
 }
