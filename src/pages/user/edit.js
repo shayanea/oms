@@ -51,7 +51,6 @@ class EditUser extends Component {
     axios
       .put(`/accounts/${this.props.match.params.id}`, {
         name: data.name,
-        email: data.email,
         phoneNumber: data.phoneNumber,
         password: data.password
       })
@@ -67,7 +66,7 @@ class EditUser extends Component {
 
   render() {
     const { handleSubmit } = this.props;
-    const { email, password, phoneNumber, name } = this.state;
+    const { password, phoneNumber, name } = this.state;
     return (
       <div className="container">
         <Breadcrumb breads={dataList} />
@@ -109,20 +108,6 @@ class EditUser extends Component {
                   required: " رمز عبور اجباری است."
                 }}
                 value={password}
-              />
-              <FormInputField
-                name="email"
-                type="email"
-                placeholder="ایمیل"
-                validateOnChange={false}
-                validateOnBlur={false}
-                validations={{
-                  required: true
-                }}
-                validationErrors={{
-                  required: " ایمیل اجباری است."
-                }}
-                value={email}
               />
               <FormInputField
                 name="phoneNumber"
