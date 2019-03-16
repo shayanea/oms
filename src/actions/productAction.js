@@ -13,7 +13,7 @@ export const getProducts = page => dispatch => {
     }
   });
   return axios
-    .get(`/products?_pageSize=10&_pageNumber=${page}`)
+    .get(`/products?_PageSize=30&_pageNumber=${page}`)
     .then(res => {
       dispatch({
         type: type.FETCH_PRODUCTS,

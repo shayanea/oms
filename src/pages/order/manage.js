@@ -2,8 +2,9 @@ import React, { Component } from "react";
 import { connect } from "react-redux";
 import PropTypes from "prop-types";
 import { Link } from "react-router-dom";
-import * as moment from "moment-jalaali";
 import { getAllOrders } from "../../actions/orderActions";
+import { json2excel, excel2json } from "js2excel";
+import * as moment from "moment-jalaali";
 import axios from "../../utils/requestConfig";
 import City from "../../assets/city.json";
 
@@ -252,6 +253,18 @@ class OrderList extends Component {
     this.props.getAllOrders(this.props.orders.page, this.state.searchText, this.state.selectedCityId, this.state.selectedProductId, this.state.selectedStatusId);
   };
 
+  exoprtExcel = () => {
+    try {
+      json2excel({
+        data: this.state.datasets,
+        name: "user-info-data"
+        // formateDate: 'yyyy/mm/dd'
+      });
+    } catch (e) {
+      console.error("export error");
+    }
+  };
+
   render() {
     const { searchText, datasets, page, products, couriers, selectedRowKeys, modalStatus } = this.state;
     const columns = [
@@ -421,6 +434,9 @@ class OrderList extends Component {
               onClick={this.onToggleModal}
             >
               تغییر وضعیت
+            </Button>
+            <Button htmlType="submit" className="submit-btn" type="primary" size="large" style={{ marginTop: "15px", marginRight: "15px" }} onClick={this.exoprtExcel}>
+              خروجی Excel
             </Button>
           </Col>
         </Row>

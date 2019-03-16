@@ -13,7 +13,7 @@ export const getAdvisers = page => dispatch => {
     }
   });
   return axios
-    .get(`/advisers?_pageSize=10&_pageNumber=${page}`)
+    .get(`/advisers?_PageSize=30&_pageNumber=${page}`)
     .then(res => {
       dispatch({
         type: type.FETCH_ADVISER,

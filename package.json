@@ -5,6 +5,7 @@
   "dependencies": {
     "axios": "^0.18.0",
     "history": "^4.7.2",
+    "js2excel": "^1.0.1",
     "moment-jalaali": "^0.8.3",
     "react": "^16.7.0",
     "react-click-outside": "^3.0.1",

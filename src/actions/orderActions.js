@@ -15,7 +15,7 @@ export const getOrders = (page, search) => dispatch => {
     }
   });
   axios
-    .get(`/orders?PageNumber=${page}&PageSize=10&StatusId=101&_sort=-CreationDateTime&CreatedByAccountId=${userInfo.accountId}${searchQuery}`)
+    .get(`/orders?PageNumber=${page}&PageSize=30&StatusId=101&_sort=-CreationDateTime&CreatedByAccountId=${userInfo.accountId}${searchQuery}`)
     .then(res => {
       dispatch({
         type: type.FETCH_ORDERS,
@@ -55,7 +55,7 @@ export const getNonAssignOrders = (page, search, city = null, product = null) =>
     }
   });
   axios
-    .get(`/orders?PageNumber=${page}&PageSize=10&StatusId=101&_sort=-CreationDateTime${cityQuery}${searchQuery}`)
+    .get(`/orders?PageNumber=${page}&PageSize=30&StatusId=101&_sort=-CreationDateTime${cityQuery}${searchQuery}`)
     .then(res => {
       dispatch({
         type: type.FETCH_ORDERS,
@@ -99,7 +99,7 @@ export const getAssignOrders = (page, search, city = null, product = null, couri
     }
   });
   axios
-    .get(`/orders?PageNumber=${page}&PageSize=10&StatusId=201&_sort=-CreationDateTime${cityQuery}${productQuery}${courierQuery}${searchQuery}`)
+    .get(`/orders?PageNumber=${page}&PageSize=30&StatusId=201&_sort=-CreationDateTime${cityQuery}${productQuery}${courierQuery}${searchQuery}`)
     .then(res => {
       dispatch({
         type: type.FETCH_ORDERS,
@@ -144,7 +144,7 @@ export const getAllOrders = (page, search, city = null, product = null, courier 
     }
   });
   axios
-    .get(`/orders?PageNumber=${page}&PageSize=10&_sort=-CreationDateTime${cityQuery}${productQuery}${courierQuery}${statusQuery}${searchQuery}`)
+    .get(`/orders?PageNumber=${page}&PageSize=30&_sort=-CreationDateTime${cityQuery}${productQuery}${courierQuery}${statusQuery}${searchQuery}`)
     .then(res => {
       dispatch({
         type: type.FETCH_ORDERS,

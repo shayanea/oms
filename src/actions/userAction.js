@@ -44,7 +44,7 @@ export const getUsers = page => dispatch => {
     }
   });
   return axios
-    .get(`/accounts?_pageSize=10&_pageNumber=${page}`)
+    .get(`/accounts?_PageSize=30&_pageNumber=${page}`)
     .then(res => {
       let result = res.data.data.map(e => e.id).join(",");
       if (result !== "") {
