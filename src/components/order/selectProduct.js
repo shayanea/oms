@@ -10,6 +10,18 @@ class ProductModal extends Component {
     number: 1
   };
 
+  toEnglishDigits(string) {
+    var e = "۰".charCodeAt(0);
+    string = string.replace(/[۰-۹]/g, function(t) {
+      return t.charCodeAt(0) - e;
+    });
+    e = "٠".charCodeAt(0);
+    string = string.replace(/[٠-٩]/g, function(t) {
+      return t.charCodeAt(0) - e;
+    });
+    return string;
+  }
+
   submit = data => {
     let result = this.props.products.find(item => item.id === data.id);
     this.props.onSelectProduct({
@@ -54,10 +66,10 @@ class ProductModal extends Component {
                 <div className="zent-form__controls">
                   <div className="zent-input-wrapper">
                     <input
-                      type="number"
+                      type="text"
                       className={"custom-input__date zent-input"}
                       defaultValue={number}
-                      onChange={e => this.setState({ number: e.target.value })}
+                      onChange={e => this.setState({ number: this.toEnglishDigits(e.target.value) })}
                       name="count"
                       min="1"
                       max="100"

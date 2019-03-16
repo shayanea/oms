@@ -12,6 +12,19 @@ class AddProduct extends Component {
     price: 0
   };
 
+  toEnglishDigits(string) {
+    string = typeof string === "number" ? JSON.stringify(string) : string;
+    var e = "۰".charCodeAt(0);
+    string = string.replace(/[۰-۹]/g, function(t) {
+      return t.charCodeAt(0) - e;
+    });
+    e = "٠".charCodeAt(0);
+    string = string.replace(/[٠-٩]/g, function(t) {
+      return t.charCodeAt(0) - e;
+    });
+    return string;
+  }
+
   submit = data => {
     this.setState({ isLoading: true });
     axios
@@ -60,12 +73,11 @@ class AddProduct extends Component {
                 }}
               />
               <FormInputField name="code" type="text" placeholder="کد" />
+              {/* <span>{this.state.price && parseFloat(this.state.price).toLocaleString("fa")} ریال</span> */}
               <FormInputField
                 name="price"
-                type="number"
-                placeholder="قیمت (تومان)"
-                // onChange={e => this.setState({ price: parseFloat(e.target.value).toLocaleString("fa") })}
-                value={this.state.price}
+                type="text"
+                placeholder="قیمت (ریال)"
                 validateOnChange={false}
                 validateOnBlur={false}
                 validations={{
@@ -74,6 +86,7 @@ class AddProduct extends Component {
                 validationErrors={{
                   required: " قیمت اجباری است."
                 }}
+                value={this.state.price}
               />
               <FormInputField name="description" type="textarea" placeholder="توضیحات" />
               <FormCheckboxField name="isAvailable">موجود</FormCheckboxField>

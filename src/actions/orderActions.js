@@ -143,7 +143,7 @@ export const getAllOrders = (page, search, city = null, product = null, courier 
     }
   });
   axios
-    .get(`/orders?PageNumber=${page}&PageSize=10&StatusId=201&_sort=-CreationDateTime${cityQuery}${productQuery}${courierQuery}${statusQuery}${searchQuery}`)
+    .get(`/orders?PageNumber=${page}&PageSize=10&_sort=-CreationDateTime${cityQuery}${productQuery}${courierQuery}${statusQuery}${searchQuery}`)
     .then(res => {
       dispatch({
         type: type.FETCH_ORDERS,

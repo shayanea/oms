@@ -26,6 +26,7 @@ class OrderList extends Component {
       datasets: [],
       products: [],
       couriers: [],
+      orderProducts: [],
       loading: true,
       searchText: "",
       modalStatus: false,
@@ -65,17 +66,34 @@ class OrderList extends Component {
       });
   };
 
+  fetchOrderProducts = () => {
+    if (this.state.datasets.length > 0) {
+      let result = this.state.datasets.map(e => e.id).join(",");
+      return axios
+        .get(`/orderproducts?OrderId=${result}&OrderId_op=in`)
+        .then(res => {
+          this.setState({ orderProducts: res.data.data });
+        })
+        .catch(err => {
+          Notify.error(err.data !== null && typeof err.data !== "undefined" ? err.data.error.errorDescription : "در برقراری ارتباط مشکلی به وجود آمده است.", 5000);
+        });
+    }
+  };
+
   componentDidUpdate(prevProps) {
-    if (prevProps.orders.items !== this.props.orders.items) {
-      this.setState({
-        page: {
-          pageSize: 30,
-          current: this.props.orders.page,
-          totalItem: this.props.orders.total
+    if (prevProps.orders.items.length !== this.props.orders.items.length) {
+      this.setState(
+        {
+          page: {
+            pageSize: 30,
+            current: this.props.orders.page,
+            totalItem: this.props.orders.total
+          },
+          loading: this.props.orders.loading,
+          datasets: this.props.orders.items
         },
-        loading: this.props.orders.loading,
-        datasets: this.props.orders.items
-      });
+        this.fetchOrderProducts
+      );
     }
   }
 
@@ -170,7 +188,16 @@ class OrderList extends Component {
     return result ? result.fullName : "";
   };
 
-  removeUser = id => {
+  findProductById = id => {
+    let result = this.state.orderProducts.find(item => item.orderId === id);
+    if (result) {
+      let product = this.state.products.find(item => item.id === result.productId);
+      return product ? product.title : "";
+    }
+    return null;
+  };
+
+  removeOrder = id => {
     Sweetalert.confirm({
       confirmType: "success",
       confirmText: "بله",
@@ -225,6 +252,12 @@ class OrderList extends Component {
         }
       },
       {
+        title: "کالا",
+        bodyRender: data => {
+          return this.findProductById(data.id);
+        }
+      },
+      {
         title: "وضعیت",
         bodyRender: data => {
           return this.findStatusById(data.statusId);
@@ -267,7 +300,7 @@ class OrderList extends Component {
         bodyRender: data => {
           return (
             <React.Fragment>
-              <span className="remove-item" onClick={() => this.removeUser(data.id)} />
+              <span className="remove-item" onClick={() => this.removeOrder(data.id)} />
               <Link to={`/order/edit/${data.id}`}>
                 <span className="edit-item" />
               </Link>

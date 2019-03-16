@@ -1,12 +1,13 @@
 import React, { Component } from "react";
 import { connect } from "react-redux";
+import { Link } from "react-router-dom";
 import PropTypes from "prop-types";
 import * as moment from "moment-jalaali";
 import { getOrders } from "../../actions/orderActions";
 import City from "../../assets/city.json";
 import axios from "../../utils/requestConfig";
 
-import { Layout, Breadcrumb, SearchInput, Table, Form, Notify, Button } from "zent";
+import { Layout, Breadcrumb, SearchInput, Table, Form, Notify, Button, Sweetalert } from "zent";
 import ProductModal from "../../components/order/selectProduct";
 
 moment.loadPersian({ dialect: "persian-modern" });
@@ -38,7 +39,7 @@ class AddOrder extends Component {
       isLoading: false,
       hasHighPriority: false,
       orderObject: {
-        adviserId: null,
+        adviserId: "",
         deliveryCost: 0,
         totalProductPrices: 0,
         discount: 0,
@@ -48,7 +49,8 @@ class AddOrder extends Component {
         address: "",
         firstPhoneNumber: "",
         secondPhoneNumber: "",
-        deliveryTimeId: null,
+        deliveryTimeId: "",
+        deliveryCostId: "",
         deliveryDate: "",
         notes: "",
         hasHighPriority: false,
@@ -133,6 +135,23 @@ class AddOrder extends Component {
         datasets: this.props.orders.items
       });
     }
+
+    if (this.props.match.params.id !== prevProps.match.params.id) {
+      this.fetchOrderById(this.props.match.params.id);
+    }
+  }
+
+  toEnglishDigits(string) {
+    string = typeof string === "number" ? JSON.stringify(string) : string;
+    var e = "۰".charCodeAt(0);
+    string = string.replace(/[۰-۹]/g, function(t) {
+      return t.charCodeAt(0) - e;
+    });
+    e = "٠".charCodeAt(0);
+    string = string.replace(/[٠-٩]/g, function(t) {
+      return t.charCodeAt(0) - e;
+    });
+    return string;
   }
 
   onChange(conf) {
@@ -191,6 +210,43 @@ class AddOrder extends Component {
     return moment(`${year}/${month}/${day}}`, "jYYYY/jM/jD").format();
   };
 
+  getRowConf(data, index) {
+    return {
+      canSelect: 0,
+      rowClass: data.newObject ? `new-row` : ``
+    };
+  }
+
+  removeOrder = id => {
+    Sweetalert.confirm({
+      confirmType: "success",
+      confirmText: "بله",
+      cancelText: "منصرف شدم",
+      content: "آیا مطمیین به حذف این سفارش هستید ؟",
+      title: "",
+      className: "custom-sweetalert",
+      maskClosable: true,
+      parentComponent: this,
+      onConfirm: () =>
+        new Promise(resolve => {
+          this.removeAction(id).then(() => {
+            resolve();
+          });
+        })
+    });
+  };
+
+  removeAction = id => {
+    return axios
+      .delete(`/orders/${id}`)
+      .then(res => {
+        this.props.getOrders(this.props.orders.page, this.props.orders.search);
+      })
+      .catch(err => {
+        Notify.error(err.data !== null && typeof err.data !== "undefined" ? err.data.error.errorDescription : "در برقراری ارتباط مشکلی به وجود آمده است.", 5000);
+      });
+  };
+
   submit = data => {
     if (this.state.selectedProduct.length) {
       this.setState({ isLoading: true });
@@ -200,16 +256,16 @@ class AddOrder extends Component {
       });
       axios
         .put(`/orders/${this.props.match.params.id}`, {
-          adviserId: data.adviserId,
-          deliveryCostId: data.deliveryCostId,
-          discount: data.discount === "" ? 0 : data.discount,
+          adviserId: this.state.orderObject.adviserId,
+          deliveryCostId: this.state.orderObject.deliveryCostId,
+          discount: data.discount === "" ? 0 : this.toEnglishDigits(data.discount),
           name: data.name,
           cityId: data.cityId,
           postalCode: data.postalCode,
           address: data.address,
-          firstPhoneNumber: data.firstPhoneNumber,
-          secondPhoneNumber: data.secondPhoneNumber,
-          deliveryTimeId: data.deliveryTimeId,
+          firstPhoneNumber: this.toEnglishDigits(data.firstPhoneNumber),
+          secondPhoneNumber: this.toEnglishDigits(data.secondPhoneNumber),
+          deliveryTimeId: this.state.orderObject.deliveryTimeId,
           deliveryDate: this.calculateDate(this.state.day, this.state.month, this.state.year),
           notes: data.notes,
           hasHighPriority: this.state.hasHighPriority,
@@ -268,7 +324,9 @@ class AddOrder extends Component {
           return (
             <React.Fragment>
               <span className="remove-item" onClick={() => this.removeUser(data.id)} />
-              <span className="edit-item" />
+              <Link to={`/order/edit/${data.id}`}>
+                <span className="edit-item" />
+              </Link>
             </React.Fragment>
           );
         }
@@ -300,6 +358,54 @@ class AddOrder extends Component {
         }
       }
     ];
+    const deliveryTimeObject = [
+      {
+        value: "1",
+        display: "مهم نیست"
+      },
+      {
+        value: "2",
+        display: "ساعت ۹ تا ۱۲"
+      },
+      {
+        value: "3",
+        display: "ساعت ۱۲ تا ۱۵"
+      },
+      {
+        value: "4",
+        display: "ساعت ۱۵ تا ۱۸"
+      },
+      {
+        value: "5",
+        display: "ساعت ۱۸ تا ۲۱"
+      }
+    ];
+    const deliveryCostObject = [
+      {
+        value: 1,
+        display: "رایگان"
+      },
+      {
+        value: 2,
+        display: "3 هزار تومان"
+      },
+      {
+        value: 3,
+        display: "۱۰ هزار تومان"
+      },
+      {
+        value: 4,
+        display: "۱۵ هزار تومان"
+      },
+      {
+        value: 5,
+        display: "۳۰ هزار تومان"
+      },
+      {
+        value: 6,
+        display: "۵۰ هزار تومان"
+      }
+    ];
     return (
       <div className="container">
         <Breadcrumb breads={dataList} />
@@ -326,20 +432,21 @@ class AddOrder extends Component {
             }}
           >
             <Form disableEnterSubmit={false} vertical className={"add-order__form"} onSubmit={handleSubmit(this.submit)}>
-              <FormSelectField
-                name="adviserId"
-                placeholder="مشاور"
-                autoWidth
-                data={advisers}
-                optionValue="id"
-                optionText="lastName"
-                searchPlaceholder="جستجو"
-                filter={(item, keyword) => item.lastName.indexOf(keyword) > -1}
-                required
-                validations={{ required: true }}
-                validationErrors={{ required: "مشاور اجباری است." }}
-                value={orderObject.adviserId}
-              />
+              <div className="zent-form__controls" style={{ marginBottom: "10px" }}>
+                <div className="zent-input-wrapper" style={{ height: "40px", maxHeight: "46px" }}>
+                  <select
+                    value={orderObject.adviserId}
+                    className="custome-select-input"
+                    onChange={e => this.setState({ orderObject: { ...orderObject, adviserId: e.target.value } })}
+                  >
+                    {advisers.map(item => (
+                      <option key={item.id} value={item.id}>
+                        {item.firstName} {item.lastName}
+                      </option>
+                    ))}
+                  </select>
+                </div>
+              </div>
               <FormInputField
                 name="name"
                 type="text"
@@ -380,7 +487,7 @@ class AddOrder extends Component {
                 <Col className="col-padding" span={12}>
                   <FormInputField
                     name="firstPhoneNumber"
-                    type="number"
+                    type="text"
                     placeholder="شماره تماس ۱"
                     validateOnChange={false}
                     validateOnBlur={false}
@@ -392,7 +499,7 @@ class AddOrder extends Component {
                     }}
                     value={orderObject.firstPhoneNumber}
                   />
-                  <FormInputField name="secondPhoneNumber" type="number" placeholder="شماره تماس ۲" value={orderObject.secondPhoneNumber} />
+                  <FormInputField name="secondPhoneNumber" type="text" placeholder="شماره تماس ۲" value={orderObject.secondPhoneNumber} />
                 </Col>
                 <Col className="col-padding" span={12}>
                   <FormInputField
@@ -415,81 +522,58 @@ class AddOrder extends Component {
               <Row>
                 <Col className="col-padding" span={12} style={{ display: "flex" }}>
                   <input
-                    type="number"
+                    type="text"
                     className={"custom-input__date"}
                     // defaultValue={year}
                     name="year"
                     min="1397"
                     max="1405"
                     placeholder="سال"
-                    onChange={e => this.setState({ year: e.target.value })}
+                    onChange={e => this.setState({ year: this.toEnglishDigits(e.target.value) })}
                     value={year}
                   />
                   <input
-                    type="number"
+                    type="text"
                     className={"custom-input__date"}
                     // defaultValue={month}
                     name="month"
                     min="1"
                     max="12"
                     placeholder="ماه"
-                    onChange={e => this.setState({ month: e.target.value })}
+                    onChange={e => this.setState({ month: this.toEnglishDigits(e.target.value) })}
                     value={month}
                   />
                   <input
-                    type="number"
+                    type="text"
                     className={"custom-input__date"}
                     // defaultValue={day}
                     name="day"
                     min="1"
                     max="31"
                     placeholder="روز"
-                    onChange={e => this.setState({ day: e.target.value })}
+                    onChange={e => this.setState({ day: this.toEnglishDigits(e.target.value) })}
                     value={day}
                   />
                 </Col>
                 <Col className="col-padding" span={12}>
-                  <FormSelectField
-                    name="deliveryTimeId"
-                    placeholder="بازه زمانی ارسال"
-                    autoWidth
-                    data={[
-                      {
-                        value: "1",
-                        display: "مهم نیست"
-                      },
-                      {
-                        value: "2",
-                        display: "ساعت ۹ تا ۱۲"
-                      },
-                      {
-                        value: "3",
-                        display: "ساعت ۱۲ تا ۱۵"
-                      },
-                      {
-                        value: "4",
-                        display: "ساعت ۱۵ تا ۱۸"
-                      },
-                      {
-                        value: "5",
-                        display: "ساعت ۱۸ تا ۲۱"
-                      }
-                    ]}
-                    optionValue="value"
-                    optionText="display"
-                    required
-                    validations={{ required: true }}
-                    validationErrors={{
-                      required: "بازه زمانی ارسال اجباری است."
-                    }}
-                    value={orderObject.deliveryTimeId}
-                  />
+                  <div className="zent-form__controls" style={{ marginBottom: "10px" }}>
+                    <div className="zent-input-wrapper" style={{ height: "40px", maxHeight: "46px" }}>
+                      <select
+                        value={orderObject.deliveryTimeId}
+                        className="custome-select-input"
+                        onChange={e => this.setState({ orderObject: { ...orderObject, deliveryTimeId: e.target.value } })}
+                      >
+                        {deliveryTimeObject.map(item => (
+                          <option key={item.value} value={item.value}>
+                            {item.display}
+                          </option>
+                        ))}
+                      </select>
+                    </div>
+                  </div>
                 </Col>
               </Row>
               <FormInputField name="notes" type="textarea" placeholder="توضیحات" value={orderObject.notes} />
-              <FormCheckboxField name="hasHighPriority" checked={orderObject.hasHighPriority} onChange={e => this.setState({ isActive: e.target.checked })}>
-                ارسال فوری سفارش در الویت ارسال قرار گیرد
-              </FormCheckboxField>
               <div className="border-line" />
               <div className="product-list__header">
                 <h2>کالا</h2>
@@ -513,48 +597,30 @@ class AddOrder extends Component {
                   <FormInputField name="discount" type="text" placeholder="تخفیف" value={orderObject.discount} />
                 </Col>
                 <Col span={12} className="col-padding">
-                  <FormSelectField
-                    name="deliveryCostId"
-                    label="هزینه حمل"
-                    placeholder="هزینه حمل خود را انتخاب نمایید."
-                    autoWidth
-                    data={[
-                      {
-                        value: 1,
-                        display: "رایگان"
-                      },
-                      {
-                        value: 2,
-                        display: "3 هزار تومان"
-                      },
-                      {
-                        value: 3,
-                        display: "۱۰ هزار تومان"
-                      },
-                      {
-                        value: 4,
-                        display: "۱۵ هزار تومان"
-                      },
-                      {
-                        value: 5,
-                        display: "۳۰ هزار تومان"
-                      },
-                      {
-                        value: 6,
-                        display: "۵۰ هزار تومان"
-                      }
-                    ]}
-                    optionValue="value"
-                    optionText="display"
-                    required
-                    validations={{ required: true }}
-                    validationErrors={{
-                      required: "هزینه حمل اجباری است."
-                    }}
-                    value={orderObject.deliveryCostId}
-                  />
+                  <div className="zent-form__controls" style={{ marginBottom: "10px" }}>
+                    <div className="zent-input-wrapper" style={{ height: "40px", maxHeight: "46px" }}>
+                      <select
+                        value={orderObject.deliveryCostId}
+                        className="custome-select-input"
+                        onChange={e => this.setState({ orderObject: { ...orderObject, deliveryCostId: e.target.value } })}
+                      >
+                        {deliveryCostObject.map(item => (
+                          <option key={item.value} value={item.value}>
+                            {item.display}
+                          </option>
+                        ))}
+                      </select>
+                    </div>
+                  </div>
                 </Col>
               </Row>
+              <FormCheckboxField
+                name="hasHighPriority"
+                checked={orderObject.hasHighPriority}
+                onChange={e => this.setState({ orderObject: { ...orderObject, hasHighPriority: e.target.value } })}
+              >
+                ارسال فوری سفارش در الویت ارسال قرار گیرد
+              </FormCheckboxField>
               <Button htmlType="submit" className="submit-btn" type="primary" size="large" loading={isLoading}>
                 ویرایش سفارش
               </Button>
