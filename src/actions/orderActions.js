@@ -3,7 +3,8 @@ import axios from "../utils/requestConfig";
 import { Notify } from "zent";
 
 export const getOrders = (page, search) => dispatch => {
-  let searchQuery = search !== "" ? `&SearchTerm=${search}` : "";
+  let searchQuery = search !== "" ? `&Address=${search}&Address_op=has&Address_combineOp=or&FirstPhoneNumber=${search}&FirstPhoneNumber_op=has&FirstPhoneNumber_combineOp=or` : "";
+  let userInfo = JSON.parse(localStorage.getItem("USER_INFO"));
   dispatch({
     type: type.FETCH_ORDERS,
     payload: {
@@ -14,7 +15,7 @@ export const getOrders = (page, search) => dispatch => {
     }
   });
   axios
-    .get(`/orders?PageNumber=${page}&PageSize=10&StatusId=101&_sort=-CreationDateTime${searchQuery}`)
+    .get(`/orders?PageNumber=${page}&PageSize=10&StatusId=101&_sort=-CreationDateTime&CreatedByAccountId=${userInfo.accountId}${searchQuery}`)
     .then(res => {
       dispatch({
         type: type.FETCH_ORDERS,

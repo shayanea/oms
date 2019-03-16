@@ -147,7 +147,9 @@ class AddOrder extends Component {
     });
   };
 
-  onPressEnter = () => {};
+  onPressEnter = () => {
+    this.props.getOrders(this.props.orders.page, this.state.searchText);
+  };
 
   toggleProductModal = () => this.setState({ productModalStatus: !this.state.productModalStatus });
 
