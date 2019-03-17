@@ -316,7 +316,7 @@ class AddOrder extends Component {
         title: "مجموع",
         width: "20%",
         bodyRender: data => {
-          return <React.Fragment>{parseFloat(data.totalProductPrices).toLocaleString("fa")} تومان</React.Fragment>;
+          return <React.Fragment>{parseFloat(data.totalProductPrices).toLocaleString("fa")} ریال</React.Fragment>;
         }
       },
       {
@@ -349,14 +349,14 @@ class AddOrder extends Component {
         title: "قیمت",
         width: "25%",
         bodyRender: data => {
-          return <React.Fragment>{parseFloat(data.price).toLocaleString("fa")} تومان</React.Fragment>;
+          return <React.Fragment>{parseFloat(data.price).toLocaleString("fa")} ریال</React.Fragment>;
         }
       },
       {
         title: "مجموع",
         width: "25%",
         bodyRender: data => {
-          return <React.Fragment>{parseFloat(data.price * data.number).toLocaleString("fa")} تومان</React.Fragment>;
+          return <React.Fragment>{parseFloat(data.price * data.number).toLocaleString("fa")} ریال</React.Fragment>;
         }
       }
     ];
@@ -389,23 +389,23 @@ class AddOrder extends Component {
       },
       {
         value: 2,
-        display: "3 هزار تومان"
+        display: "3 هزار ریال"
       },
       {
         value: 3,
-        display: "۱۰ هزار تومان"
+        display: "۱۰ هزار ریال"
       },
       {
         value: 4,
-        display: "۱۵ هزار تومان"
+        display: "۱۵ هزار ریال"
       },
       {
         value: 5,
-        display: "۳۰ هزار تومان"
+        display: "۳۰ هزار ریال"
       },
       {
         value: 6,
-        display: "۵۰ هزار تومان"
+        display: "۵۰ هزار ریال"
       }
     ];
     return (
@@ -592,7 +592,7 @@ class AddOrder extends Component {
               />
               <div className="product-list__footer">
                 <span>مبلغ فاکتور</span>
-                <div className="invoice-total">{parseFloat(this.calculateTotalPrice()).toLocaleString("fa")} تومان</div>
+                <div className="invoice-total">{parseFloat(this.calculateTotalPrice()).toLocaleString("fa")} ریال</div>
               </div>
               <Row>
                 <Col span={12} className="col-padding">

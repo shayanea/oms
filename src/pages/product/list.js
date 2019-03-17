@@ -96,7 +96,7 @@ class AssingOrder extends Component {
         title: "قیمت",
         name: "price",
         bodyRender: data => {
-          return <React.Fragment>{parseFloat(data.price).toLocaleString("fa")} تومان</React.Fragment>;
+          return <React.Fragment>{parseFloat(data.price).toLocaleString("fa")} ریال</React.Fragment>;
         }
       },
       {

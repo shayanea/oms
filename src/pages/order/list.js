@@ -157,8 +157,6 @@ class OrderList extends Component {
         return "مرجوعی - تکمیل ظرفیت ارسال";
       case 304:
         return "مرجوعی - به درخواست فروشگاه";
-      case 401:
-        return "هماهنگی ارسال برای مشتری";
       case 501:
         return "وصول شد";
       case 601:
@@ -292,7 +290,7 @@ class OrderList extends Component {
       {
         title: "مجموع",
         bodyRender: data => {
-          return <React.Fragment>{parseFloat(data.totalProductPrices).toLocaleString("fa")} تومان</React.Fragment>;
+          return <React.Fragment>{parseFloat(data.totalProductPrices).toLocaleString("fa")} ریال</React.Fragment>;
         }
       },
       {
