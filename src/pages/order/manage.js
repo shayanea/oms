@@ -3,7 +3,7 @@ import { connect } from "react-redux";
 import PropTypes from "prop-types";
 import { Link } from "react-router-dom";
 import { getAllOrders } from "../../actions/orderActions";
-import { json2excel, excel2json } from "js2excel";
+import { json2excel } from "js2excel";
 import * as moment from "moment-jalaali";
 import axios from "../../utils/requestConfig";
 import City from "../../assets/city.json";
@@ -18,6 +18,7 @@ class OrderList extends Component {
   constructor(props) {
     super(props);
     moment.loadPersian({ dialect: "persian-modern" });
+    this.userInfo = JSON.parse(localStorage.getItem("USER_INFO"));
     this.state = {
       page: {
         pageSize: 30,
@@ -31,18 +32,29 @@ class OrderList extends Component {
       loading: true,
       searchText: "",
       modalStatus: false,
+      courierStatus: false,
       selectedCityId: null,
       selectedProductId: null,
       selectedStatusId: null,
+      selectedCourierId: null,
       courierId: "",
       selectedRowKeys: []
     };
   }
 
   componentDidMount() {
-    this.props.getAllOrders(this.props.orders.page, this.props.orders.search);
+    const hideCourier = this.props.location.search.match(/hide-courier=([^&]*)/);
     this.fetchProducts();
-    this.fetchCouriers();
+    if (hideCourier !== null && hideCourier[1] === "true") {
+      this.setState({ courierStatus: true });
+      axios.get(`/accounts/${this.userInfo.accountId}/couriers`).then(res => {
+        let result = res.data.data.map(e => e.courierId).join(",");
+        this.props.getAllOrders(this.props.orders.page, this.state.searchText, this.state.selectedCityId, this.state.selectedProductId, result, this.state.selectedStatusId);
+      });
+    } else {
+      this.fetchCouriers();
+      this.props.getAllOrders(this.props.orders.page, this.props.orders.search);
+    }
   }
 
   fetchProducts = () => {
@@ -56,9 +68,10 @@ class OrderList extends Component {
       });
   };
 
-  fetchCouriers = () => {
+  fetchCouriers = (array = null) => {
+    let url = array === null ? `/couriers` : `/couriers?CourierId=${array}&CourierId_op=in`;
     return axios
-      .get(`/couriers`)
+      .get(url)
       .then(res => {
         this.setState({ couriers: res.data.data });
       })
@@ -252,11 +265,30 @@ class OrderList extends Component {
   };
 
   exoprtExcel = () => {
+    let searchQuery =
+      this.state.searchText !== ""
+        ? `&Address=${this.state.searchText}&Address_op=has&Address_combineOp=or&FirstPhoneNumber=${this.state.searchText}&FirstPhoneNumber_op=has&FirstPhoneNumber_combineOp=or`
+        : "";
+    let cityQuery = this.state.selectedCityId !== null ? `&CityId=${this.state.selectedCityId}&CityId_op=in&` : "";
+    let productQuery = this.state.selectedProductId !== null ? `&ProductId=${this.state.selectedProductId}&ProductId_op=in&` : "";
+    let courierQuery = this.state.selectedCourierId !== null ? `&CourierId=${this.state.selectedCourierId}&CourierId_op=in&` : "";
+    let statusQuery = this.state.selectedStatusId !== null ? `&StatusId=${this.state.selectedStatusId}&StatusId_op=in&` : "";
+    axios
+      .get(`/ordersdata?_sort=-CreationDateTime${cityQuery}${productQuery}${courierQuery}${statusQuery}${searchQuery}`)
+      .then(res => {
+        let name = `order-${moment().format("jDD-jMM-jYYYY")}`;
+        this.exportDataToExcel(res.data.data, name);
+      })
+      .catch(err => {
+        Notify.error(err.data !== null && typeof err.data !== "undefined" ? err.data.error.errorDescription : "در برقراری ارتباط مشکلی به وجود آمده است.", 5000);
+      });
+  };
+
+  exportDataToExcel = (data, name) => {
     try {
       json2excel({
-        data: this.state.datasets,
-        name: "user-info-data"
-        // formateDate: 'yyyy/mm/dd'
+        data: data,
+        name: name
       });
     } catch (e) {
       console.error("export error");
@@ -264,7 +296,7 @@ class OrderList extends Component {
   };
 
   render() {
-    const { searchText, datasets, page, products, couriers, selectedRowKeys, modalStatus } = this.state;
+    const { searchText, datasets, page, products, couriers, selectedRowKeys, modalStatus, courierStatus } = this.state;
     const columns = [
       {
         title: "شماره فاکتور",
@@ -372,15 +404,17 @@ class OrderList extends Component {
                   optionText="title"
                   onChange={this.selectStatusHandler}
                 />
-                <Select
-                  name="courier"
-                  placeholder="انتخاب واحد ارسال"
-                  data={[{ id: null, title: "همه واحد‌های ارسال" }, ...couriers]}
-                  autoWidth
-                  optionValue="id"
-                  optionText="title"
-                  onChange={this.selectCourierHandler}
-                />
+                {!courierStatus && (
+                  <Select
+                    name="courier"
+                    placeholder="انتخاب واحد ارسال"
+                    data={[{ id: null, title: "همه واحد‌های ارسال" }, ...couriers]}
+                    autoWidth
+                    optionValue="id"
+                    optionText="title"
+                    onChange={this.selectCourierHandler}
+                  />
+                )}
                 <Select
                   name="product"
                   placeholder="انتخاب کالا"

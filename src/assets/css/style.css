@@ -16,6 +16,14 @@
   font-style: normal;
 }
 
+html {
+  height: 100%;
+}
+
+body {
+  min-height: 100%;
+}
+
 html,
 body {
   display: block;

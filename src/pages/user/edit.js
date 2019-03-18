@@ -2,7 +2,7 @@ import React, { Component } from "react";
 import { Layout, Breadcrumb, Form, Button, Notify } from "zent";
 import axios from "../../utils/requestConfig";
 
-const { createForm, FormInputField } = Form;
+const { createForm, FormInputField, FormSelectField } = Form;
 const { Col, Row } = Layout;
 const dataList = [{ name: "پیشخوان", href: "/" }, { name: "ویرایش کاربر" }];
 
@@ -13,9 +13,7 @@ class EditUser extends Component {
     this.state = {
       isLoading: false,
       name: "",
-      email: "",
-      phoneNumber: "",
-      password: ""
+      roleIds: ""
     };
   }
 
@@ -36,8 +34,7 @@ class EditUser extends Component {
       .then(res => {
         this.setState({
           name: `${res[1].data.data[0].firstName} ${res[1].data.data[0].lastName}`,
-          email: res[0].data.data[0].email,
-          phoneNumber: res[0].data.data[0].phoneNumber
+          roleIds: res[0].data.data[0].roleIds[0]
         });
       })
       .catch(err => {
@@ -46,13 +43,23 @@ class EditUser extends Component {
       });
   };
 
+  updateUserInfo = data => {
+    return axios.put(`/accounts/${this.props.match.params.id}/profile`, {
+      firstName: data.name
+    });
+  };
+
+  updateUserRole = data => {
+    return axios.put(`/accounts/${this.props.match.params.id}/roles`, {
+      roleIds: [data.roleIds]
+    });
+  };
+
   submit = data => {
     this.setState({ isLoading: true });
     axios
-      .put(`/accounts/${this.props.match.params.id}`, {
-        name: data.name,
-        phoneNumber: data.phoneNumber,
-        password: data.password
+      .put(`/accounts/${this.props.match.params.id}/roles`, {
+        roleIds: [data.roleIds]
       })
       .then(res => {
         Notify.success("اطلاعات شما با موفقیت به روز رسانی گردید.", 5000);
@@ -66,7 +73,7 @@ class EditUser extends Component {
 
   render() {
     const { handleSubmit } = this.props;
-    const { password, phoneNumber, name } = this.state;
+    const { name, roleIds } = this.state;
     return (
       <div className="container">
         <Breadcrumb breads={dataList} />
@@ -81,7 +88,7 @@ class EditUser extends Component {
             }}
           >
             <Form disableEnterSubmit={false} vertical className={"add-order__form"} onSubmit={handleSubmit(this.submit)}>
-              <FormInputField
+              {/* <FormInputField
                 name="name"
                 type="text"
                 placeholder="نام و نام خانوادگی"
@@ -94,35 +101,24 @@ class EditUser extends Component {
                   required: " نام و نام خانوادگی اجباری است."
                 }}
                 value={name}
-              />
-              <FormInputField
-                name="password"
-                type="password"
-                placeholder="رمز عبور"
-                validateOnChange={false}
-                validateOnBlur={false}
-                validations={{
-                  required: true
-                }}
-                validationErrors={{
-                  required: " رمز عبور اجباری است."
-                }}
-                value={password}
-              />
-              <FormInputField
-                name="phoneNumber"
-                type="text"
-                placeholder="شماره تماس"
-                maxLength={11}
-                validateOnChange={false}
-                validateOnBlur={false}
-                validations={{
-                  required: true
-                }}
-                validationErrors={{
-                  required: " شماره تماس اجباری است."
-                }}
-                value={phoneNumber}
+              /> */}
+              <FormSelectField
+                name="roleIds"
+                placeholder="انتخاب سطح دسترسی"
+                label="سطح دسترسی"
+                data={[
+                  { id: 2, title: "سیستم مدیریت" },
+                  { id: 4, title: "مدیر سفارشات" },
+                  // { id: 8, title: "مشاور" },
+                  { id: 16, title: "تایپیست" },
+                  { id: 32, title: "مدیر واحد ارسال" },
+                  { id: 64, title: "واحد ارسال" }
+                ]}
+                autoWidth
+                optionValue="id"
+                optionText="title"
+                required
+                value={roleIds}
               />
               <Button htmlType="submit" className="submit-btn" type="primary" size="large" loading={this.state.isLoading}>
                 ویرایش کاربر

@@ -37,10 +37,11 @@ class Navbar extends Component {
 
   render() {
     const { currentDate } = this.state;
+    const { roleId } = this.userInfo;
     return (
       <div className="navbar-container">
         <div className="navbar-col">
-          <div className="menu-btn" onClick={() => this.props.onToggleMenu()} />
+          {roleId === "1" || roleId === "2" ? <div className="menu-btn" onClick={() => this.props.onToggleMenu()} /> : null}
           <div className="logo-container">
             <img className="logo" src={Logo} alt="OMS" />
             <p>OMS</p>

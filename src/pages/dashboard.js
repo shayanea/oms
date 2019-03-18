@@ -3,15 +3,19 @@ import { Link } from "react-router-dom";
 import axios from "../utils/requestConfig";
 
 export default class dashboard extends Component {
-  state = {
-    totalOrders: 0,
-    recievedOrders: 0,
-    canceledOrders: 0,
-    totalProducts: 0
-  };
+  constructor() {
+    super();
+    this.userInfo = JSON.parse(localStorage.getItem("USER_INFO"));
+    this.state = {
+      totalOrders: 0,
+      recievedOrders: 0,
+      canceledOrders: 0,
+      totalProducts: 0
+    };
+  }
 
   componentDidMount() {
-    this.fetchDashboardStats();
+    if (this.userInfo.roleId === "1" || this.userInfo.roleId === "2" || this.userInfo.roleId === "4") this.fetchDashboardStats();
   }
 
   fetchTotalOrders = () => {
@@ -43,6 +47,7 @@ export default class dashboard extends Component {
 
   render() {
     const { totalOrders, recievedOrders, canceledOrders, totalProducts } = this.state;
+    const { roleId } = this.userInfo;
     return (
       <div className="container">
         <div className="report-item__container">
@@ -65,56 +70,70 @@ export default class dashboard extends Component {
         </div>
         <div className="action-item__container">
           <Link to="/order/add" className="action-items__container">
-            <div className="action-items__cover" />
+            <div className="action-items__cover" data-type="1" />
             <span className="action-items__title">ثبت سفارش</span>
           </Link>
           <Link to="/orders/assign" className="action-items__container">
-            <div className="action-items__cover" />
-            <span className="action-items__title">انتصاب سفارش‌ها</span>
+            <div className="action-items__cover" data-type="2" />
+            <span className="action-items__title">انتساب سفارش‌ها</span>
           </Link>
           <Link to="/orders/list" className="action-items__container">
-            <div className="action-items__cover" />
+            <div className="action-items__cover" data-type="3" />
             <span className="action-items__title">پیگیری سفارش</span>
           </Link>
           <Link to="/orders/manage" className="action-items__container">
-            <div className="action-items__cover" />
+            <div className="action-items__cover" data-type="4" />
             <span className="action-items__title">مدیریت سفارش‌ها</span>
           </Link>
         </div>
-        <div className="action-item__container">
-          <Link to="/product/add" className="action-items__container">
-            <div className="action-items__cover" />
-            <span className="action-items__title">ثبت کالا</span>
-          </Link>
-          <Link to="/products/list" className="action-items__container">
-            <div className="action-items__cover" />
-            <span className="action-items__title">مدیریت کالا‌</span>
-          </Link>
-        </div>
-        <div className="action-item__container">
-          <Link to="/" className="action-items__container">
-            <div className="action-items__cover" />
-            <span className="action-items__title">ثبت واحد ارسال</span>
-          </Link>
-          <Link to="/couriers/list" className="action-items__container">
-            <div className="action-items__cover" />
-            <span className="action-items__title">مدیریت واحد‌های ارسال</span>
-          </Link>
-          <Link to="/" className="action-items__container">
-            <div className="action-items__cover" />
-            <span className="action-items__title">گزارش واحد‌های ارسال</span>
-          </Link>
-        </div>
-        <div className="action-item__container">
-          <Link to="/user/add" className="action-items__container">
-            <div className="action-items__cover" />
-            <span className="action-items__title">ثبت کاربر</span>
-          </Link>
-          <Link to="/users/list" className="action-items__container">
-            <div className="action-items__cover" />
-            <span className="action-items__title">مدیریت کاربران</span>
-          </Link>
-        </div>
+        {roleId === "1" || roleId === "2" ? (
+          <React.Fragment>
+            <div className="action-item__container">
+              <Link to="/product/add" className="action-items__container">
+                <div className="action-items__cover" data-type="5" />
+                <span className="action-items__title">ثبت کالا</span>
+              </Link>
+              <Link to="/products/list" className="action-items__container">
+                <div className="action-items__cover" data-type="6" />
+                <span className="action-items__title">مدیریت کالا‌</span>
+              </Link>
+            </div>
+            <div className="action-item__container">
+              <Link to="/courier/add" className="action-items__container">
+                <div className="action-items__cover" data-type="7" />
+                <span className="action-items__title">ثبت واحد ارسال</span>
+              </Link>
+              <Link to="/couriers/list" className="action-items__container">
+                <div className="action-items__cover" data-type="8" />
+                <span className="action-items__title">مدیریت واحد‌های ارسال</span>
+              </Link>
+              <Link to="/" className="action-items__container">
+                <div className="action-items__cover" data-type="9" />
+                <span className="action-items__title">گزارش واحد‌های ارسال</span>
+              </Link>
+            </div>
+            <div className="action-item__container">
+              <Link to="/user/add" className="action-items__container">
+                <div className="action-items__cover" data-type="10" />
+                <span className="action-items__title">ثبت کاربر</span>
+              </Link>
+              <Link to="/users/list" className="action-items__container">
+                <div className="action-items__cover" data-type="11" />
+                <span className="action-items__title">مدیریت کاربران</span>
+              </Link>
+            </div>
+            <div className="action-item__container">
+              <Link to="/adviser/add" className="action-items__container">
+                <div className="action-items__cover" data-type="12" />
+                <span className="action-items__title">ثبت مشاور‌</span>
+              </Link>
+              <Link to="/advisers/list" className="action-items__container">
+                <div className="action-items__cover" data-type="13" />
+                <span className="action-items__title">مدیریت مشاور‌ها</span>
+              </Link>
+            </div>
+          </React.Fragment>
+        ) : null}
       </div>
     );
   }

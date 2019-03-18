@@ -31,7 +31,8 @@ class AssingOrder extends Component {
       products: [],
       orderProducts: [],
       selectedProductId: null,
-      modalStatus: false
+      modalStatus: false,
+      courierStatus: false
     };
   }
 
@@ -147,7 +148,7 @@ class AssingOrder extends Component {
   };
 
   render() {
-    const { searchText, datasets, page, selectedRowKeys, modalStatus, products } = this.state;
+    const { searchText, datasets, page, selectedRowKeys, modalStatus, products, courierStatus } = this.state;
     const columns = [
       {
         title: "شماره فاکتور",
@@ -251,20 +252,22 @@ class AssingOrder extends Component {
                 }
               }}
             />
-            <Button
-              htmlType="submit"
-              className="submit-btn"
-              type="primary"
-              size="large"
-              style={{ marginTop: "15px" }}
-              disabled={!selectedRowKeys.length}
-              onClick={this.onToggleModal}
-            >
-              انتساب به واحد ارسال
-            </Button>
+            {!courierStatus && (
+              <Button
+                htmlType="submit"
+                className="submit-btn"
+                type="primary"
+                size="large"
+                style={{ marginTop: "15px" }}
+                disabled={!selectedRowKeys.length}
+                onClick={this.onToggleModal}
+              >
+                انتساب به واحد ارسال
+              </Button>
+            )}
           </Col>
         </Row>
-        <AddAssign modalStatus={modalStatus} onToggleModal={this.onToggleModal} onSelectUser={this.onSelectUser} selectedRowKeys={selectedRowKeys} />
+        <AddAssign courierStatus={courierStatus} modalStatus={modalStatus} onToggleModal={this.onToggleModal} onSelectUser={this.onSelectUser} selectedRowKeys={selectedRowKeys} />
       </div>
     );
   }

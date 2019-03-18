@@ -23,9 +23,17 @@ const Statuses = [
 ];
 
 class ChangeStatusModal extends Component {
-  state = {
-    statusId: null
-  };
+  constructor() {
+    super();
+    this.userInfo = JSON.parse(localStorage.getItem("USER_INFO"));
+    this.state = {
+      statusId: null
+    };
+  }
+
+  componentDidMount() {
+    if (this.userInfo.roleId === "32" || this.userInfo.roleId === "64") Statuses.splice(0, 2);
+  }
 
   submit = () => {
     if (this.state.statusId !== null) {

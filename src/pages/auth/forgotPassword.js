@@ -1,32 +1,34 @@
 import React, { Component } from "react";
-import PropTypes from "prop-types";
-import { connect } from "react-redux";
 import { Link } from "react-router-dom";
-import { loginUser } from "../../actions/authAction";
+import axios from "../../utils/requestConfig";
 
-import { Form, Button } from "zent";
+import { Form, Button, Notify } from "zent";
 import Logo from "../../assets/images/logo.svg";
 
 const { FormInputField, createForm } = Form;
 
-class Login extends Component {
-  static propTypes = {
-    login: PropTypes.shape({
-      error: PropTypes.string.isRequired,
-      isLoading: PropTypes.bool.isRequired
-    })
+class ForgotPassword extends Component {
+  state = {
+    isLoading: false
   };
 
   submit = data => {
-    this.props.loginUser({
-      email: data.email,
-      password: data.password
-    });
+    this.setState({ isLoading: true });
+    axios
+      .post(`/accounts/resetpasswordrequests`, { email: data.email })
+      .then(res => {
+        Notify.success("ایمیل با موفقیت برای شما ارسال گردید.", 5000);
+        this.setState({ isLoading: false });
+      })
+      .catch(err => {
+        this.setState({ isLoading: false });
+        Notify.error(err.data !== null && typeof err.data !== "undefined" ? err.data.error.errorDescription : "در برقراری ارتباط مشکلی به وجود آمده است.", 5000);
+      });
   };
 
   render() {
     const { handleSubmit } = this.props;
-    const { isLoading } = this.props.auth;
+    const { isLoading } = this.state;
     return (
       <div className="login-container">
         <img className="logo" src={Logo} alt="OMS" />
@@ -47,31 +49,16 @@ class Login extends Component {
                 isEmail: "فرمت ایمیل وارد شده اشتباه است."
               }}
             />
-            <FormInputField
-              name="password"
-              type="password"
-              label="کلمه‌ی عبور"
-              validateOnChange={false}
-              validateOnBlur={false}
-              validations={{
-                required: true
-              }}
-              validationErrors={{
-                required: " کلمه عبور اجباری است."
-              }}
-            />
             <Button htmlType="submit" className="submit-btn" type="primary" size="large" loading={isLoading}>
-              ورود
+              ارسال
             </Button>
           </Form>
         </div>
         <div className="forgot-password__btn">
-          اگر کلمه‌ی عبور‌ خود را فراموش کرده‌اید،
           <div style={{ display: "inline-block" }}>
-            <Link className="send-link" to="/forgotpassword">
-              اینجا را کلیک کنید
+            <Link className="send-link" to="/login">
+              ورود به حساب کاربری
             </Link>
-            .
           </div>
         </div>
       </div>
@@ -79,13 +66,6 @@ class Login extends Component {
   }
 }
 
-const WrappedForm = createForm()(Login);
+const WrappedForm = createForm()(ForgotPassword);
 
-const mapStateToProps = state => ({
-  auth: state.auth
-});
-
-export default connect(
-  mapStateToProps,
-  { loginUser }
-)(WrappedForm);
+export default WrappedForm;

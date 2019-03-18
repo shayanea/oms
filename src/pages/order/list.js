@@ -17,6 +17,7 @@ class OrderList extends Component {
   constructor(props) {
     super(props);
     moment.loadPersian({ dialect: "persian-modern" });
+    this.userInfo = JSON.parse(localStorage.getItem("USER_INFO"));
     this.state = {
       page: {
         pageSize: 30,
@@ -39,9 +40,18 @@ class OrderList extends Component {
   }
 
   componentDidMount() {
-    this.props.getAssignOrders(this.props.orders.page, this.props.orders.search);
+    const hideCourier = this.props.location.search.match(/hide-courier=([^&]*)/);
     this.fetchProducts();
-    this.fetchCouriers();
+    if (hideCourier !== null && hideCourier[1] === "true") {
+      this.setState({ courierStatus: true });
+      axios.get(`/accounts/${this.userInfo.accountId}/couriers`).then(res => {
+        let result = res.data.data.map(e => e.courierId).join(",");
+        this.props.getAssignOrders(this.props.orders.page, this.state.searchText, this.state.selectedCityId, this.state.selectedProductId, result);
+      });
+    } else {
+      this.fetchCouriers();
+      this.props.getAssignOrders(this.props.orders.page, this.props.orders.search);
+    }
   }
 
   fetchProducts = () => {
@@ -55,9 +65,10 @@ class OrderList extends Component {
       });
   };
 
-  fetchCouriers = () => {
+  fetchCouriers = (array = null) => {
+    let url = array === null ? `/couriers` : `/couriers?CourierId=${array}&CourierId_op=in`;
     return axios
-      .get(`/couriers`)
+      .get(url)
       .then(res => {
         this.setState({ couriers: res.data.data });
       })

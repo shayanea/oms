@@ -11,6 +11,8 @@ import MainView from "./components/general/mainView";
 
 import Login from "./pages/auth/login";
 import Email from "./pages/auth/email";
+import ForgotPassword from "./pages/auth/forgotPassword";
+import ResetPassword from "./pages/auth/resetPassword";
 import Dashboard from "./pages/dashboard";
 // Order
 import ManageOrder from "./pages/order/manage";
@@ -27,6 +29,7 @@ import UserList from "./pages/user/list";
 import AddUser from "./pages/user/add";
 import EditUser from "./pages/user/edit";
 // Courier
+import CourierDashboard from "./pages/courier/dashboard";
 import CourierList from "./pages/courier/list";
 import AddCourier from "./pages/courier/add";
 import EditCourier from "./pages/courier/edit";
@@ -96,7 +99,7 @@ class Main extends Component {
   }
 
   checkForNotSafeRoute = url => {
-    return url === "/login" || url === "/verify/emailAddress";
+    return url === "/login" || url === "/verify/emailAddress" || url === "/forgotpassword" || url === "/resetpassword";
   };
 
   changeTitle = path => {
@@ -115,6 +118,8 @@ class Main extends Component {
         return (document.title = "لیست کاربران");
       case "/user/add":
         return (document.title = "درج کاربر");
+      case "/couriers/dashboard":
+        return (document.title = "پیشخوان");
       case "/couriers/list":
         return (document.title = "لیست واحد‌های ارسال");
       case "/courier/add":
@@ -159,6 +164,7 @@ class Main extends Component {
               <AuthRoute exact path="/user/add" component={AddUser} />
               <AuthRoute exact path="/user/edit/:id" component={EditUser} />
               {/* courier route */}
+              <AuthRoute exact path="/couriers/dashboard" component={CourierDashboard} />
               <AuthRoute exact path="/couriers/list" component={CourierList} />
               <AuthRoute exact path="/courier/add" component={AddCourier} />
               <AuthRoute exact path="/courier/edit/:id" component={EditCourier} />
@@ -169,6 +175,8 @@ class Main extends Component {
               {/* account route */}
               <Route path="/login" component={Login} />
               <Route path="/verify/emailAddress" component={Email} />
+              <Route path="/forgotpassword" component={ForgotPassword} />
+              <Route path="/resetpassword" component={ResetPassword} />
               {/* 404 */}
               <Route component={NoMatch} />
             </Switch>

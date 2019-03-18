@@ -8,7 +8,23 @@ const dataList = [{ name: "پیشخوان", href: "/" }, { name: "درج واح�
 
 class AddCourier extends Component {
   state = {
-    isLoading: false
+    isLoading: false,
+    showAutoComplete: false,
+    autoCompleteResult: [],
+    selectAccountId: null
+  };
+
+  searchForUser = data => {
+    if (data.length > 3) {
+      return axios
+        .get(`/accounts?Email=${data}&Email_op=has`)
+        .then(res => {
+          if (res.data.data.length > 0) this.setState({ autoCompleteResult: res.data.data, showAutoComplete: true });
+        })
+        .catch(err => this.setState({ showAutoComplete: false, autoCompleteResult: [] }));
+    } else {
+      this.setState({ autoCompleteResult: [], showAutoComplete: false });
+    }
   };
 
   submit = data => {
@@ -22,6 +38,7 @@ class AddCourier extends Component {
         contactPerson: data.contactPerson,
         contactNumber: data.contactNumber,
         contactEmail: data.contactEmail,
+        adminAccountId: this.state.selectAccountId,
         isActive: data.isActive === "" ? false : data.isActive
       })
       .then(res => {
@@ -35,6 +52,7 @@ class AddCourier extends Component {
 
   render() {
     const { handleSubmit } = this.props;
+    const { showAutoComplete, autoCompleteResult } = this.state;
     return (
       <div className="container">
         <Breadcrumb breads={dataList} />
@@ -64,10 +82,38 @@ class AddCourier extends Component {
                 }}
               />
               <FormInputField name="description" type="text" placeholder="توضیحات" />
-              <FormInputField name="contactPerson" type="text" placeholder="نام مسعول واحد" />
-              <FormInputField name="contactNumber" type="text" placeholder="شماره تماس مسعول واحد" />
-              <FormInputField name="contactEmail" type="text" placeholder="ایمیل مسعول واحد" />
+              <FormInputField name="contactPerson" type="text" placeholder="نام مسئول واحد" />
+              <FormInputField name="contactNumber" type="text" placeholder="شماره تماس مسئول واحد" />
+              <FormInputField name="contactEmail" type="text" placeholder="ایمیل مسئول واحد" />
               <FormInputField name="note" type="text" placeholder="نوت" />
+              <div className="zent-form__controls" style={{ marginBottom: "10px" }}>
+                <div className="zent-input-wrapper" style={{ height: "40px", maxHeight: "46px" }}>
+                  <input
+                    ref={searchInput => {
+                      this.searchInput = searchInput;
+                    }}
+                    className="zent-input"
+                    type="text"
+                    placeholder="مدیر واحد"
+                    onChange={e => this.searchForUser(e.target.value)}
+                  />
+                  {showAutoComplete && (
+                    <div className="autocomplete-result">
+                      {autoCompleteResult.map(item => (
+                        <div
+                          key={item.id}
+                          onClick={() => {
+                            this.searchInput.value = item.email;
+                            this.setState({ selectAccountId: item.id, showAutoComplete: false });
+                          }}
+                        >
+                          {item.email}
+                        </div>
+                      ))}
+                    </div>
+                  )}
+                </div>
+              </div>
               <FormCheckboxField name="isActive">فعال</FormCheckboxField>
               <Button htmlType="submit" className="submit-btn" type="primary" size="large" loading={this.state.isLoading}>
                 درج واحد ارسال

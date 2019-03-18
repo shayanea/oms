@@ -132,7 +132,7 @@ export const getAllOrders = (page, search, city = null, product = null, courier 
   let cityQuery = city !== null ? `&CityId=${city}&CityId_op=in&` : "";
   let productQuery = product !== null ? `&ProductId=${product}&ProductId_op=in&` : "";
   let courierQuery = courier !== null ? `&CourierId=${courier}&CourierId_op=in&` : "";
-  let statusQuery = courier !== null ? `&StatusId=${courier}&StatusId_op=in&` : "";
+  let statusQuery = status !== null ? `&StatusId=${status}&StatusId_op=in&` : "";
   dispatch({
     type: type.FETCH_ORDERS,
     payload: {

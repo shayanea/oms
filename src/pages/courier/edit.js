@@ -17,6 +17,8 @@ class EditCourier extends Component {
     contactEmail: "",
     contactNumber: "",
     contactPerson: "",
+    showAutoComplete: false,
+    autoCompleteResult: [],
     hasLoaded: false
   };
 
@@ -37,13 +39,32 @@ class EditCourier extends Component {
           contactPerson: res.data.data[0].contactPerson,
           contactNumber: res.data.data[0].contactNumber,
           contactEmail: res.data.data[0].contactEmail,
+          selectAccountId: res.data.data[0].adminAccountId,
           hasLoaded: true
         });
+        this.findAdminAccountById(res.data.data[0].adminAccountId);
       })
       .catch(err => {
         Notify.error(err.data !== null && typeof err.data !== "undefined" ? err.data.error.errorDescription : "در برقراری ارتباط مشکلی به وجود آمده است.", 5000);
         this.setState({ hasLoaded: true });
       });
+  };
+
+  findAdminAccountById = id => {
+    return axios.get(`accounts?id=${id}`).then(res => (this.searchInput.value = res.data.data[0].email));
+  };
+
+  searchForUser = data => {
+    if (data.length > 3) {
+      return axios
+        .get(`/accounts?Email=${data}&Email_op=has`)
+        .then(res => {
+          if (res.data.data.length > 0) this.setState({ autoCompleteResult: res.data.data, showAutoComplete: true });
+        })
+        .catch(err => this.setState({ showAutoComplete: false, autoCompleteResult: [] }));
+    } else {
+      this.setState({ autoCompleteResult: [], showAutoComplete: false });
+    }
   };
 
   submit = data => {
@@ -57,6 +78,7 @@ class EditCourier extends Component {
         contactPerson: data.contactPerson,
         contactNumber: data.contactNumber,
         contactEmail: data.contactEmail,
+        adminAccountId: this.state.selectAccountId,
         isActive: data.isActive === "" ? false : data.isActive
       })
       .then(res => {
@@ -71,7 +93,7 @@ class EditCourier extends Component {
 
   render() {
     const { handleSubmit } = this.props;
-    const { code, title, description, note, contactEmail, contactNumber, contactPerson, isActive } = this.state;
+    const { code, title, description, note, contactEmail, contactNumber, contactPerson, isActive, showAutoComplete, autoCompleteResult } = this.state;
     return (
       <div className="container">
         <Breadcrumb breads={dataList} />
@@ -102,10 +124,38 @@ class EditCourier extends Component {
                 value={title}
               />
               <FormInputField name="description" type="text" placeholder="توضیحات" value={description} />
-              <FormInputField name="contactPerson" type="text" placeholder="نام مسعول واحد" value={contactPerson} />
-              <FormInputField name="contactNumber" type="text" placeholder="شماره تماس مسعول واحد" value={contactNumber} />
-              <FormInputField name="contactEmail" type="text" placeholder="ایمیل مسعول واحد" value={contactEmail} />
+              <FormInputField name="contactPerson" type="text" placeholder="نام مسئول واحد" value={contactPerson} />
+              <FormInputField name="contactNumber" type="text" placeholder="شماره تماس مسئول واحد" value={contactNumber} />
+              <FormInputField name="contactEmail" type="text" placeholder="ایمیل مسئول واحد" value={contactEmail} />
               <FormInputField name="note" type="text" placeholder="نوت" value={note} />
+              <div className="zent-form__controls" style={{ marginBottom: "10px" }}>
+                <div className="zent-input-wrapper" style={{ height: "40px", maxHeight: "46px" }}>
+                  <input
+                    ref={searchInput => {
+                      this.searchInput = searchInput;
+                    }}
+                    className="zent-input"
+                    type="text"
+                    placeholder="مدیر واحد"
+                    onChange={e => this.searchForUser(e.target.value)}
+                  />
+                  {showAutoComplete && (
+                    <div className="autocomplete-result">
+                      {autoCompleteResult.map(item => (
+                        <div
+                          key={item.id}
+                          onClick={() => {
+                            this.searchInput.value = item.email;
+                            this.setState({ selectAccountId: item.id, showAutoComplete: false });
+                          }}
+                        >
+                          {item.email}
+                        </div>
+                      ))}
+                    </div>
+                  )}
+                </div>
+              </div>
               <FormCheckboxField name="isActive" checked={isActive} onChange={e => this.setState({ isActive: e.target.checked })}>
                 فعال
               </FormCheckboxField>

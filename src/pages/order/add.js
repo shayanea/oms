@@ -100,7 +100,7 @@ class AddOrder extends Component {
       return axios
         .get(`cities?Name=${data}&Name_op=has`)
         .then(res => {
-          this.setState({ autoCompleteResult: res.data.data, showAutoComplete: true });
+          if (res.data.data.length > 0) this.setState({ autoCompleteResult: res.data.data, showAutoComplete: true });
         })
         .catch(err => this.setState({ showAutoComplete: false, autoCompleteResult: [] }));
     }

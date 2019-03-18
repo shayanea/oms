@@ -2,7 +2,7 @@ import React, { Component } from "react";
 import { Layout, Breadcrumb, Form, Button, Notify } from "zent";
 import axios from "../../utils/requestConfig";
 
-const { createForm, FormInputField } = Form;
+const { createForm, FormInputField, FormSelectField } = Form;
 const { Col, Row } = Layout;
 const dataList = [{ name: "پیشخوان", href: "/" }, { name: "درج کاربر" }];
 
@@ -18,7 +18,8 @@ class AddUser extends Component {
         name: data.name,
         email: data.email,
         phoneNumber: data.phoneNumber,
-        password: data.password
+        password: data.password,
+        roleIds: [data.roleIds]
       })
       .then(res => {
         this.props.history.push("/users/list");
@@ -97,6 +98,16 @@ class AddUser extends Component {
                 validationErrors={{
                   required: " شماره تماس اجباری است."
                 }}
+              />
+              <FormSelectField
+                name="roleIds"
+                placeholder="انتخاب سطح دسترسی"
+                label="سطح دسترسی"
+                data={[{ id: 2, title: "مدیر سیستم" }, { id: 4, title: "مدیر سفارشات" }, { id: 16, title: "تایپیست" }]}
+                autoWidth
+                optionValue="id"
+                optionText="title"
+                required
               />
               <Button htmlType="submit" className="submit-btn" type="primary" size="large" loading={this.state.isLoading}>
                 درج کاربر
