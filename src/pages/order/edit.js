@@ -1,37 +1,30 @@
 import React, { Component } from "react";
-import { connect } from "react-redux";
-import { Link } from "react-router-dom";
-import PropTypes from "prop-types";
 import * as moment from "moment-jalaali";
-import { getOrders } from "../../actions/orderActions";
 import City from "../../assets/city.json";
 import axios from "../../utils/requestConfig";
+import CurrencyInput from "react-currency-input";
 
-import { Layout, Breadcrumb, SearchInput, Table, Form, Notify, Button, Sweetalert } from "zent";
+import { Layout, Breadcrumb, Table, Form, Notify, Button, Sweetalert } from "zent";
 import ProductModal from "../../components/order/selectProduct";
+import Autocomplete from "../../components/order/autoComplete";
 
 moment.loadPersian({ dialect: "persian-modern" });
-const { createForm, FormInputField, FormSelectField, FormCheckboxField } = Form;
+const { createForm, FormInputField } = Form;
 const { Col, Row } = Layout;
 const dataList = [{ name: "پیشخوان", href: "/" }, { name: "ویرایش سفارش" }];
 
-class AddOrder extends Component {
+class EditOrder extends Component {
   constructor(props) {
     super(props);
+    this.handleChange = this.handleChange.bind(this);
+    this.handlePriceChange = this.handlePriceChange.bind(this);
     this.state = {
       year: moment().format("jYYYY"),
       month: moment().format("jM"),
       day: moment().format("jD"),
-      page: {
-        pageSize: 10,
-        current: 0,
-        totalItem: this.props.orders.total
-      },
-      datasets: [],
       loading: true,
-      searchText: "",
       productModalStatus: false,
-      selectedCity: null,
+      selectedCity: "",
       products: [],
       advisers: [],
       selectedProduct: [],
@@ -60,15 +53,14 @@ class AddOrder extends Component {
   }
 
   componentDidMount() {
-    this.props.getOrders(this.props.orders.page, this.props.orders.search);
     this.fetchProducts();
     this.fetchAdvisers();
     this.fetchOrderById(this.props.match.params.id);
   }
 
-  fetchProducts = (page = 1) => {
+  fetchProducts = () => {
     return axios
-      .get(`/products?_pageNumber=${page}&_pageSize=5`)
+      .get(`/products`)
       .then(res => {
         this.setState({ products: res.data.data });
       })
@@ -77,9 +69,9 @@ class AddOrder extends Component {
       });
   };
 
-  fetchAdvisers = (page = 1) => {
+  fetchAdvisers = () => {
     return axios
-      .get(`/advisers?_pageNumber=${page}&_pageSize=5`)
+      .get(`/advisers`)
       .then(res => {
         this.setState({ advisers: res.data.data });
       })
@@ -97,6 +89,7 @@ class AddOrder extends Component {
           array.push({ id: item.productId, number: item.count, price: item.perUnitPrice });
         });
         this.setState({
+          selectedCity: this.findCityById(res.data.data.cityId),
           orderObject: {
             adviserId: res.data.data.adviserId,
             name: res.data.data.name,
@@ -115,31 +108,14 @@ class AddOrder extends Component {
           month: Number(moment(res.data.data.deliveryDate).format("jMM")),
           year: Number(moment(res.data.data.deliveryDate).jYear()),
           selectedProduct: array,
-          statusId: res.data.data.statusId
+          statusId: res.data.data.statusId,
+          discount: 0
         });
       })
       .catch(err => {
         Notify.error(err.data !== null && typeof err.data !== "undefined" ? err.data.error.errorDescription : "در برقراری ارتباط مشکلی به وجود آمده است.", 5000);
       });
   };
-
-  componentDidUpdate(prevProps) {
-    if (prevProps.orders.items !== this.props.orders.items) {
-      this.setState({
-        page: {
-          pageSize: 10,
-          current: this.props.orders.page,
-          totalItem: this.props.orders.total
-        },
-        loading: this.props.orders.loading,
-        datasets: this.props.orders.items
-      });
-    }
-
-    if (this.props.match.params.id !== prevProps.match.params.id) {
-      this.fetchOrderById(this.props.match.params.id);
-    }
-  }
 
   toEnglishDigits(string) {
     string = typeof string === "number" ? JSON.stringify(string) : string;
@@ -176,16 +152,6 @@ class AddOrder extends Component {
     this.props.fetchProducts(conf.current);
   }
 
-  onSearchChange = evt => {
-    this.setState({
-      searchText: evt.target.value
-    });
-  };
-
-  onPressEnter = () => {
-    this.props.getOrders(this.props.orders.page, this.state.searchText);
-  };
-
   toggleProductModal = () => this.setState({ productModalStatus: !this.state.productModalStatus });
 
   onSelectProduct = data =>
@@ -203,9 +169,19 @@ class AddOrder extends Component {
     return 0;
   };
 
+  findProductName = id => {
+    let result = this.state.products.find(item => item.id === id);
+    return result ? result.title : "";
+  };
+
   findCityById = id => {
     let result = City.find(item => item.id === id);
     return result ? result.fullName : "";
+  };
+
+  onSelectCity = name => {
+    let result = City.find(item => item.fullName === name);
+    return result && this.setState({ selectedCity: result.id });
   };
 
   calculateDate = (day, month, year) => {
@@ -218,6 +194,11 @@ class AddOrder extends Component {
       rowClass: data.newObject ? `new-row` : ``
     };
   }
+
+  removeProduct = id => {
+    let result = this.state.selectedProduct.filter(item => item.id !== id);
+    this.setState({ selectedProduct: result });
+  };
 
   removeOrder = id => {
     Sweetalert.confirm({
@@ -249,6 +230,20 @@ class AddOrder extends Component {
       });
   };
 
+  handleChange({ target }) {
+    if (target.checked) {
+      target.removeAttribute("checked");
+      this.setState({ hasHighPriority: true });
+    } else {
+      target.setAttribute("checked", true);
+      this.setState({ hasHighPriority: false });
+    }
+  }
+
+  handlePriceChange(event, maskedvalue, floatvalue) {
+    this.setState({ discount: floatvalue });
+  }
+
   submit = data => {
     if (this.state.selectedProduct.length) {
       this.setState({ isLoading: true });
@@ -260,9 +255,9 @@ class AddOrder extends Component {
         .put(`/orders/${this.props.match.params.id}`, {
           adviserId: this.state.orderObject.adviserId,
           deliveryCostId: this.state.orderObject.deliveryCostId,
-          discount: data.discount === "" ? 0 : this.toEnglishDigits(data.discount),
+          discount: this.toEnglishDigits(this.state.discount),
           name: data.name,
-          cityId: data.cityId,
+          cityId: this.state.selectedCity,
           postalCode: data.postalCode,
           address: data.address,
           firstPhoneNumber: this.toEnglishDigits(data.firstPhoneNumber),
@@ -275,9 +270,8 @@ class AddOrder extends Component {
           statusId: this.state.statusId
         })
         .then(res => {
-          this.setState({ isLoading: false, selectedProduct: [], selectedCity: null });
-          this.props.zentForm.resetFieldsValue();
-          this.props.getOrders(this.props.orders.page, this.props.orders.search);
+          console.log("update");
+          this.props.history.goBack();
         })
         .catch(err => {
           Notify.error(err.data !== null && typeof err.data !== "undefined" ? err.data.error.errorDescription : "در برقراری ارتباط مشکلی به وجود آمده است.", 5000);
@@ -288,57 +282,14 @@ class AddOrder extends Component {
 
   render() {
     const { handleSubmit } = this.props;
-    const { year, month, day, searchText, page, datasets, selectedProduct, productModalStatus, products, advisers, isLoading, orderObject } = this.state;
-    const columns1 = [
-      {
-        title: "شماره فاکتور",
-        width: "15%",
-        name: "id"
-      },
-      {
-        title: "نام",
-        width: "20%",
-        name: "name"
-      },
-      {
-        title: "شماره تماس",
-        width: "15%",
-        name: "firstPhoneNumber"
-      },
-      {
-        title: "استان و شهر",
-        width: "25%",
-        bodyRender: data => {
-          return this.findCityById(data.cityId);
-        }
-      },
-      {
-        title: "مجموع",
-        width: "20%",
-        bodyRender: data => {
-          return <React.Fragment>{parseFloat(data.totalProductPrices).toLocaleString("fa")} ریال</React.Fragment>;
-        }
-      },
-      {
-        title: "عملیات",
-        width: "10%",
-        bodyRender: data => {
-          return (
-            <React.Fragment>
-              <span className="remove-item" onClick={() => this.removeUser(data.id)} />
-              <Link to={`/order/edit/${data.id}`}>
-                <span className="edit-item" />
-              </Link>
-            </React.Fragment>
-          );
-        }
-      }
-    ];
-    const columns2 = [
+    const { year, month, day, selectedProduct, productModalStatus, products, advisers, isLoading, orderObject, selectedCity } = this.state;
+    const columns = [
       {
         title: "کالا",
         width: "25%",
-        name: "id"
+        bodyRender: data => {
+          return <React.Fragment>{this.findProductName(data.id)}</React.Fragment>;
+        }
       },
       {
         title: "تعداد",
@@ -357,6 +308,13 @@ class AddOrder extends Component {
         width: "25%",
         bodyRender: data => {
           return <React.Fragment>{parseFloat(data.price * data.number).toLocaleString("fa")} ریال</React.Fragment>;
+        }
+      },
+      {
+        title: "عملیات",
+        width: "25%",
+        bodyRender: data => {
+          return <span className="remove-item" onClick={() => this.removeProduct(data.id)} />;
         }
       }
     ];
@@ -389,43 +347,36 @@ class AddOrder extends Component {
       },
       {
         value: 2,
-        display: "3 هزار ریال"
-      },
-      {
-        value: 3,
-        display: "۱۰ هزار ریال"
-      },
-      {
-        value: 4,
-        display: "۱۵ هزار ریال"
-      },
-      {
-        value: 5,
         display: "۳۰ هزار ریال"
       },
       {
+        value: 3,
+        display: "۱۰۰ هزار ریال"
+      },
+      {
+        value: 4,
+        display: "۱۵۰ هزار ریال"
+      },
+      {
+        value: 5,
+        display: "۳۰۰ هزار ریال"
+      },
+      {
         value: 6,
-        display: "۵۰ هزار ریال"
+        display: "۵۰۰ هزار ریال"
       }
     ];
     return (
       <div className="container">
-        <Breadcrumb breads={dataList} />
+        <div style={{ position: "relative" }}>
+          <Breadcrumb breads={dataList} />
+          <div onClick={() => this.props.history.goBack()} style={{ position: "absolute", left: "15px", top: "12px", fontSize: "12px", color: "#38f", cursor: "pointer" }}>
+            بازگشت
+          </div>
+        </div>
         <Row className="grid-layout__container">
-          <Col span={12} style={{ padding: "0 15px" }}>
-            <SearchInput value={searchText} onChange={this.onSearchChange} placeholder="جستجو" onPressEnter={this.onPressEnter} />
-            <Table
-              emptyLabel={"هیچ آیتمی در این لیست وجود ندارد."}
-              columns={columns1}
-              datasets={datasets}
-              onChange={this.onChange.bind(this)}
-              getRowConf={this.getRowConf}
-              pageInfo={page}
-              rowKey="id"
-            />
-          </Col>
           <Col
-            span={12}
+            span={24}
             style={{
               padding: "15px",
               backgroundColor: "#fff",
@@ -434,6 +385,20 @@ class AddOrder extends Component {
             }}
           >
             <Form disableEnterSubmit={false} vertical className={"add-order__form"} onSubmit={handleSubmit(this.submit)}>
+              <FormInputField
+                name="name"
+                type="text"
+                placeholder="نام و نام خانوادگی سفارش دهنده"
+                validateOnChange={false}
+                validateOnBlur={false}
+                validations={{
+                  required: true
+                }}
+                validationErrors={{
+                  required: " نام و نام خانوادگی سفارش دهنده اجباری است."
+                }}
+                value={orderObject.name}
+              />
               <div className="zent-form__controls" style={{ marginBottom: "10px" }}>
                 <div className="zent-input-wrapper" style={{ height: "40px", maxHeight: "46px" }}>
                   <select
@@ -449,60 +414,15 @@ class AddOrder extends Component {
                   </select>
                 </div>
               </div>
-              <FormInputField
-                name="name"
-                type="text"
-                placeholder="نام و نام خانوادگی سفارش دهنده"
-                validateOnChange={false}
-                validateOnBlur={false}
-                validations={{
-                  required: true
-                }}
-                validationErrors={{
-                  required: " نام و نام خانوادگی سفارش دهنده اجباری است."
-                }}
-                value={orderObject.name}
-              />
-              <Row>
+              <Row style={{ display: "flex", flexDirection: "row" }}>
+                <Col className="col-padding" span={12}>
+                  <Autocomplete value={selectedCity} onSelectCity={this.onSelectCity} />
+                </Col>
                 <Col className="col-padding" span={12}>
                   <FormInputField name="postalCode" type="text" placeholder="کد پستی" value={orderObject.postalCode} />
                 </Col>
-                <Col className="col-padding" span={12}>
-                  <FormSelectField
-                    name="cityId"
-                    placeholder="استان و شهرستان"
-                    autoWidth
-                    data={City}
-                    optionValue="id"
-                    optionText="fullName"
-                    searchPlaceholder="جستجو"
-                    onChange={item => this.setState({ selectedCity: item })}
-                    filter={(item, keyword) => item.fullName.indexOf(keyword) > -1}
-                    required
-                    validations={{ required: true }}
-                    validationErrors={{ required: "شهر یا استان اجباری است." }}
-                    value={orderObject.cityId}
-                  />
-                </Col>
               </Row>
-              <Row>
-                <Col className="col-padding" span={12}>
-                  <FormInputField
-                    name="firstPhoneNumber"
-                    type="text"
-                    placeholder="شماره تماس ۱"
-                    validateOnChange={false}
-                    validateOnBlur={false}
-                    validations={{
-                      required: true
-                    }}
-                    validationErrors={{
-                      required: " شماره تماس ۱ اجباری است."
-                    }}
-                    value={orderObject.firstPhoneNumber}
-                  />
-                  <FormInputField name="secondPhoneNumber" type="text" placeholder="شماره تماس ۲" value={orderObject.secondPhoneNumber} />
-                </Col>
+              <Row style={{ display: "flex", flexDirection: "row" }}>
                 <Col className="col-padding" span={12}>
                   <FormInputField
                     name="address"
@@ -520,8 +440,49 @@ class AddOrder extends Component {
                     value={orderObject.address}
                   />
                 </Col>
+                <Col className="col-padding" span={12}>
+                  <FormInputField
+                    name="firstPhoneNumber"
+                    type="text"
+                    minlenght="11"
+                    maxLength="11"
+                    placeholder="شماره تماس ۱"
+                    validateOnChange={false}
+                    validateOnBlur={false}
+                    validations={{
+                      required: true,
+                      matchRegex: /^[0-9 || {InArabic}&&[^۰-۹]+$/,
+                      format(values, value) {
+                        return value.length === 11;
+                      }
+                    }}
+                    validationErrors={{
+                      required: " شماره تماس ۱ اجباری است.",
+                      matchRegex: "شماره تماس باید ۱۱ رقمی باشد."
+                    }}
+                    value={orderObject.firstPhoneNumber}
+                  />
+                  <FormInputField name="secondPhoneNumber" minlenght="11" maxLength="11" type="text" placeholder="شماره تماس ۲" value={orderObject.secondPhoneNumber} />
+                </Col>
               </Row>
-              <Row>
+              <Row style={{ display: "flex", flexDirection: "row" }}>
+                <Col className="col-padding" span={12}>
+                  <div className="zent-form__controls" style={{ marginBottom: "10px" }}>
+                    <div className="zent-input-wrapper" style={{ height: "40px", maxHeight: "46px" }}>
+                      <select
+                        value={orderObject.deliveryTimeId}
+                        className="custome-select-input"
+                        onChange={e => this.setState({ orderObject: { ...orderObject, deliveryTimeId: e.target.value } })}
+                      >
+                        {deliveryTimeObject.map(item => (
+                          <option key={item.value} value={item.value}>
+                            {item.display}
+                          </option>
+                        ))}
+                      </select>
+                    </div>
+                  </div>
+                </Col>
                 <Col className="col-padding" span={12} style={{ display: "flex" }}>
                   <input
                     type="text"
@@ -557,35 +518,18 @@ class AddOrder extends Component {
                     value={day}
                   />
                 </Col>
-                <Col className="col-padding" span={12}>
-                  <div className="zent-form__controls" style={{ marginBottom: "10px" }}>
-                    <div className="zent-input-wrapper" style={{ height: "40px", maxHeight: "46px" }}>
-                      <select
-                        value={orderObject.deliveryTimeId}
-                        className="custome-select-input"
-                        onChange={e => this.setState({ orderObject: { ...orderObject, deliveryTimeId: e.target.value } })}
-                      >
-                        {deliveryTimeObject.map(item => (
-                          <option key={item.value} value={item.value}>
-                            {item.display}
-                          </option>
-                        ))}
-                      </select>
-                    </div>
-                  </div>
-                </Col>
               </Row>
               <FormInputField name="notes" type="textarea" placeholder="توضیحات" value={orderObject.notes} />
               <div className="border-line" />
               <div className="product-list__header">
                 <h2>کالا</h2>
-                <Button className="add-new__product" type="primary" icon="plus" onClick={this.toggleProductModal}>
+                <Button tabIndex="0" className="add-new__product" type="primary" icon="plus" onClick={this.toggleProductModal}>
                   افزودن کالا
                 </Button>
               </div>
               <Table
                 emptyLabel={"هیچ کالای در این لیست وجود ندارد."}
-                columns={columns2}
+                columns={columns}
                 datasets={selectedProduct}
                 onChange={this.onProductChange.bind(this)}
                 getRowConf={this.getRowConf}
@@ -594,10 +538,7 @@ class AddOrder extends Component {
                 <span>مبلغ فاکتور</span>
                 <div className="invoice-total">{parseFloat(this.calculateTotalPrice()).toLocaleString("fa")} ریال</div>
               </div>
-              <Row>
-                <Col span={12} className="col-padding">
-                  <FormInputField name="discount" type="text" placeholder="تخفیف" value={orderObject.discount} />
-                </Col>
+              <Row style={{ display: "flex", flexDirection: "row" }}>
                 <Col span={12} className="col-padding">
                   <div className="zent-form__controls" style={{ marginBottom: "10px" }}>
                     <div className="zent-input-wrapper" style={{ height: "40px", maxHeight: "46px" }}>
@@ -615,14 +556,35 @@ class AddOrder extends Component {
                     </div>
                   </div>
                 </Col>
+                <Col span={12} className="col-padding">
+                  <div className="zent-form__control-group ">
+                    <label className="zent-form__control-label" />
+                    <div className="zent-form__controls">
+                      <div className="zent-input-wrapper">
+                        <input
+                          onChange={e => {
+                            this.setState({ discount: e.target.value });
+                          }}
+                          className="zent-input"
+                          placeholder="تخفیف (ریال)"
+                          value={orderObject.discount}
+                        />
+                      </div>
+                    </div>
+                  </div>
+                </Col>
               </Row>
-              <FormCheckboxField
-                name="hasHighPriority"
-                checked={orderObject.hasHighPriority}
-                onChange={e => this.setState({ orderObject: { ...orderObject, hasHighPriority: e.target.value } })}
-              >
+              <div className="zent-form__control-group" style={{ fontSize: "12px" }}>
+                <input
+                  tabIndex="0"
+                  type="checkbox"
+                  defaultChecked={this.state.hasHighPriority}
+                  onClick={this.handleChange}
+                  name="hasHighPriority"
+                  value={this.state.hasHighPriority}
+                />
                 ارسال فوری سفارش در الویت ارسال قرار گیرد
-              </FormCheckboxField>
+              </div>
               <Button htmlType="submit" className="submit-btn" type="primary" size="large" loading={isLoading}>
                 ویرایش سفارش
               </Button>
@@ -635,24 +597,6 @@ class AddOrder extends Component {
   }
 }
 
-const WrappedForm = createForm()(AddOrder);
+const WrappedForm = createForm()(EditOrder);
 
-const mapStateToProps = state => ({
-  orders: state.orders
-});
-
-WrappedForm.propTypes = {
-  orders: PropTypes.shape({
-    isLoading: PropTypes.bool.isRequired,
-    items: PropTypes.array.isRequired,
-    page: PropTypes.number.isRequired,
-    search: PropTypes.string.isRequired
-  })
-};
-
-export default connect(
-  mapStateToProps,
-  {
-    getOrders
-  }
-)(WrappedForm);
+export default WrappedForm;

@@ -19,23 +19,23 @@ export default class dashboard extends Component {
   }
 
   fetchTotalOrders = () => {
-    return axios.get("/orders?PageNumber=1&PageSize=1");
+    return axios.get("/orders?_pageNumber=1&_pageSize=1");
   };
 
   fetchRecievedOrders = () => {
-    return axios.get("/orders?PageNumber=1&PageSize=1&StatusId=501&tatusId_op=in");
+    return axios.get("/orders?_pageNumber=1&_pageSize=1&StatusId=501&statusId_op=in");
   };
 
   fetchCanceledOrders = () => {
-    return axios.get("/orders?PageNumber=1&PageSize=1&StatusId=601,699&tatusId_op=between");
+    return axios.get("/orders?_pageNumber=1&_pageSize=1&StatusId=601,699&statusId_op=between");
   };
 
   fetchTotalProducts = () => {
-    return axios.get("/products?PageNumber=1&PageSize=1");
+    return axios.get("/products?_pageNumber=1&_pageSize=1");
   };
 
   fetchDashboardStats = () => {
-    return Promise.all([this.fetchTotalOrders(), this.fetchRecievedOrders(), this.fetchCanceledOrders(), this.fetchTotalProducts()]).then(res => {
+    Promise.all([this.fetchTotalOrders(), this.fetchRecievedOrders(), this.fetchCanceledOrders(), this.fetchTotalProducts()]).then(res => {
       this.setState({
         totalOrders: res[0].data.meta.totalCount,
         recievedOrders: res[1].data.meta.totalCount,

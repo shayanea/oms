@@ -12,7 +12,7 @@ class Modal extends Component {
   };
 
   componentDidMount() {
-    if (this.props.courierStatus) this.fetchUsers();
+    this.fetchUsers();
   }
 
   fetchUsers = () => {

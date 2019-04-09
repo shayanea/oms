@@ -3,13 +3,16 @@ import { connect } from "react-redux";
 import PropTypes from "prop-types";
 import { Link } from "react-router-dom";
 import { getAllOrders } from "../../actions/orderActions";
-import { json2excel } from "js2excel";
 import * as moment from "moment-jalaali";
 import axios from "../../utils/requestConfig";
 import City from "../../assets/city.json";
+import { DatePicker } from "react-persian-datepicker";
+import { saveAs } from "file-saver";
 
 import { Layout, Breadcrumb, SearchInput, Table, Select, Notify, Sweetalert, Button } from "zent";
 import ChangeStatus from "../../components/order/changeStatus";
+import ViewOrder from "../../components/order/viewOrder";
+import HistoryOrder from "../../components/order/historyOrder";
 
 const { Col, Row } = Layout;
 const dataList = [{ name: "پیشخوان", href: "/" }, { name: "مدیریت سفارش‌ها" }];
@@ -28,7 +31,6 @@ class OrderList extends Component {
       datasets: [],
       products: [],
       couriers: [],
-      orderProducts: [],
       loading: true,
       searchText: "",
       modalStatus: false,
@@ -38,7 +40,12 @@ class OrderList extends Component {
       selectedStatusId: null,
       selectedCourierId: null,
       courierId: "",
-      selectedRowKeys: []
+      selectedRowKeys: [],
+      infoModalStatus: false,
+      historyModalStatus: false,
+      selectedItem: null,
+      startDate: "",
+      endDate: ""
     };
   }
 
@@ -49,16 +56,25 @@ class OrderList extends Component {
       this.setState({ courierStatus: true });
       axios.get(`/accounts/${this.userInfo.accountId}/couriers`).then(res => {
         let result = res.data.data.map(e => e.courierId).join(",");
-        this.props.getAllOrders(this.props.orders.page, this.state.searchText, this.state.selectedCityId, this.state.selectedProductId, result, this.state.selectedStatusId);
+        this.props.getAllOrders(
+          this.props.orders.page,
+          this.state.searchText,
+          this.state.selectedCityId,
+          this.state.selectedProductId,
+          result,
+          this.state.selectedStatusId,
+          "",
+          ""
+        );
       });
     } else {
       this.fetchCouriers();
-      this.props.getAllOrders(this.props.orders.page, this.props.orders.search);
+      this.props.getAllOrders(this.props.orders.page, this.props.orders.search, null, null, null, null, "", "");
     }
   }
 
   fetchProducts = () => {
-    return axios
+    axios
       .get(`/products`)
       .then(res => {
         this.setState({ products: res.data.data });
@@ -70,7 +86,7 @@ class OrderList extends Component {
 
   fetchCouriers = (array = null) => {
     let url = array === null ? `/couriers` : `/couriers?CourierId=${array}&CourierId_op=in`;
-    return axios
+    axios
       .get(url)
       .then(res => {
         this.setState({ couriers: res.data.data });
@@ -80,34 +96,17 @@ class OrderList extends Component {
       });
   };
 
-  fetchOrderProducts = () => {
-    if (this.state.datasets.length > 0) {
-      let result = this.state.datasets.map(e => e.id).join(",");
-      return axios
-        .get(`/orderproducts?OrderId=${result}&OrderId_op=in`)
-        .then(res => {
-          this.setState({ orderProducts: res.data.data });
-        })
-        .catch(err => {
-          Notify.error(err.data !== null && typeof err.data !== "undefined" ? err.data.error.errorDescription : "در برقراری ارتباط مشکلی به وجود آمده است.", 5000);
-        });
-    }
-  };
-
   componentDidUpdate(prevProps) {
     if (prevProps.orders.items.length !== this.props.orders.items.length) {
-      this.setState(
-        {
-          page: {
-            pageSize: 30,
-            current: this.props.orders.page,
-            totalItem: this.props.orders.total
-          },
-          loading: this.props.orders.loading,
-          datasets: this.props.orders.items
+      this.setState({
+        page: {
+          pageSize: 30,
+          current: this.props.orders.page,
+          totalItem: this.props.orders.total
         },
-        this.fetchOrderProducts
-      );
+        loading: this.props.orders.loading,
+        datasets: this.props.orders.items
+      });
     }
   }
 
@@ -127,12 +126,13 @@ class OrderList extends Component {
       searchText: evt.target.value
     });
     if (evt.fromClearButton || evt.target.value === "") {
-      this.props.getAllOrders(this.props.orders.page, "", this.state.selectedCityId, this.state.selectedProductId, this.state.selectedCourierId);
+      this.props.getAllOrders(this.props.orders.page, evt.target.value, this.state.selectedCityId, this.state.selectedProductId, this.state.selectedCourierId);
     }
   };
 
   onPressEnter = () => {
-    if (this.state.searchText !== "") this.props.getAllOrders(this.props.orders.page, "", this.state.selectedCityId, this.state.selectedProductId, this.state.selectedCourierId);
+    if (this.state.searchText !== "")
+      this.props.getAllOrders(this.props.orders.page, this.state.searchText, this.state.selectedCityId, this.state.selectedProductId, this.state.selectedCourierId);
   };
 
   selectProductHandler = (event, selected) => {
@@ -151,15 +151,9 @@ class OrderList extends Component {
   };
 
   selectStatusHandler = (event, selected) => {
-    this.setState({ selectedCourierId: selected.value });
-    this.props.getAllOrders(
-      this.props.orders.page,
-      this.state.searchText,
-      this.state.selectedCityId,
-      this.state.selectedProductId,
-      this.state.selectedCourierId,
-      this.state.selectedStatusId
-    );
+    this.setState({ selectedStatusId: selected.value });
+    console.log(selected.value);
+    this.props.getAllOrders(this.props.orders.page, this.state.searchText, this.state.selectedCityId, this.state.selectedProductId, this.state.selectedCourierId, selected.value);
   };
 
   onSelect(selectedRowKeys, selectedRows, currentRow) {
@@ -212,12 +206,8 @@ class OrderList extends Component {
   };
 
   findProductById = id => {
-    let result = this.state.orderProducts.find(item => item.orderId === id);
-    if (result) {
-      let product = this.state.products.find(item => item.id === result.productId);
-      return product ? product.title : "";
-    }
-    return null;
+    let product = this.state.products.find(item => item.id === id);
+    return product ? product.title : "";
   };
 
   removeOrder = id => {
@@ -261,7 +251,44 @@ class OrderList extends Component {
 
   onChangeStatus = () => {
     this.setState({ modalStatus: false, selectedRowKeys: [] });
-    this.props.getAllOrders(this.props.orders.page, this.state.searchText, this.state.selectedCityId, this.state.selectedProductId, this.state.selectedStatusId);
+    this.props.getAllOrders(
+      this.props.orders.page,
+      this.state.searchText,
+      this.state.selectedCityId,
+      this.state.selectedProductId,
+      this.state.selectedCourierId,
+      this.state.selectedStatusId,
+      this.state.startDate,
+      this.state.endDate
+    );
+  };
+
+  selectStartDate = value => {
+    this.setState({ startDate: value });
+    this.props.getAllOrders(
+      this.props.orders.page,
+      this.state.searchText,
+      this.state.selectedCityId,
+      this.state.selectedProductId,
+      this.state.selectedCourierId,
+      this.state.selectedStatusId,
+      value,
+      this.state.endDate
+    );
+  };
+
+  selectEndDate = value => {
+    this.setState({ endDate: value });
+    this.props.getAllOrders(
+      this.props.orders.page,
+      this.state.searchText,
+      this.state.selectedCityId,
+      this.state.selectedProductId,
+      this.state.selectedCourierId,
+      this.state.selectedStatusId,
+      this.state.startDate,
+      value
+    );
   };
 
   exoprtExcel = () => {
@@ -274,29 +301,42 @@ class OrderList extends Component {
     let courierQuery = this.state.selectedCourierId !== null ? `&CourierId=${this.state.selectedCourierId}&CourierId_op=in&` : "";
     let statusQuery = this.state.selectedStatusId !== null ? `&StatusId=${this.state.selectedStatusId}&StatusId_op=in&` : "";
     axios
-      .get(`/ordersdata?_sort=-CreationDateTime${cityQuery}${productQuery}${courierQuery}${statusQuery}${searchQuery}`)
-      .then(res => {
-        let name = `order-${moment().format("jDD-jMM-jYYYY")}`;
-        this.exportDataToExcel(res.data.data, name);
+      .get(`/orders?_sort=-CreationDateTime${cityQuery}${productQuery}${courierQuery}${statusQuery}${searchQuery}`, {
+        headers: { Accept: "application/xlsx" },
+        responseType: "arraybuffer"
+      })
+      .then((res, status, headers) => {
+        console.log(res.request);
+        const blob = new Blob([res.data], {
+          type: "application/xlsx"
+        });
+        saveAs(blob, `order_${moment().format("jDD jMMMM jYYYY - HH:mm")}.xlsx`);
       })
       .catch(err => {
         Notify.error(err.data !== null && typeof err.data !== "undefined" ? err.data.error.errorDescription : "در برقراری ارتباط مشکلی به وجود آمده است.", 5000);
       });
   };
 
-  exportDataToExcel = (data, name) => {
-    try {
-      json2excel({
-        data: data,
-        name: name
-      });
-    } catch (e) {
-      console.error("export error");
-    }
-  };
+  viewOrder = item => this.setState({ infoModalStatus: true, selectedItem: item });
+
+  viewOrderHistory = item => this.setState({ historyModalStatus: true, selectedItem: item });
 
   render() {
-    const { searchText, datasets, page, products, couriers, selectedRowKeys, modalStatus, courierStatus } = this.state;
+    const {
+      searchText,
+      datasets,
+      page,
+      products,
+      couriers,
+      selectedRowKeys,
+      modalStatus,
+      courierStatus,
+      selectedItem,
+      infoModalStatus,
+      startDate,
+      endDate,
+      historyModalStatus
+    } = this.state;
     const columns = [
       {
         title: "شماره فاکتور",
@@ -315,7 +355,7 @@ class OrderList extends Component {
       {
         title: "کالا",
         bodyRender: data => {
-          return this.findProductById(data.id);
+          return this.findProductById(data.products[0].productId);
         }
       },
       {
@@ -327,7 +367,7 @@ class OrderList extends Component {
       {
         title: "تاریخ تغییر وضعیت",
         bodyRender: data => {
-          return moment(data.lastUpdateDateTime)
+          return moment(data.modificationDateTime === null ? data.creationDateTime : data.modificationDateTime)
             .local()
             .format("jDD jMMMM jYYYY - HH:mm");
         }
@@ -353,7 +393,7 @@ class OrderList extends Component {
       {
         title: "مجموع",
         bodyRender: data => {
-          return <React.Fragment>{parseFloat(data.totalProductPrices).toLocaleString("fa")} ریال</React.Fragment>;
+          return <React.Fragment>{parseFloat(data.finalAmount).toLocaleString("fa")} ریال</React.Fragment>;
         }
       },
       {
@@ -365,6 +405,8 @@ class OrderList extends Component {
               <Link to={`/order/edit/${data.id}`}>
                 <span className="edit-item" />
               </Link>
+              <span className="view-item" onClick={() => this.viewOrder(data)} />
+              <span className="history-item" onClick={() => this.viewOrderHistory(data)} />
             </React.Fragment>
           );
         }
@@ -374,7 +416,12 @@ class OrderList extends Component {
     return (
       <div className="container">
         <h2 className="page-title">مدیریت سفارش‌ها</h2>
-        <Breadcrumb breads={dataList} />
+        <div style={{ position: "relative" }}>
+          <Breadcrumb breads={dataList} />
+          <div onClick={() => this.props.history.goBack()} style={{ position: "absolute", left: "15px", top: "12px", fontSize: "12px", color: "#38f", cursor: "pointer" }}>
+            بازگشت
+          </div>
+        </div>
         <Row className="grid-layout__container">
           <Col span={24}>
             <div className="control-contaianer">
@@ -390,7 +437,6 @@ class OrderList extends Component {
                     { id: 302, title: "مرجوعی - خارج از محدوده" },
                     { id: 303, title: "مرجوعی - تکمیل ظرفیت ارسال" },
                     { id: 304, title: "مرجوعی - به درخواست فروشگاه" },
-                    { id: 401, title: "هماهنگی ارسال برای مشتری" },
                     { id: 501, title: "وصول شد" },
                     { id: 601, title: "کنسلی - آدرس اشتباه" },
                     { id: 602, title: "کنسلی - کنسلی تلفنی" },
@@ -437,6 +483,42 @@ class OrderList extends Component {
                   searchPlaceholder="جستجو"
                   filter={(item, keyword) => item.fullName.indexOf(keyword) > -1}
                 />
+                <DatePicker
+                  calendarStyles={{
+                    currentMonth: "currentMonth",
+                    calendarContainer: "calendarContainer",
+                    dayPickerContainer: "dayPickerContainer",
+                    monthsList: "monthsList",
+                    daysOfWeek: "daysOfWeek",
+                    dayWrapper: "dayWrapper",
+                    selected: "selected",
+                    heading: "heading",
+                    next: "next",
+                    prev: "prev",
+                    title: "title"
+                  }}
+                  className={"datepicker-input"}
+                  onChange={value => this.selectStartDate(value)}
+                  value={startDate}
+                />
+                <DatePicker
+                  calendarStyles={{
+                    currentMonth: "currentMonth",
+                    calendarContainer: "calendarContainer",
+                    dayPickerContainer: "dayPickerContainer",
+                    monthsList: "monthsList",
+                    daysOfWeek: "daysOfWeek",
+                    dayWrapper: "dayWrapper",
+                    selected: "selected",
+                    heading: "heading",
+                    next: "next",
+                    prev: "prev",
+                    title: "title"
+                  }}
+                  className={"datepicker-input"}
+                  onChange={value => this.selectEndDate(value)}
+                  value={endDate}
+                />
               </div>
               <SearchInput value={searchText} onChange={this.onSearchChange} placeholder="جستجو" onPressEnter={this.onPressEnter} />
             </div>
@@ -473,6 +555,15 @@ class OrderList extends Component {
           </Col>
         </Row>
         <ChangeStatus modalStatus={modalStatus} onToggleModal={this.onToggleModal} onChangeStatus={this.onChangeStatus} selectedRowKeys={selectedRowKeys} />
+        <ViewOrder
+          infoModalStatus={infoModalStatus}
+          selectedItem={selectedItem}
+          onCloseModal={() => this.setState({ infoModalStatus: false, selectedItem: null })}
+          City={City}
+          products={products}
+          printable
+        />
+        <HistoryOrder historyModalStatus={historyModalStatus} selectedItem={selectedItem} onCloseModal={() => this.setState({ historyModalStatus: false, selectedItem: null })} />
       </div>
     );
   }

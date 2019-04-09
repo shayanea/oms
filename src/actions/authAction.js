@@ -9,15 +9,14 @@ const getAccount = customData => {
 };
 
 const getProfile = customData => {
-  return axios.get(`/accounts/${customData.accountId}/profile`);
+  return axios.get(`/accounts/${customData.accountId}`);
 };
 
 export const getProfileAndAccount = customData => dispatch => {
   let result = JSON.parse(localStorage.getItem("USER_INFO"));
   Promise.all([getProfile(customData), getAccount(customData)])
     .then(res => {
-      result["fullname"] = `${res[0].data.data.firstName} ${res[0].data.data.lastName}`;
-      result["roleId"] = res[1].data.data.roleIds[0];
+      result["fullname"] = res[0].data.data.name;
       result["roleId"] = res[1].data.data.roleIds[0];
       localStorage.setItem("USER_INFO", JSON.stringify(result));
       dispatch({

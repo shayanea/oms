@@ -17,6 +17,8 @@ class AddAdviser extends Component {
       .post("/advisers", {
         firstName: data.firstName,
         lastName: data.lastName,
+        firstPhoneNumber: data.firstPhoneNumber,
+        nationalCode: data.nationalCode,
         isActive: data.isActive
       })
       .then(res => {
@@ -32,7 +34,12 @@ class AddAdviser extends Component {
     const { handleSubmit } = this.props;
     return (
       <div className="container">
-        <Breadcrumb breads={dataList} />
+        <div style={{ position: "relative" }}>
+          <Breadcrumb breads={dataList} />
+          <div onClick={() => this.props.history.goBack()} style={{ position: "absolute", left: "15px", top: "12px", fontSize: "12px", color: "#38f", cursor: "pointer" }}>
+            بازگشت
+          </div>
+        </div>
         <Row className="grid-layout__container">
           <Col
             span={24}
@@ -69,6 +76,40 @@ class AddAdviser extends Component {
                 validationErrors={{
                   required: " نام خانوادگی اجباری است."
                 }}
+              />
+              <FormInputField
+                name="nationalCode"
+                type="text"
+                placeholder="کد ملی"
+                validateOnChange={false}
+                validateOnBlur={false}
+                validations={{
+                  matchRegex: /^\d+$/
+                }}
+                validationErrors={{
+                  matchRegex: "کد ملی را درست وارد نمایید."
+                }}
+              />
+              <FormInputField
+                name="firstPhoneNumber"
+                type="text"
+                placeholder="شماره تماس"
+                maxLength="11"
+                validateOnChange={false}
+                validateOnBlur={false}
+                validations={{
+                  required: true,
+                  matchRegex: /^[0-9 || {InArabic}&&[^۰-۹]+$/,
+                  maxLength: 11,
+                  minLength: 11
+                }}
+                validationErrors={{
+                  required: " شماره تماس اجباری است.",
+                  matchRegex: "شماره تماس را درست وارد نمایید.",
+                  maxLength: "شماره تماس باید ۱۱ رقمی باشد.",
+                  minLength: "شماره تماس باید ۱۱ رقمی باشد."
+                }}
+                required
               />
               <FormCheckboxField name="isActive">فعال</FormCheckboxField>
               <Button htmlType="submit" className="submit-btn" type="primary" size="large" loading={this.state.isLoading}>

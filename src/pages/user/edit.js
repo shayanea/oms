@@ -2,7 +2,7 @@ import React, { Component } from "react";
 import { Layout, Breadcrumb, Form, Button, Notify } from "zent";
 import axios from "../../utils/requestConfig";
 
-const { createForm, FormInputField, FormSelectField } = Form;
+const { createForm, FormSelectField } = Form;
 const { Col, Row } = Layout;
 const dataList = [{ name: "پیشخوان", href: "/" }, { name: "ویرایش کاربر" }];
 
@@ -73,10 +73,15 @@ class EditUser extends Component {
 
   render() {
     const { handleSubmit } = this.props;
-    const { name, roleIds } = this.state;
+    const { roleIds } = this.state;
     return (
       <div className="container">
-        <Breadcrumb breads={dataList} />
+        <div style={{ position: "relative" }}>
+          <Breadcrumb breads={dataList} />
+          <div onClick={() => this.props.history.goBack()} style={{ position: "absolute", left: "15px", top: "12px", fontSize: "12px", color: "#38f", cursor: "pointer" }}>
+            بازگشت
+          </div>
+        </div>
         <Row className="grid-layout__container">
           <Col
             span={24}

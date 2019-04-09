@@ -2,51 +2,50 @@ import React, { Component } from "react";
 import { connect } from "react-redux";
 import PropTypes from "prop-types";
 import * as moment from "moment-jalaali";
-import { getNonAssignOrders } from "../../actions/orderActions";
+import { getAssignOrders } from "../../actions/orderActions";
 import axios from "../../utils/requestConfig";
 import City from "../../assets/city.json";
-import { DatePicker } from "react-persian-datepicker";
 
-import { Layout, Breadcrumb, SearchInput, Table, Button, Select, Notify } from "zent";
-import AddAssign from "../../components/order/addAssign";
+import { Layout, SearchInput, Table, Select, Notify, Button } from "zent";
+import ChangeStatus from "../../components/order/changeStatus";
 import ViewOrder from "../../components/order/viewOrder";
 
 const { Col, Row } = Layout;
-const dataList = [{ name: "پیشخوان", href: "/" }, { name: "انتساب سفارش‌ها" }];
 
-class AssingOrder extends Component {
+class OrderList extends Component {
   constructor(props) {
     super(props);
     moment.loadPersian({ dialect: "persian-modern" });
+    this.userInfo = JSON.parse(localStorage.getItem("USER_INFO"));
     this.state = {
       page: {
         pageSize: 30,
         current: 0,
-        totalItem: this.props.orders.page
+        totalItem: this.props.orders.total
       },
-      datasets: this.props.orders.items,
+      datasets: [],
+      products: [],
+      couriers: [],
       loading: true,
       searchText: "",
-      selectedCityId: null,
-      selectedRowKeys: [],
-      products: [],
-      selectedProductId: null,
       modalStatus: false,
+      selectedCityId: null,
+      selectedProductId: null,
+      selectedCourierId: null,
+      courierId: "",
+      selectedRowKeys: [],
       infoModalStatus: false,
-      selectedItem: null,
-      courierStatus: false,
-      startDate: "",
-      endDate: ""
+      selectedItem: null
     };
   }
 
   componentDidMount() {
-    this.props.getNonAssignOrders(this.props.orders.page, this.props.orders.search, null, null, this.state.startDate, this.state.endDate);
     this.fetchProducts();
+    this.props.getAssignOrders(this.props.orders.page, this.props.orders.search);
   }
 
   fetchProducts = () => {
-    return axios
+    axios
       .get(`/products`)
       .then(res => {
         this.setState({ products: res.data.data });
@@ -78,7 +77,7 @@ class AssingOrder extends Component {
         totalItem: this.props.orders.total
       }
     });
-    this.props.getNonAssignOrders(conf.current, this.props.orders.search, this.state.selectedCityId, this.state.selectedProductId);
+    this.props.getAssignOrders(conf.current, this.props.orders.search, this.state.selectedCityId, this.state.selectedProductId, this.state.selectedCourierId);
   }
 
   onSearchChange = evt => {
@@ -86,22 +85,23 @@ class AssingOrder extends Component {
       searchText: evt.target.value
     });
     if (evt.fromClearButton || evt.target.value === "") {
-      this.props.getNonAssignOrders(this.props.orders.page, "", this.state.selectedCityId, this.state.selectedProductId);
+      this.props.getAssignOrders(this.props.orders.page, "", this.state.selectedCityId, this.state.selectedProductId, this.state.selectedCourierId);
     }
   };
 
   onPressEnter = () => {
-    if (this.state.searchText !== "") this.props.getNonAssignOrders(this.props.orders.page, this.state.searchText, this.state.selectedCityId, this.state.selectedProductId);
+    if (this.state.searchText !== "")
+      this.props.getAssignOrders(this.props.orders.page, this.state.searchText, this.state.selectedCityId, this.state.selectedProductId, this.state.selectedCourierId);
   };
 
   selectProductHandler = (event, selected) => {
     this.setState({ selectedProductId: selected.value });
-    this.props.getNonAssignOrders(this.props.orders.page, this.state.searchText, this.state.selectedCityId, selected.value);
+    this.props.getAssignOrders(this.props.orders.page, this.state.searchText, this.state.selectedCityId, selected.value, this.state.selectedCourierId);
   };
 
   selectCityHandler = (event, selected) => {
     this.setState({ selectedCityId: selected.value });
-    this.props.getNonAssignOrders(this.props.orders.page, this.state.searchText, selected.value, this.state.selectedProductId);
+    this.props.getAssignOrders(this.props.orders.page, this.state.searchText, selected.value, this.state.selectedProductId, this.state.selectedCourierId);
   };
 
   onSelect(selectedRowKeys, selectedRows, currentRow) {
@@ -110,40 +110,60 @@ class AssingOrder extends Component {
     });
   }
 
-  onToggleModal = () => this.setState({ modalStatus: !this.state.modalStatus });
-
-  onSelectUser = () => {
-    this.setState({
-      selectedRowKeys: [],
-      modalStatus: false
-    });
-    this.props.getNonAssignOrders(this.props.orders.page, this.state.searchText, this.state.selectedCityId, this.state.selectedProductId);
+  findStatusById = type => {
+    switch (Number(type)) {
+      case 101:
+        return "ثبت شده";
+      case 201:
+        return "ارجاع به واحد ارسال";
+      case 301:
+        return "مرجوعی - عدم موجودی کالا";
+      case 302:
+        return "مرجوعی - خارج از محدوده";
+      case 303:
+        return "مرجوعی - تکمیل ظرفیت ارسال";
+      case 304:
+        return "مرجوعی - به درخواست فروشگاه";
+      case 501:
+        return "وصول شد";
+      case 601:
+        return "کنسلی - آدرس اشتباه";
+      case 602:
+        return "کنسلی - کنسلی تلفنی";
+      case 603:
+        return "کنسلی - عدم حضور مشتری";
+      case 604:
+        return "کنسلی - کالای معیوب";
+      case 605:
+        return "کنسلی - کنسلی حضوری";
+      case 606:
+        return "کنسلی - مشتری بعدا سفارش خواهد داد";
+      default:
+        return "";
+    }
   };
 
   findCityById = id => {
     let result = City.find(item => item.id === id);
-    return result ? result.fullName : "";
+    return result ? result.fullName : "---";
   };
 
   findProductById = id => {
     let product = this.state.products.find(item => item.id === id);
-    return product ? product.title : "";
+    return product ? product.title : "---";
   };
 
-  selectStartDate = value => {
-    this.setState({ startDate: value });
-    this.props.getNonAssignOrders(this.props.orders.page, this.state.searchText, this.state.selectedCityId, this.state.selectedProductId, value, this.state.endDate);
-  };
+  onToggleModal = () => this.setState({ modalStatus: !this.state.modalStatus });
 
-  selectEndDate = value => {
-    this.setState({ endDate: value });
-    this.props.getNonAssignOrders(this.props.orders.page, this.state.searchText, this.state.selectedCityId, this.state.selectedProductId, this.state.startDate, value);
+  onChangeStatus = () => {
+    this.setState({ modalStatus: false, selectedRowKeys: [] });
+    this.props.getAllOrders(this.props.orders.page, this.state.searchText, this.state.selectedCityId, this.state.selectedProductId, this.state.selectedStatusId);
   };
 
   viewOrder = item => this.setState({ infoModalStatus: true, selectedItem: item });
 
   render() {
-    const { searchText, datasets, page, selectedRowKeys, modalStatus, products, courierStatus, infoModalStatus, selectedItem, startDate, endDate } = this.state;
+    const { searchText, datasets, page, products, selectedRowKeys, modalStatus, infoModalStatus, selectedItem } = this.state;
     const columns = [
       {
         title: "شماره فاکتور",
@@ -154,14 +174,28 @@ class AssingOrder extends Component {
         name: "name"
       },
       {
-        title: "شماره تماس",
-        name: "firstPhoneNumber"
-      },
-      {
         title: "کالا",
         bodyRender: data => {
           return this.findProductById(data.products[0].productId);
         }
+      },
+      {
+        title: "وضعیت",
+        bodyRender: data => {
+          return this.findStatusById(data.statusId);
+        }
+      },
+      {
+        title: "تاریخ تغییر وضعیت",
+        bodyRender: data => {
+          return moment(data.modificationDateTime === null ? data.creationDateTime : data.modificationDateTime)
+            .local()
+            .format("jDD jMMMM jYYYY - HH:mm");
+        }
+      },
+      {
+        title: "شماره تماس",
+        name: "firstPhoneNumber"
       },
       {
         title: "استان و شهر",
@@ -197,13 +231,7 @@ class AssingOrder extends Component {
     let self = this;
     return (
       <div className="container">
-        <h2 className="page-title">انتساب سفارش‌ها</h2>
-        <div style={{ position: "relative" }}>
-          <Breadcrumb breads={dataList} />
-          <div onClick={() => this.props.history.goBack()} style={{ position: "absolute", left: "15px", top: "12px", fontSize: "12px", color: "#38f", cursor: "pointer" }}>
-            بازگشت
-          </div>
-        </div>
+        <h2 className="page-title">پیگیری سفارش‌ها</h2>
         <Row className="grid-layout__container">
           <Col span={24}>
             <div className="control-contaianer">
@@ -228,44 +256,7 @@ class AssingOrder extends Component {
                   optionText="fullName"
                   onChange={this.selectCityHandler}
                   searchPlaceholder="جستجو"
-                  filter={(item, keyword) => item.value.indexOf(keyword) > -1}
-                />
-                <DatePicker
-                  calendarStyles={{
-                    currentMonth: "currentMonth",
-                    calendarContainer: "calendarContainer",
-                    dayPickerContainer: "dayPickerContainer",
-                    monthsList: "monthsList",
-                    daysOfWeek: "daysOfWeek",
-                    dayWrapper: "dayWrapper",
-                    selected: "selected",
-                    heading: "heading",
-                    next: "next",
-                    prev: "prev",
-                    title: "title"
-                  }}
-                  className={"datepicker-input"}
-                  onChange={value => this.selectStartDate(value)}
-                  value={startDate}
-                  placeholder="test"
-                />
-                <DatePicker
-                  calendarStyles={{
-                    currentMonth: "currentMonth",
-                    calendarContainer: "calendarContainer",
-                    dayPickerContainer: "dayPickerContainer",
-                    monthsList: "monthsList",
-                    daysOfWeek: "daysOfWeek",
-                    dayWrapper: "dayWrapper",
-                    selected: "selected",
-                    heading: "heading",
-                    next: "next",
-                    prev: "prev",
-                    title: "title"
-                  }}
-                  className={"datepicker-input"}
-                  onChange={value => this.selectEndDate(value)}
-                  value={endDate}
+                  filter={(item, keyword) => item.fullName.indexOf(keyword) > -1}
                 />
               </div>
               <SearchInput value={searchText} onChange={this.onSearchChange} placeholder="جستجو" onPressEnter={this.onPressEnter} />
@@ -286,29 +277,27 @@ class AssingOrder extends Component {
                 }
               }}
             />
-            {!courierStatus && (
-              <Button
-                htmlType="submit"
-                className="submit-btn"
-                type="primary"
-                size="large"
-                style={{ marginTop: "15px" }}
-                disabled={!selectedRowKeys.length}
-                onClick={this.onToggleModal}
-              >
-                انتساب به واحد ارسال
-              </Button>
-            )}
+            <Button
+              htmlType="submit"
+              className="submit-btn"
+              type="primary"
+              size="large"
+              style={{ marginTop: "15px" }}
+              disabled={!selectedRowKeys.length}
+              onClick={this.onToggleModal}
+            >
+              تغییر وضعیت
+            </Button>
           </Col>
         </Row>
-        <AddAssign courierStatus={courierStatus} modalStatus={modalStatus} onToggleModal={this.onToggleModal} onSelectUser={this.onSelectUser} selectedRowKeys={selectedRowKeys} />
+        <ChangeStatus modalStatus={modalStatus} onToggleModal={this.onToggleModal} onChangeStatus={this.onChangeStatus} selectedRowKeys={selectedRowKeys} />
         <ViewOrder
           infoModalStatus={infoModalStatus}
           selectedItem={selectedItem}
           onCloseModal={() => this.setState({ infoModalStatus: false, selectedItem: null })}
           City={City}
           products={products}
-          printable
+          printable={true}
         />
       </div>
     );
@@ -319,7 +308,7 @@ const mapStateToProps = state => ({
   orders: state.orders
 });
 
-AssingOrder.propTypes = {
+OrderList.propTypes = {
   orders: PropTypes.shape({
     isLoading: PropTypes.bool.isRequired,
     items: PropTypes.array.isRequired,
@@ -331,6 +320,6 @@ AssingOrder.propTypes = {
 export default connect(
   mapStateToProps,
   {
-    getNonAssignOrders
+    getAssignOrders
   }
-)(AssingOrder);
+)(OrderList);

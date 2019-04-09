@@ -1,21 +1,26 @@
 import React, { Component } from "react";
 import { Layout, Breadcrumb, Form, Button, Notify, Loading } from "zent";
 import axios from "../../utils/requestConfig";
+import CurrencyInput from "react-currency-input";
 
 const { createForm, FormInputField, FormCheckboxField } = Form;
 const { Col, Row } = Layout;
 const dataList = [{ name: "پیشخوان", href: "/" }, { name: "ویرایش کالا" }];
 
 class EditProduct extends Component {
-  state = {
-    isLoading: false,
-    title: "",
-    description: "",
-    code: "",
-    price: 0,
-    isAvailable: false,
-    hasLoaded: false
-  };
+  constructor() {
+    super();
+    this.handleChange = this.handleChange.bind(this);
+    this.state = {
+      isLoading: false,
+      title: "",
+      description: "",
+      code: "",
+      price: 0,
+      isAvailable: false,
+      hasLoaded: false
+    };
+  }
 
   componentDidMount() {
     this.fetchProductById(this.props.match.params.id);
@@ -40,23 +45,29 @@ class EditProduct extends Component {
       });
   };
 
+  handleChange(event, maskedvalue, floatvalue) {
+    this.setState({ price: floatvalue });
+  }
+
   submit = data => {
-    axios
-      .put(`/products/${this.props.match.params.id}`, {
-        title: data.title,
-        price: data.price,
-        description: data.description,
-        code: data.code,
-        body: "",
-        isAvailable: this.state.isAvailable
-      })
-      .then(res => {
-        Notify.success("کالا مورد نظر با موفقیت به روز رسانی گردید.", 5000);
-        this.props.history.push("/products/list");
-      })
-      .catch(err => {
-        Notify.error(err.data !== null && typeof err.data !== "undefined" ? err.data.error.errorDescription : "در برقراری ارتباط مشکلی به وجود آمده است.", 5000);
-      });
+    if (this.state.price > 0) {
+      axios
+        .put(`/products/${this.props.match.params.id}`, {
+          title: data.title,
+          price: this.state.price,
+          description: data.description,
+          code: data.code,
+          body: "",
+          isAvailable: this.state.isAvailable
+        })
+        .then(res => {
+          Notify.success("کالا مورد نظر با موفقیت به روز رسانی گردید.", 5000);
+          this.props.history.push("/products/list");
+        })
+        .catch(err => {
+          Notify.error(err.data !== null && typeof err.data !== "undefined" ? err.data.error.errorDescription : "در برقراری ارتباط مشکلی به وجود آمده است.", 5000);
+        });
+    }
   };
 
   render() {
@@ -64,7 +75,12 @@ class EditProduct extends Component {
     const { title, price, code, description, isAvailable, hasLoaded } = this.state;
     return (
       <div className="container">
-        <Breadcrumb breads={dataList} />
+        <div style={{ position: "relative" }}>
+          <Breadcrumb breads={dataList} />
+          <div onClick={() => this.props.history.goBack()} style={{ position: "absolute", left: "15px", top: "12px", fontSize: "12px", color: "#38f", cursor: "pointer" }}>
+            بازگشت
+          </div>
+        </div>
         <Row className="grid-layout__container">
           <Col
             span={24}
@@ -92,20 +108,14 @@ class EditProduct extends Component {
                   }}
                 />
                 <FormInputField name="code" type="text" placeholder="کد" value={code} />
-                <FormInputField
-                  name="price"
-                  type="text"
-                  placeholder="قیمت"
-                  value={price}
-                  validateOnChange={false}
-                  validateOnBlur={false}
-                  validations={{
-                    required: true
-                  }}
-                  validationErrors={{
-                    required: " قیمت اجباری است."
-                  }}
-                />
+                <div className="zent-form__control-group ">
+                  <label className="zent-form__control-label" />
+                  <div className="zent-form__controls">
+                    <div className="zent-input-wrapper">
+                      <CurrencyInput onChangeEvent={this.handleChange} value={price} className="zent-input" placeholder="قیمت (ریال)" precision="0" />
+                    </div>
+                  </div>
+                </div>
                 <FormInputField name="description" type="textarea" value={description} placeholder="توضیحات" />
                 <FormCheckboxField name="isAvailable" checked={isAvailable} onChange={e => this.setState({ isAvailable: e.target.checked })}>
                   موجود

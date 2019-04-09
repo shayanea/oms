@@ -21,9 +21,9 @@ class AdviserModal extends Component {
     this.fetchAdvisers();
   }
 
-  fetchAdvisers = (page = 1) => {
+  fetchAdvisers = () => {
     return axios
-      .get(`/advisers?_pageNumber=${page}&_pageSize=5`)
+      .get(`/advisers`)
       .then(res => {
         this.setState({ datasets: res.data.data });
       })

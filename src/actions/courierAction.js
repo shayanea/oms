@@ -13,7 +13,7 @@ export const getCourier = page => dispatch => {
     }
   });
   return axios
-    .get(`/couriers?_PageSize=30&_pageNumber=${page}`)
+    .get(`/couriers?_PageSize=30?_pageNumber=${page}&_sort=-id`)
     .then(res => {
       dispatch({
         type: type.FETCH_COURIER,

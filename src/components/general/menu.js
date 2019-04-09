@@ -15,32 +15,32 @@ class Menu extends Component {
       <div className={`menu-container ${toggle && "active"}`}>
         <ul>
           <li>
-            <Link to="/" className={`${this.getActiveMenu("/") && "active"}`}>
+            <Link onClick={this.props.onClose} to="/" className={`${this.getActiveMenu("/") && "active"}`}>
               پیشخوان
             </Link>
           </li>
           <li>
-            <Link to="/orders/manage" className={`${this.getActiveMenu("/orders/manage") && "active"}`}>
+            <Link onClick={this.props.onClose} to="/orders/manage" className={`${this.getActiveMenu("/orders/manage") && "active"}`}>
               مدیریت سفارش‌ها
             </Link>
           </li>
           <li>
-            <Link to="/products/list" className={`${this.getActiveMenu("/products/list") && "active"}`}>
+            <Link onClick={this.props.onClose} to="/products/list" className={`${this.getActiveMenu("/products/list") && "active"}`}>
               مدیریت کالا‌
             </Link>
           </li>
           <li>
-            <Link to="/users/list" className={`${this.getActiveMenu("/users/list") && "active"}`}>
+            <Link onClick={this.props.onClose} to="/users/list" className={`${this.getActiveMenu("/users/list") && "active"}`}>
               مدیریت کاربران
             </Link>
           </li>
           <li>
-            <Link to="/couriers/list" className={`${this.getActiveMenu("/couriers/list") && "active"}`}>
+            <Link onClick={this.props.onClose} to="/couriers/list" className={`${this.getActiveMenu("/couriers/list") && "active"}`}>
               مدیریت واحد‌های ارسال
             </Link>
           </li>
           <li>
-            <Link to="/advisers/list" className={`${this.getActiveMenu("/advisers/list") && "active"}`}>
+            <Link onClick={this.props.onClose} to="/advisers/list" className={`${this.getActiveMenu("/advisers/list") && "active"}`}>
               مدیریت مشاور‌ها
             </Link>
           </li>

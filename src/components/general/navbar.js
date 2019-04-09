@@ -50,7 +50,7 @@ class Navbar extends Component {
         </div>
         <div className="navbar-col">
           <span className="date-container">{currentDate}</span>
-          <div className="profile-btn" onClick={() => history.push(`/user/edit/${this.userInfo.accountId}`)} />
+          {/* <div className="profile-btn" onClick={() => history.push(`/user/edit/${this.userInfo.accountId}`)} /> */}
           <div className="logout-btn" onClick={() => this.logout()} />
         </div>
       </div>

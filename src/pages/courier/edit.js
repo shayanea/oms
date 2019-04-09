@@ -96,7 +96,12 @@ class EditCourier extends Component {
     const { code, title, description, note, contactEmail, contactNumber, contactPerson, isActive, showAutoComplete, autoCompleteResult } = this.state;
     return (
       <div className="container">
-        <Breadcrumb breads={dataList} />
+        <div style={{ position: "relative" }}>
+          <Breadcrumb breads={dataList} />
+          <div onClick={() => this.props.history.goBack()} style={{ position: "absolute", left: "15px", top: "12px", fontSize: "12px", color: "#38f", cursor: "pointer" }}>
+            بازگشت
+          </div>
+        </div>
         <Row className="grid-layout__container">
           <Col
             span={24}

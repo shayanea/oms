@@ -57,7 +57,7 @@ class AdviserList extends Component {
     this.props.getAdvisers(conf.current, this.props.advisers.search);
   }
 
-  removeUser = id => {
+  removeAdviser = id => {
     Sweetalert.confirm({
       confirmType: "success",
       confirmText: "بله",
@@ -78,9 +78,9 @@ class AdviserList extends Component {
 
   removeAction = id => {
     return axios
-      .delete(`/advisers/${id}`, { roleIds: [] })
+      .delete(`/advisers/${id}`)
       .then(res => {
-        this.props.getAdvisers(this.props.users.pageNumber, this.props.users.search);
+        this.props.getAdvisers(this.props.advisers.pageNumber, this.props.advisers.search);
       })
       .catch(err => {
         Notify.error(err.data !== null && typeof err.data !== "undefined" ? err.data.error.errorDescription : "در برقراری ارتباط مشکلی به وجود آمده است.", 5000);
@@ -106,7 +106,7 @@ class AdviserList extends Component {
         bodyRender: data => {
           return (
             <React.Fragment>
-              <span className="remove-item" onClick={() => this.removeUser(data.id)} />
+              <span className="remove-item" onClick={() => this.removeAdviser(data.id)} />
               <Link to={`/adviser/edit/${data.id}`}>
                 <span className="edit-item" />
               </Link>
@@ -118,7 +118,12 @@ class AdviserList extends Component {
     return (
       <div className="container">
         <h2 className="page-title">لیست مشاوران</h2>
-        <Breadcrumb breads={dataList} />
+        <div style={{ position: "relative" }}>
+          <Breadcrumb breads={dataList} />
+          <div onClick={() => this.props.history.goBack()} style={{ position: "absolute", left: "15px", top: "12px", fontSize: "12px", color: "#38f", cursor: "pointer" }}>
+            بازگشت
+          </div>
+        </div>
         <Row className="grid-layout__container">
           <Col span={24}>
             <Table

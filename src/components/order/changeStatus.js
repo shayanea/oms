@@ -1,10 +1,10 @@
 import React, { Component } from "react";
-import { Button, Portal, Notify } from "zent";
+import { Button, Portal, Notify, Input } from "zent";
 import axios from "../../utils/requestConfig";
 
 const WrappedPortal = Portal.withNonScrollable(Portal.withESCToClose(Portal));
 
-const Statuses = [
+let Statuses = [
   { id: null, title: "وضعیت را انتخاب کنید" },
   { id: 101, title: "ثبت شده" },
   { id: 201, title: "ارجاع به واحد ارسال" },
@@ -12,7 +12,6 @@ const Statuses = [
   { id: 302, title: "مرجوعی - خارج از محدوده" },
   { id: 303, title: "مرجوعی - تکمیل ظرفیت ارسال" },
   { id: 304, title: "مرجوعی - به درخواست فروشگاه" },
-  { id: 401, title: "هماهنگی ارسال برای مشتری" },
   { id: 501, title: "وصول شد" },
   { id: 601, title: "کنسلی - آدرس اشتباه" },
   { id: 602, title: "کنسلی - کنسلی تلفنی" },
@@ -27,19 +26,25 @@ class ChangeStatusModal extends Component {
     super();
     this.userInfo = JSON.parse(localStorage.getItem("USER_INFO"));
     this.state = {
-      statusId: null
+      statusId: null,
+      note: ""
     };
   }
 
   componentDidMount() {
-    if (this.userInfo.roleId === "32" || this.userInfo.roleId === "64") Statuses.splice(0, 2);
+    if (this.userInfo.roleId === "32" || this.userInfo.roleId === "64") Statuses = Statuses.filter(item => item.id !== 201 && item.id !== 101);
   }
+
+  onChange = e => {
+    this.setState({ note: e.target.value });
+  };
 
   submit = () => {
     if (this.state.statusId !== null) {
       axios
         .post(`/orders/statuses/${this.state.statusId}`, {
-          orderIds: this.props.selectedRowKeys
+          orderIds: this.props.selectedRowKeys,
+          note: this.state.note
         })
         .then(res => {
           Notify.success("سفارش مورد نظر با موفقیت انتساب گردید.", 5000);
@@ -69,6 +74,7 @@ class ChangeStatusModal extends Component {
                 </select>
               </div>
             </div>
+            <Input onChange={this.onChange} type="textarea" style={{ marginBottom: "10px" }} />
             <Button htmlType="submit" className="submit-btn" type="primary" size="large" onClick={() => this.submit()}>
               تغییر وضعیت
             </Button>

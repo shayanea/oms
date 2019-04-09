@@ -33,6 +33,8 @@ import CourierDashboard from "./pages/courier/dashboard";
 import CourierList from "./pages/courier/list";
 import AddCourier from "./pages/courier/add";
 import EditCourier from "./pages/courier/edit";
+import CourierOrderList from "./pages/courier/orders";
+import CourierOrderManage from "./pages/courier/manage";
 // Adviser
 import AdviserList from "./pages/adviser/list";
 import AddAdviser from "./pages/adviser/add";
@@ -132,6 +134,10 @@ class Main extends Component {
         return (document.title = "انتصاب سفارش‌ها");
       case "/order/add":
         return (document.title = "درج سفارش");
+      case "/advisers/list":
+        return (document.title = "لیست مشاوران");
+      case "/adviser/add":
+        return (document.title = "درج مشاور");
       default:
         return this.handleRouteWithParams(path);
     }
@@ -168,6 +174,8 @@ class Main extends Component {
               <AuthRoute exact path="/couriers/list" component={CourierList} />
               <AuthRoute exact path="/courier/add" component={AddCourier} />
               <AuthRoute exact path="/courier/edit/:id" component={EditCourier} />
+              <AuthRoute exact path="/courier/orders" component={CourierOrderList} />
+              <AuthRoute exact path="/courier/orders/manage" component={CourierOrderManage} />
               {/* adviser route */}
               <AuthRoute exact path="/advisers/list" component={AdviserList} />
               <AuthRoute exact path="/adviser/add" component={AddAdviser} />

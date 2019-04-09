@@ -12,6 +12,7 @@ class AddUser extends Component {
   };
 
   submit = data => {
+    if (data.roleIds === "") data.roleIds = 2;
     this.setState({ isLoading: true });
     axios
       .post("/accounts", {
@@ -34,7 +35,12 @@ class AddUser extends Component {
     const { handleSubmit } = this.props;
     return (
       <div className="container">
-        <Breadcrumb breads={dataList} />
+        <div style={{ position: "relative" }}>
+          <Breadcrumb breads={dataList} />
+          <div onClick={() => this.props.history.goBack()} style={{ position: "absolute", left: "15px", top: "12px", fontSize: "12px", color: "#38f", cursor: "pointer" }}>
+            بازگشت
+          </div>
+        </div>
         <Row className="grid-layout__container">
           <Col
             span={24}
@@ -107,6 +113,7 @@ class AddUser extends Component {
                 autoWidth
                 optionValue="id"
                 optionText="title"
+                value={2}
                 required
               />
               <Button htmlType="submit" className="submit-btn" type="primary" size="large" loading={this.state.isLoading}>

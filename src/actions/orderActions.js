@@ -3,7 +3,7 @@ import axios from "../utils/requestConfig";
 import { Notify } from "zent";
 
 export const getOrders = (page, search) => dispatch => {
-  let searchQuery = search !== "" ? `&Address=${search}&Address_op=has&Address_combineOp=or&FirstPhoneNumber=${search}&FirstPhoneNumber_op=has&FirstPhoneNumber_combineOp=or` : "";
+  let searchQuery = search !== "" ? `&_searchParameters=name,FirstPhoneNumber,PostalCode,Address,Notes&_search=${search}` : "";
   let userInfo = JSON.parse(localStorage.getItem("USER_INFO"));
   dispatch({
     type: type.FETCH_ORDERS,
@@ -15,7 +15,7 @@ export const getOrders = (page, search) => dispatch => {
     }
   });
   axios
-    .get(`/orders?PageNumber=${page}&PageSize=30&StatusId=101&_sort=-CreationDateTime&CreatedByAccountId=${userInfo.accountId}${searchQuery}`)
+    .get(`/orders?_pageNumber=${page}&_pageSize=30&StatusId=101&_sort=-CreationDateTime&creatorAccountId=${userInfo.accountId}${searchQuery}`)
     .then(res => {
       dispatch({
         type: type.FETCH_ORDERS,
@@ -41,9 +41,16 @@ export const getOrders = (page, search) => dispatch => {
     });
 };
 
-export const getNonAssignOrders = (page, search, city = null, product = null) => dispatch => {
-  let searchQuery = search !== "" ? `&Address=${search}&Address_op=has&Address_combineOp=or&FirstPhoneNumber=${search}&FirstPhoneNumber_op=has&FirstPhoneNumber_combineOp=or` : "";
+export const getNonAssignOrders = (page, search, city = null, product = null, startDate = "", endDate) => dispatch => {
+  let searchQuery = search !== "" ? `&_searchParameters=name,FirstPhoneNumber,PostalCode,Address,Notes&_search=${search}` : "";
   let cityQuery = city !== null ? `&CityId=${city}&CityId_op=in&` : "";
+  let productQuery = product !== null ? `&ProductId=${product}&ProductId_op=in&` : "";
+  let dateQuery =
+    startDate !== ""
+      ? `&CreationDateTime=${encodeURIComponent(startDate.format())},${
+          endDate === "" ? encodeURIComponent(startDate.format()) : encodeURIComponent(endDate.format())
+        }&CreationDateTime_op=between`
+      : "";
   dispatch({
     type: type.FETCH_ORDERS,
     payload: {
@@ -55,7 +62,7 @@ export const getNonAssignOrders = (page, search, city = null, product = null) =>
     }
   });
   axios
-    .get(`/orders?PageNumber=${page}&PageSize=30&StatusId=101&_sort=-CreationDateTime${cityQuery}${searchQuery}`)
+    .get(`/orders?_pageNumber=${page}&_pageSize=30&StatusId=101&_sort=-CreationDateTime${cityQuery}${productQuery}${dateQuery}${searchQuery}`)
     .then(res => {
       dispatch({
         type: type.FETCH_ORDERS,
@@ -84,7 +91,7 @@ export const getNonAssignOrders = (page, search, city = null, product = null) =>
 };
 
 export const getAssignOrders = (page, search, city = null, product = null, courier = null) => dispatch => {
-  let searchQuery = search !== "" ? `&Address=${search}&Address_op=has&Address_combineOp=or&FirstPhoneNumber=${search}&FirstPhoneNumber_op=has&FirstPhoneNumber_combineOp=or` : "";
+  let searchQuery = search !== "" ? `&_searchParameters=name,FirstPhoneNumber,PostalCode,Address,Notes&_search=${search}` : "";
   let cityQuery = city !== null ? `&CityId=${city}&CityId_op=in&` : "";
   let productQuery = product !== null ? `&ProductId=${product}&ProductId_op=in&` : "";
   let courierQuery = courier !== null ? `&CourierId=${courier}&CourierId_op=in&` : "";
@@ -99,7 +106,7 @@ export const getAssignOrders = (page, search, city = null, product = null, couri
     }
   });
   axios
-    .get(`/orders?PageNumber=${page}&PageSize=30&StatusId=201&_sort=-CreationDateTime${cityQuery}${productQuery}${courierQuery}${searchQuery}`)
+    .get(`/orders?_pageNumber=${page}&_pageSize=30&StatusId=201&_sort=-CreationDateTime${cityQuery}${productQuery}${courierQuery}${searchQuery}`)
     .then(res => {
       dispatch({
         type: type.FETCH_ORDERS,
@@ -127,12 +134,18 @@ export const getAssignOrders = (page, search, city = null, product = null, couri
     });
 };
 
-export const getAllOrders = (page, search, city = null, product = null, courier = null, status = null) => dispatch => {
-  let searchQuery = search !== "" ? `&Address=${search}&Address_op=has&Address_combineOp=or&FirstPhoneNumber=${search}&FirstPhoneNumber_op=has&FirstPhoneNumber_combineOp=or` : "";
+export const getAllOrders = (page, search, city = null, product = null, courier = null, status = null, startDate = "", endDate) => dispatch => {
+  let searchQuery = search !== "" ? `&_searchParameters=name,FirstPhoneNumber,PostalCode,Address,Notes&_search=${search}` : "";
   let cityQuery = city !== null ? `&CityId=${city}&CityId_op=in&` : "";
   let productQuery = product !== null ? `&ProductId=${product}&ProductId_op=in&` : "";
   let courierQuery = courier !== null ? `&CourierId=${courier}&CourierId_op=in&` : "";
   let statusQuery = status !== null ? `&StatusId=${status}&StatusId_op=in&` : "";
+  let dateQuery =
+    startDate !== ""
+      ? `&CreationDateTime=${encodeURIComponent(startDate.format())},${
+          endDate === "" ? encodeURIComponent(startDate.format()) : encodeURIComponent(endDate.format())
+        }&CreationDateTime_op=between`
+      : "";
   dispatch({
     type: type.FETCH_ORDERS,
     payload: {
@@ -144,7 +157,7 @@ export const getAllOrders = (page, search, city = null, product = null, courier 
     }
   });
   axios
-    .get(`/orders?PageNumber=${page}&PageSize=30&_sort=-CreationDateTime${cityQuery}${productQuery}${courierQuery}${statusQuery}${searchQuery}`)
+    .get(`/orders?_pageNumber=${page}&_pageSize=30&_sort=-CreationDateTime${cityQuery}${productQuery}${courierQuery}${statusQuery}${dateQuery}${searchQuery}`)
     .then(res => {
       dispatch({
         type: type.FETCH_ORDERS,

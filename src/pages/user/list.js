@@ -1,7 +1,6 @@
 import React, { Component } from "react";
 import { connect } from "react-redux";
 import PropTypes from "prop-types";
-import { Link } from "react-router-dom";
 import * as moment from "moment-jalaali";
 import { getUsers } from "../../actions/userAction";
 import axios from "../../utils/requestConfig";
@@ -22,7 +21,6 @@ class UsersList extends Component {
         totalItem: this.props.users.total
       },
       datasets: [],
-      accounts: [],
       loading: true,
       modalStatus: false
     };
@@ -40,8 +38,7 @@ class UsersList extends Component {
           totalItem: this.props.users.total
         },
         loading: this.props.users.loading,
-        datasets: this.props.users.items,
-        accounts: this.props.users.accounts
+        datasets: this.props.users.items
       });
     }
   }
@@ -56,11 +53,6 @@ class UsersList extends Component {
     });
     this.props.getUsers(conf.current, this.props.users.search);
   }
-
-  findAccountById = id => {
-    let result = this.state.accounts.find(item => item.accountId === id);
-    return result ? `${result.firstName !== null ? result.firstName : ""} ${result.lastName !== null ? result.lastName : ""}` : "";
-  };
 
   removeUser = id => {
     Sweetalert.confirm({
@@ -83,7 +75,9 @@ class UsersList extends Component {
 
   removeAction = id => {
     return axios
-      .put(`/accounts/${id}/roles`, { roleIds: [] })
+      .post(`/accounts/banned`, {
+        accountId: id
+      })
       .then(res => {
         this.props.getUsers(this.props.users.pageNumber, this.props.users.search);
       })
@@ -97,9 +91,7 @@ class UsersList extends Component {
     const columns = [
       {
         title: "نام و نام خانوادکی",
-        bodyRender: data => {
-          return this.findAccountById(data.id);
-        }
+        name: "name"
       },
       {
         title: "ایمیل",
@@ -116,9 +108,9 @@ class UsersList extends Component {
           return (
             <React.Fragment>
               <span className="remove-item" onClick={() => this.removeUser(data.id)} />
-              <Link to={`/user/edit/${data.id}`}>
+              {/* <Link to={`/user/edit/${data.id}`}>
                 <span className="edit-item" />
-              </Link>
+              </Link> */}
             </React.Fragment>
           );
         }
@@ -127,7 +119,12 @@ class UsersList extends Component {
     return (
       <div className="container">
         <h2 className="page-title">لیست کاربران</h2>
-        <Breadcrumb breads={dataList} />
+        <div style={{ position: "relative" }}>
+          <Breadcrumb breads={dataList} />
+          <div onClick={() => this.props.history.goBack()} style={{ position: "absolute", left: "15px", top: "12px", fontSize: "12px", color: "#38f", cursor: "pointer" }}>
+            بازگشت
+          </div>
+        </div>
         <Row className="grid-layout__container">
           <Col span={24}>
             <Table
@@ -157,7 +154,6 @@ UsersList.propTypes = {
   users: PropTypes.shape({
     isLoading: PropTypes.bool.isRequired,
     items: PropTypes.array.isRequired,
-    accounts: PropTypes.array.isRequired,
     total: PropTypes.number.isRequired,
     pageNumber: PropTypes.number.isRequired
   })

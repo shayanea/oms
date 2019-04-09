@@ -118,7 +118,12 @@ class CourierList extends Component {
     return (
       <div className="container">
         <h2 className="page-title">لیست واحد‌های ارسال</h2>
-        <Breadcrumb breads={dataList} />
+        <div style={{ position: "relative" }}>
+          <Breadcrumb breads={dataList} />
+          <div onClick={() => this.props.history.goBack()} style={{ position: "absolute", left: "15px", top: "12px", fontSize: "12px", color: "#38f", cursor: "pointer" }}>
+            بازگشت
+          </div>
+        </div>
         <Row className="grid-layout__container">
           <Col span={24}>
             <Table
