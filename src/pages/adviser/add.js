@@ -18,8 +18,9 @@ class AddAdviser extends Component {
         firstName: data.firstName,
         lastName: data.lastName,
         firstPhoneNumber: data.firstPhoneNumber,
+        secondPhoneNumber: data.secondPhoneNumber,
         nationalCode: data.nationalCode,
-        isActive: data.isActive
+        isActive: data.isActive !== ""
       })
       .then(res => {
         this.props.history.push("/advisers/list");
@@ -93,7 +94,7 @@ class AddAdviser extends Component {
               <FormInputField
                 name="firstPhoneNumber"
                 type="text"
-                placeholder="شماره تماس"
+                placeholder="شماره موبایل"
                 maxLength="11"
                 validateOnChange={false}
                 validateOnBlur={false}
@@ -104,12 +105,30 @@ class AddAdviser extends Component {
                   minLength: 11
                 }}
                 validationErrors={{
-                  required: " شماره تماس اجباری است.",
-                  matchRegex: "شماره تماس را درست وارد نمایید.",
-                  maxLength: "شماره تماس باید ۱۱ رقمی باشد.",
-                  minLength: "شماره تماس باید ۱۱ رقمی باشد."
+                  required: " شماره موبایل اجباری است.",
+                  matchRegex: "شماره موبایل را درست وارد نمایید.",
+                  maxLength: "شماره موبایل باید ۱۱ رقمی باشد.",
+                  minLength: "شماره موبایل باید ۱۱ رقمی باشد."
                 }}
                 required
+              />
+              <FormInputField
+                name="secondPhoneNumber"
+                type="text"
+                placeholder="شماره تلفن ثابت"
+                maxLength="11"
+                validateOnChange={false}
+                validateOnBlur={false}
+                validations={{
+                  matchRegex: /^[0-9 || {InArabic}&&[^۰-۹]+$/,
+                  maxLength: 11,
+                  minLength: 11
+                }}
+                validationErrors={{
+                  matchRegex: "شماره تلفن ثابت را درست وارد نمایید.",
+                  maxLength: "شماره تلفن ثابت باید ۱۱ رقمی باشد.",
+                  minLength: "شماره تلفن ثابت باید ۱۱ رقمی باشد."
+                }}
               />
               <FormCheckboxField name="isActive">فعال</FormCheckboxField>
               <Button htmlType="submit" className="submit-btn" type="primary" size="large" loading={this.state.isLoading}>

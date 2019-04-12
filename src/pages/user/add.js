@@ -109,11 +109,18 @@ class AddUser extends Component {
                 name="roleIds"
                 placeholder="انتخاب سطح دسترسی"
                 label="سطح دسترسی"
-                data={[{ id: 2, title: "مدیر سیستم" }, { id: 4, title: "مدیر سفارشات" }, { id: 16, title: "تایپیست" }]}
+                data={[{ id: 2, title: "مدیر سیستم" }, { id: 4, title: "مدیر سفارشات" }, { id: 16, title: "تایپیست" }, { id: 32, title: "مدیر واحد ارسال" }]}
                 autoWidth
                 optionValue="id"
                 optionText="title"
-                value={2}
+                validateOnChange={false}
+                validateOnBlur={false}
+                validations={{
+                  required: true
+                }}
+                validationErrors={{
+                  required: " سطح دسترسی اجباری است."
+                }}
                 required
               />
               <Button htmlType="submit" className="submit-btn" type="primary" size="large" loading={this.state.isLoading}>

@@ -2,7 +2,6 @@ import React, { Component } from "react";
 import * as moment from "moment-jalaali";
 import City from "../../assets/city.json";
 import axios from "../../utils/requestConfig";
-import CurrencyInput from "react-currency-input";
 
 import { Layout, Breadcrumb, Table, Form, Notify, Button, Sweetalert } from "zent";
 import ProductModal from "../../components/order/selectProduct";
@@ -12,11 +11,72 @@ moment.loadPersian({ dialect: "persian-modern" });
 const { createForm, FormInputField } = Form;
 const { Col, Row } = Layout;
 const dataList = [{ name: "پیشخوان", href: "/" }, { name: "ویرایش سفارش" }];
+const deliveryTimeObject = [
+  {
+    value: "1",
+    display: "مهم نیست"
+  },
+  {
+    value: "2",
+    display: "ساعت ۹ تا ۱۲"
+  },
+  {
+    value: "3",
+    display: "ساعت ۱۲ تا ۱۵"
+  },
+  {
+    value: "4",
+    display: "ساعت ۱۵ تا ۱۸"
+  },
+  {
+    value: "5",
+    display: "ساعت ۱۸ تا ۲۱"
+  }
+];
+const deliveryCostObject = [
+  {
+    value: 1,
+    display: "رایگان"
+  },
+  {
+    value: 2,
+    display: "۵۰.۰۰۰ ریال"
+  },
+  {
+    value: 3,
+    display: "۷۰.۰۰۰ ریال"
+  },
+  {
+    value: 4,
+    display: "۱۰۰.۰۰۰ ریال"
+  },
+  {
+    value: 5,
+    display: "۱۲۰.۰۰۰ ریال"
+  },
+  {
+    value: 6,
+    display: "۱۵۰.۰۰۰ ریال"
+  },
+  {
+    value: 7,
+    display: "۲۰۰.۰۰۰ ریال"
+  },
+  {
+    value: 8,
+    display: "۲۵۰.۰۰۰ ریال"
+  },
+  {
+    value: 9,
+    display: "۳۰۰.۰۰۰ ریال"
+  }
+];
 
 class EditOrder extends Component {
   constructor(props) {
     super(props);
-    this.handleChange = this.handleChange.bind(this);
+    this.handleProrityChange = this.handleProrityChange.bind(this);
+    this.handlePaidChange = this.handlePaidChange.bind(this);
     this.handlePriceChange = this.handlePriceChange.bind(this);
     this.state = {
       year: moment().format("jYYYY"),
@@ -31,6 +91,7 @@ class EditOrder extends Component {
       pageNumber: 1,
       isLoading: false,
       hasHighPriority: false,
+      isPaid: false,
       orderObject: {
         adviserId: "",
         deliveryCost: 0,
@@ -47,6 +108,7 @@ class EditOrder extends Component {
         deliveryDate: "",
         notes: "",
         hasHighPriority: false,
+        isPaid: false,
         courierId: null
       }
     };
@@ -89,6 +151,7 @@ class EditOrder extends Component {
           array.push({ id: item.productId, number: item.count, price: item.perUnitPrice });
         });
         this.setState({
+          loading: false,
           selectedCity: this.findCityById(res.data.data.cityId),
           orderObject: {
             adviserId: res.data.data.adviserId,
@@ -101,6 +164,7 @@ class EditOrder extends Component {
             deliveryTimeId: res.data.data.deliveryTimeId,
             notes: res.data.data.notes,
             hasHighPriority: res.data.data.hasHighPriority,
+            isPaid: res.data.data.isPaid,
             deliveryCostId: res.data.data.deliveryCostId,
             discount: res.data.data.discount
           },
@@ -230,13 +294,23 @@ class EditOrder extends Component {
       });
   };
 
-  handleChange({ target }) {
+  handleProrityChange({ target }) {
     if (target.checked) {
       target.removeAttribute("checked");
       this.setState({ hasHighPriority: true });
     } else {
       target.setAttribute("checked", true);
       this.setState({ hasHighPriority: false });
+    }
+  }
+
+  handlePaidChange({ target }) {
+    if (target.checked) {
+      target.removeAttribute("checked");
+      this.setState({ isPaid: true });
+    } else {
+      target.setAttribute("checked", true);
+      this.setState({ isPaid: false });
     }
   }
 
@@ -266,6 +340,7 @@ class EditOrder extends Component {
           deliveryDate: this.calculateDate(this.state.day, this.state.month, this.state.year),
           notes: data.notes,
           hasHighPriority: this.state.hasHighPriority,
+          isPaid: this.state.isPaid,
           products: array,
           statusId: this.state.statusId
         })
@@ -316,54 +391,6 @@ class EditOrder extends Component {
         bodyRender: data => {
           return <span className="remove-item" onClick={() => this.removeProduct(data.id)} />;
         }
-      }
-    ];
-    const deliveryTimeObject = [
-      {
-        value: "1",
-        display: "مهم نیست"
-      },
-      {
-        value: "2",
-        display: "ساعت ۹ تا ۱۲"
-      },
-      {
-        value: "3",
-        display: "ساعت ۱۲ تا ۱۵"
-      },
-      {
-        value: "4",
-        display: "ساعت ۱۵ تا ۱۸"
-      },
-      {
-        value: "5",
-        display: "ساعت ۱۸ تا ۲۱"
-      }
-    ];
-    const deliveryCostObject = [
-      {
-        value: 1,
-        display: "رایگان"
-      },
-      {
-        value: 2,
-        display: "۳۰ هزار ریال"
-      },
-      {
-        value: 3,
-        display: "۱۰۰ هزار ریال"
-      },
-      {
-        value: 4,
-        display: "۱۵۰ هزار ریال"
-      },
-      {
-        value: 5,
-        display: "۳۰۰ هزار ریال"
-      },
-      {
-        value: 6,
-        display: "۵۰۰ هزار ریال"
       }
     ];
     return (
@@ -574,17 +601,25 @@ class EditOrder extends Component {
                   </div>
                 </Col>
               </Row>
-              <div className="zent-form__control-group" style={{ fontSize: "12px" }}>
-                <input
-                  tabIndex="0"
-                  type="checkbox"
-                  defaultChecked={this.state.hasHighPriority}
-                  onClick={this.handleChange}
-                  name="hasHighPriority"
-                  value={this.state.hasHighPriority}
-                />
-                ارسال فوری سفارش در الویت ارسال قرار گیرد
-              </div>
+              {!this.state.loading && (
+                <React.Fragment>
+                  <div className="zent-form__control-group" style={{ fontSize: "12px" }}>
+                    <input
+                      tabIndex="0"
+                      type="checkbox"
+                      defaultChecked={orderObject.hasHighPriority}
+                      onClick={this.handleProrityChange}
+                      name="hasHighPriority"
+                      value={this.state.hasHighPriority}
+                    />
+                    ارسال فوری سفارش در الویت ارسال قرار گیرد
+                  </div>
+                  <div className="zent-form__control-group" style={{ fontSize: "12px" }}>
+                    <input tabIndex="0" type="checkbox" onClick={this.handlePaidChange} defaultChecked={orderObject.isPaid} name="isPaid" value={this.state.isPaid} />
+                    تسویه شده است
+                  </div>
+                </React.Fragment>
+              )}
               <Button htmlType="submit" className="submit-btn" type="primary" size="large" loading={isLoading}>
                 ویرایش سفارش
               </Button>

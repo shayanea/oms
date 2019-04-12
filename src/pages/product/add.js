@@ -44,7 +44,7 @@ class AddProduct extends Component {
           description: data.description,
           code: data.code,
           body: "",
-          isAvailable: data.isAvailable
+          isAvailable: data.isAvailable !== ""
         })
         .then(res => this.props.history.push("/products/list"))
         .catch(err => {

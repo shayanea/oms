@@ -2,7 +2,6 @@ import React, { Component } from "react";
 import { Form, Button, Portal } from "zent";
 
 const { createForm } = Form;
-
 const WrappedPortal = Portal.withNonScrollable(Portal.withESCToClose(Portal));
 
 class ProductModal extends Component {
@@ -19,6 +18,7 @@ class ProductModal extends Component {
       setTimeout(() => {
         this.productInput.focus();
       }, 500);
+      this.setState({ id: this.props.products[0].id });
     }
   }
 
@@ -34,7 +34,7 @@ class ProductModal extends Component {
     return string;
   }
 
-  submit = data => {
+  submit = () => {
     if (this.state.id !== null) {
       let result = this.props.products.find(item => item.id === this.state.id);
       this.props.onSelectProduct({
@@ -44,7 +44,7 @@ class ProductModal extends Component {
         price: result.price,
         total: result.price * Number(this.state.number)
       });
-      this.setState({ number: 1 });
+      this.setState({ number: 1, id: this.props.products[0].id });
     }
   };
 

@@ -36,6 +36,7 @@ class AdviserList extends Component {
     if (prevProps.advisers.items !== this.props.advisers.items) {
       this.setState({
         page: {
+          pageSize: 10,
           current: this.props.advisers.pageNumber,
           totalItem: this.props.advisers.total
         },
@@ -106,10 +107,10 @@ class AdviserList extends Component {
         bodyRender: data => {
           return (
             <React.Fragment>
-              <span className="remove-item" onClick={() => this.removeAdviser(data.id)} />
               <Link to={`/adviser/edit/${data.id}`}>
                 <span className="edit-item" />
               </Link>
+              <span className="remove-item" onClick={() => this.removeAdviser(data.id)} />
             </React.Fragment>
           );
         }

@@ -13,8 +13,6 @@ class EditCourier extends Component {
     code: "",
     description: "",
     isActive: false,
-    note: "",
-    contactEmail: "",
     contactNumber: "",
     contactPerson: "",
     showAutoComplete: false,
@@ -35,10 +33,8 @@ class EditCourier extends Component {
           title: res.data.data[0].title,
           description: res.data.data[0].description,
           isActive: res.data.data[0].isActive,
-          note: res.data.data[0].note,
           contactPerson: res.data.data[0].contactPerson,
           contactNumber: res.data.data[0].contactNumber,
-          contactEmail: res.data.data[0].contactEmail,
           selectAccountId: res.data.data[0].adminAccountId,
           hasLoaded: true
         });
@@ -57,7 +53,7 @@ class EditCourier extends Component {
   searchForUser = data => {
     if (data.length > 3) {
       return axios
-        .get(`/accounts?Email=${data}&Email_op=has`)
+        .get(`/accounts?Email=${data}&Email_op=has&RoleFlags=32&RoleFlags_op=mask`)
         .then(res => {
           if (res.data.data.length > 0) this.setState({ autoCompleteResult: res.data.data, showAutoComplete: true });
         })
@@ -74,10 +70,8 @@ class EditCourier extends Component {
         code: data.code,
         title: data.title,
         description: data.description,
-        note: data.note,
         contactPerson: data.contactPerson,
         contactNumber: data.contactNumber,
-        contactEmail: data.contactEmail,
         adminAccountId: this.state.selectAccountId,
         isActive: data.isActive === "" ? false : data.isActive
       })
@@ -93,7 +87,7 @@ class EditCourier extends Component {
 
   render() {
     const { handleSubmit } = this.props;
-    const { code, title, description, note, contactEmail, contactNumber, contactPerson, isActive, showAutoComplete, autoCompleteResult } = this.state;
+    const { code, title, contactNumber, contactPerson, isActive, showAutoComplete, autoCompleteResult } = this.state;
     return (
       <div className="container">
         <div style={{ position: "relative" }}>
@@ -128,11 +122,8 @@ class EditCourier extends Component {
                 }}
                 value={title}
               />
-              <FormInputField name="description" type="text" placeholder="توضیحات" value={description} />
               <FormInputField name="contactPerson" type="text" placeholder="نام مسئول واحد" value={contactPerson} />
               <FormInputField name="contactNumber" type="text" placeholder="شماره تماس مسئول واحد" value={contactNumber} />
-              <FormInputField name="contactEmail" type="text" placeholder="ایمیل مسئول واحد" value={contactEmail} />
-              <FormInputField name="note" type="text" placeholder="نوت" value={note} />
               <div className="zent-form__controls" style={{ marginBottom: "10px" }}>
                 <div className="zent-input-wrapper" style={{ height: "40px", maxHeight: "46px" }}>
                   <input

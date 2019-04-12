@@ -15,7 +15,7 @@ export const getOrders = (page, search) => dispatch => {
     }
   });
   axios
-    .get(`/orders?_pageNumber=${page}&_pageSize=30&StatusId=101&_sort=-CreationDateTime&creatorAccountId=${userInfo.accountId}${searchQuery}`)
+    .get(`/orders?_pageNumber=${page}&_pageSize=20&StatusId=101&_sort=-CreationDateTime&creatorAccountId=${userInfo.accountId}${searchQuery}`)
     .then(res => {
       dispatch({
         type: type.FETCH_ORDERS,
@@ -47,9 +47,7 @@ export const getNonAssignOrders = (page, search, city = null, product = null, st
   let productQuery = product !== null ? `&ProductId=${product}&ProductId_op=in&` : "";
   let dateQuery =
     startDate !== ""
-      ? `&CreationDateTime=${encodeURIComponent(startDate.format())},${
-          endDate === "" ? encodeURIComponent(startDate.format()) : encodeURIComponent(endDate.format())
-        }&CreationDateTime_op=between`
+      ? `&CreationDateTime=${encodeURIComponent(startDate)},${endDate === "" ? encodeURIComponent(startDate) : encodeURIComponent(endDate)}&CreationDateTime_op=between`
       : "";
   dispatch({
     type: type.FETCH_ORDERS,

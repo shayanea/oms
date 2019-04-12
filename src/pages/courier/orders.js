@@ -6,11 +6,12 @@ import { getAssignOrders } from "../../actions/orderActions";
 import axios from "../../utils/requestConfig";
 import City from "../../assets/city.json";
 
-import { Layout, SearchInput, Table, Select, Notify, Button } from "zent";
+import { Layout, SearchInput, Table, Select, Notify, Button, Breadcrumb } from "zent";
 import ChangeStatus from "../../components/order/changeStatus";
 import ViewOrder from "../../components/order/viewOrder";
 
 const { Col, Row } = Layout;
+const dataList = [{ name: "پیشخوان", href: "/couriers/dashboard" }, { name: "لیست کاربران" }];
 
 class OrderList extends Component {
   constructor(props) {
@@ -157,10 +158,14 @@ class OrderList extends Component {
 
   onChangeStatus = () => {
     this.setState({ modalStatus: false, selectedRowKeys: [] });
-    this.props.getAllOrders(this.props.orders.page, this.state.searchText, this.state.selectedCityId, this.state.selectedProductId, this.state.selectedStatusId);
+    this.props.getAssignOrders(this.props.orders.page, this.state.searchText, this.state.selectedCityId, this.state.selectedProductId, this.state.selectedCourierId);
   };
 
   viewOrder = item => this.setState({ infoModalStatus: true, selectedItem: item });
+
+  filter = () => {
+    this.props.getAssignOrders(this.props.orders.page, this.state.searchText, this.state.selectedCityId, this.state.selectedProductId, this.state.selectedCourierId);
+  };
 
   render() {
     const { searchText, datasets, page, products, selectedRowKeys, modalStatus, infoModalStatus, selectedItem } = this.state;
@@ -232,6 +237,12 @@ class OrderList extends Component {
     return (
       <div className="container">
         <h2 className="page-title">پیگیری سفارش‌ها</h2>
+        <div style={{ position: "relative" }}>
+          <Breadcrumb breads={dataList} />
+          <div onClick={() => this.props.history.goBack()} style={{ position: "absolute", left: "15px", top: "12px", fontSize: "12px", color: "#38f", cursor: "pointer" }}>
+            بازگشت
+          </div>
+        </div>
         <Row className="grid-layout__container">
           <Col span={24}>
             <div className="control-contaianer">
@@ -245,7 +256,8 @@ class OrderList extends Component {
                   optionText="title"
                   onChange={this.selectProductHandler}
                   searchPlaceholder="جستجو"
-                  filter={(item, keyword) => item.value.indexOf(keyword) > -1}
+                  filter={(item, keyword) => item.title.indexOf(keyword) > -1}
+                  emptyText={"ایتمی پیدا نشد."}
                 />
                 <Select
                   name="city"
@@ -257,9 +269,15 @@ class OrderList extends Component {
                   onChange={this.selectCityHandler}
                   searchPlaceholder="جستجو"
                   filter={(item, keyword) => item.fullName.indexOf(keyword) > -1}
+                  emptyText={"ایتمی پیدا نشد."}
                 />
               </div>
-              <SearchInput value={searchText} onChange={this.onSearchChange} placeholder="جستجو" onPressEnter={this.onPressEnter} />
+              <div style={{ display: "inline-flex", flexDirection: "row" }}>
+                <SearchInput value={searchText} onChange={this.onSearchChange} placeholder="جستجو" />
+                <Button type="primary" className="filter-btn" onClick={this.filter}>
+                  اعمال فیلتر
+                </Button>
+              </div>
             </div>
             <Table
               emptyLabel={"هیچ آیتمی در این لیست وجود ندارد."}

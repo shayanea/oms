@@ -2,7 +2,7 @@ import React, { Component } from "react";
 import { Layout, Breadcrumb, Form, Button, Notify } from "zent";
 import axios from "../../utils/requestConfig";
 
-const { createForm, FormSelectField } = Form;
+const { createForm, FormSelectField, FormInputField } = Form;
 const { Col, Row } = Layout;
 const dataList = [{ name: "پیشخوان", href: "/" }, { name: "ویرایش کاربر" }];
 
@@ -13,28 +13,25 @@ class EditUser extends Component {
     this.state = {
       isLoading: false,
       name: "",
+      email: "",
+      phoneNumber: "",
       roleIds: ""
     };
   }
 
   componentDidMount() {
-    this.fetchUserAndProfileById(this.props.match.params.id);
+    this.fetchAccountById(this.props.match.params.id);
   }
 
-  fetchUserProfile = () => {
-    return axios.get(`/profiles?AccountId=${this.props.match.params.id}`);
-  };
-
-  fetchUserById = () => {
-    return axios.get(`/accounts?id=${this.props.match.params.id}`);
-  };
-
-  fetchUserAndProfileById = () => {
-    return Promise.all([this.fetchUserById(), this.fetchUserProfile()])
+  fetchAccountById = () => {
+    axios
+      .get(`/accounts?id=${this.props.match.params.id}`)
       .then(res => {
         this.setState({
-          name: `${res[1].data.data[0].firstName} ${res[1].data.data[0].lastName}`,
-          roleIds: res[0].data.data[0].roleIds[0]
+          name: res.data.data[0].name,
+          email: res.data.data[0].email,
+          phoneNumber: res.data.data[0].phoneNumber,
+          roleIds: res.data.data[0].roleIds[0]
         });
       })
       .catch(err => {
@@ -43,27 +40,13 @@ class EditUser extends Component {
       });
   };
 
-  updateUserInfo = data => {
-    return axios.put(`/accounts/${this.props.match.params.id}/profile`, {
-      firstName: data.name
-    });
-  };
-
-  updateUserRole = data => {
-    return axios.put(`/accounts/${this.props.match.params.id}/roles`, {
-      roleIds: [data.roleIds]
-    });
-  };
-
   submit = data => {
     this.setState({ isLoading: true });
     axios
-      .put(`/accounts/${this.props.match.params.id}/roles`, {
-        roleIds: [data.roleIds]
-      })
-      .then(res => {
+      .put(`/accounts/${this.props.match.params.id}`, { name: data.name, email: data.email, phoneNumber: data.phoneNumber, roleIds: [data.roleIds] })
+      .then(() => {
         Notify.success("اطلاعات شما با موفقیت به روز رسانی گردید.", 5000);
-        this.props.history.push("/user/list");
+        this.props.history.push("/users/list");
       })
       .catch(err => {
         Notify.error(err.data !== null && typeof err.data !== "undefined" ? err.data.error.errorDescription : "در برقراری ارتباط مشکلی به وجود آمده است.", 5000);
@@ -73,7 +56,7 @@ class EditUser extends Component {
 
   render() {
     const { handleSubmit } = this.props;
-    const { roleIds } = this.state;
+    const { roleIds, name, email, phoneNumber } = this.state;
     return (
       <div className="container">
         <div style={{ position: "relative" }}>
@@ -93,7 +76,7 @@ class EditUser extends Component {
             }}
           >
             <Form disableEnterSubmit={false} vertical className={"add-order__form"} onSubmit={handleSubmit(this.submit)}>
-              {/* <FormInputField
+              <FormInputField
                 name="name"
                 type="text"
                 placeholder="نام و نام خانوادگی"
@@ -106,19 +89,41 @@ class EditUser extends Component {
                   required: " نام و نام خانوادگی اجباری است."
                 }}
                 value={name}
-              /> */}
+              />
+              <FormInputField
+                name="email"
+                type="email"
+                placeholder="ایمیل"
+                validateOnChange={false}
+                validateOnBlur={false}
+                validations={{
+                  required: true
+                }}
+                validationErrors={{
+                  required: " ایمیل اجباری است."
+                }}
+                value={email}
+              />
+              <FormInputField
+                name="phoneNumber"
+                type="text"
+                placeholder="شماره تماس"
+                maxLength={11}
+                validateOnChange={false}
+                validateOnBlur={false}
+                validations={{
+                  required: true
+                }}
+                validationErrors={{
+                  required: " شماره تماس اجباری است."
+                }}
+                value={phoneNumber}
+              />
               <FormSelectField
                 name="roleIds"
                 placeholder="انتخاب سطح دسترسی"
                 label="سطح دسترسی"
-                data={[
-                  { id: 2, title: "سیستم مدیریت" },
-                  { id: 4, title: "مدیر سفارشات" },
-                  // { id: 8, title: "مشاور" },
-                  { id: 16, title: "تایپیست" },
-                  { id: 32, title: "مدیر واحد ارسال" },
-                  { id: 64, title: "واحد ارسال" }
-                ]}
+                data={[{ id: 2, title: "مدیر سیستم" }, { id: 4, title: "مدیر سفارشات" }, { id: 16, title: "تایپیست" }, { id: 32, title: "مدیر واحد ارسال" }]}
                 autoWidth
                 optionValue="id"
                 optionText="title"

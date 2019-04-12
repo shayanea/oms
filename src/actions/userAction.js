@@ -13,7 +13,7 @@ export const getUsers = page => dispatch => {
     }
   });
   return axios
-    .get(`/accounts?_PageSize=30?_pageNumber=${page}&IsBanned=false&_sort=-id`)
+    .get(`/accounts?_PageSize=10&_pageNumber=${page}&IsBanned=false&_sort=-id`)
     .then(res => {
       dispatch({
         type: type.FETCH_USERS,

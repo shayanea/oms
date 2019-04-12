@@ -35,19 +35,21 @@ class AssingOrder extends Component {
     if (prevProps.products.items !== this.props.products.items) {
       this.setState({
         page: {
+          pageSize: 10,
           current: this.props.products.pageNumber,
           totalItem: this.props.products.total
         },
         loading: this.props.products.loading,
         datasets: this.props.products.items
       });
+      console.log(this.props.products.total);
     }
   }
 
   onChange(conf) {
     this.setState({
       page: {
-        pageSize: 10,
+        pageSize: 30,
         current: conf.current,
         totalItem: this.props.products.total
       }
@@ -116,10 +118,10 @@ class AssingOrder extends Component {
         bodyRender: data => {
           return (
             <React.Fragment>
-              <span className="remove-item" onClick={() => this.removeProduct(data.id)} />
               <Link to={`/product/edit/${data.id}`}>
                 <span className="edit-item" />
               </Link>
+              <span className="remove-item" onClick={() => this.removeProduct(data.id)} />
             </React.Fragment>
           );
         }

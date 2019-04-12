@@ -100,29 +100,18 @@ class OrderList extends Component {
     this.setState({
       searchText: evt.target.value
     });
-    if (evt.fromClearButton || evt.target.value === "") {
-      this.props.getAssignOrders(this.props.orders.page, "", this.state.selectedCityId, this.state.selectedProductId, this.state.selectedCourierId);
-    }
-  };
-
-  onPressEnter = () => {
-    if (this.state.searchText !== "")
-      this.props.getAssignOrders(this.props.orders.page, this.state.searchText, this.state.selectedCityId, this.state.selectedProductId, this.state.selectedCourierId);
   };
 
   selectProductHandler = (event, selected) => {
     this.setState({ selectedProductId: selected.value });
-    this.props.getAssignOrders(this.props.orders.page, this.state.searchText, this.state.selectedCityId, selected.value, this.state.selectedCourierId);
   };
 
   selectCityHandler = (event, selected) => {
     this.setState({ selectedCityId: selected.value });
-    this.props.getAssignOrders(this.props.orders.page, this.state.searchText, selected.value, this.state.selectedProductId, this.state.selectedCourierId);
   };
 
   selectCourierHandler = (event, selected) => {
     this.setState({ selectedCourierId: selected.value });
-    this.props.getAssignOrders(this.props.orders.page, this.state.searchText, this.state.selectedCityId, this.state.selectedProductId, selected.value);
   };
 
   onSelect(selectedRowKeys, selectedRows, currentRow) {
@@ -189,6 +178,10 @@ class OrderList extends Component {
   viewOrder = item => this.setState({ infoModalStatus: true, selectedItem: item });
 
   viewOrderHistory = item => this.setState({ historyModalStatus: true, selectedItem: item });
+
+  filter = () => {
+    this.props.getAssignOrders(this.props.orders.page, this.state.searchText, this.state.selectedCityId, this.state.selectedProductId, this.state.selectedCourierI);
+  };
 
   render() {
     const { searchText, datasets, page, products, couriers, selectedRowKeys, modalStatus, infoModalStatus, historyModalStatus, selectedItem } = this.state;
@@ -295,7 +288,8 @@ class OrderList extends Component {
                   optionText="title"
                   onChange={this.selectProductHandler}
                   searchPlaceholder="جستجو"
-                  filter={(item, keyword) => item.value.indexOf(keyword) > -1}
+                  filter={(item, keyword) => item.title.indexOf(keyword) > -1}
+                  emptyText={"ایتمی پیدا نشد."}
                 />
                 <Select
                   name="city"
@@ -307,9 +301,15 @@ class OrderList extends Component {
                   onChange={this.selectCityHandler}
                   searchPlaceholder="جستجو"
                   filter={(item, keyword) => item.fullName.indexOf(keyword) > -1}
+                  emptyText={"ایتمی پیدا نشد."}
                 />
               </div>
-              <SearchInput value={searchText} onChange={this.onSearchChange} placeholder="جستجو" onPressEnter={this.onPressEnter} />
+              <div style={{ display: "inline-flex", flexDirection: "row" }}>
+                <SearchInput value={searchText} onChange={this.onSearchChange} placeholder="جستجو" />
+                <Button type="primary" className="filter-btn" onClick={this.filter}>
+                  اعمال فیلتر
+                </Button>
+              </div>
             </div>
             <Table
               emptyLabel={"هیچ آیتمی در این لیست وجود ندارد."}

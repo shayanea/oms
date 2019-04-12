@@ -5,7 +5,7 @@ import * as moment from "moment-jalaali";
 import { getNonAssignOrders } from "../../actions/orderActions";
 import axios from "../../utils/requestConfig";
 import City from "../../assets/city.json";
-import { DatePicker } from "react-persian-datepicker";
+import DatePicker from "../../components/order/datepicker";
 
 import { Layout, Breadcrumb, SearchInput, Table, Button, Select, Notify } from "zent";
 import AddAssign from "../../components/order/addAssign";
@@ -23,6 +23,13 @@ class AssingOrder extends Component {
         pageSize: 30,
         current: 0,
         totalItem: this.props.orders.page
+      },
+      dateObj: {
+        day: Number(moment().jDate()),
+        month: Number(moment().format("jMM")),
+        year: Number(moment().jYear()),
+        hour: moment().format("HH"),
+        minute: moment().format("mm")
       },
       datasets: this.props.orders.items,
       loading: true,
@@ -43,6 +50,11 @@ class AssingOrder extends Component {
   componentDidMount() {
     this.props.getNonAssignOrders(this.props.orders.page, this.props.orders.search, null, null, this.state.startDate, this.state.endDate);
     this.fetchProducts();
+    console.log(
+      moment()
+        .endOf("day")
+        .format()
+    );
   }
 
   fetchProducts = () => {
@@ -78,30 +90,21 @@ class AssingOrder extends Component {
         totalItem: this.props.orders.total
       }
     });
-    this.props.getNonAssignOrders(conf.current, this.props.orders.search, this.state.selectedCityId, this.state.selectedProductId);
+    this.props.getNonAssignOrders(conf.current, this.props.orders.search, this.state.selectedCityId, this.state.selectedProductId, this.state.startDate, this.state.endDate);
   }
 
   onSearchChange = evt => {
     this.setState({
       searchText: evt.target.value
     });
-    if (evt.fromClearButton || evt.target.value === "") {
-      this.props.getNonAssignOrders(this.props.orders.page, "", this.state.selectedCityId, this.state.selectedProductId);
-    }
-  };
-
-  onPressEnter = () => {
-    if (this.state.searchText !== "") this.props.getNonAssignOrders(this.props.orders.page, this.state.searchText, this.state.selectedCityId, this.state.selectedProductId);
   };
 
   selectProductHandler = (event, selected) => {
     this.setState({ selectedProductId: selected.value });
-    this.props.getNonAssignOrders(this.props.orders.page, this.state.searchText, this.state.selectedCityId, selected.value);
   };
 
   selectCityHandler = (event, selected) => {
     this.setState({ selectedCityId: selected.value });
-    this.props.getNonAssignOrders(this.props.orders.page, this.state.searchText, selected.value, this.state.selectedProductId);
   };
 
   onSelect(selectedRowKeys, selectedRows, currentRow) {
@@ -117,7 +120,7 @@ class AssingOrder extends Component {
       selectedRowKeys: [],
       modalStatus: false
     });
-    this.props.getNonAssignOrders(this.props.orders.page, this.state.searchText, this.state.selectedCityId, this.state.selectedProductId);
+    this.props.getNonAssignOrders(this.props.orders.page, this.state.searchText, this.state.selectedCityId, this.state.selectedProductId, this.state.startDate, this.state.endDate);
   };
 
   findCityById = id => {
@@ -130,20 +133,24 @@ class AssingOrder extends Component {
     return product ? product.title : "";
   };
 
-  selectStartDate = value => {
+  selectStartDate = dateObj => {
+    let value = moment(`${dateObj.year}/${dateObj.month}/${dateObj.day} 00:00}`, "jYYYY/jM/jD HH:mm").format();
     this.setState({ startDate: value });
-    this.props.getNonAssignOrders(this.props.orders.page, this.state.searchText, this.state.selectedCityId, this.state.selectedProductId, value, this.state.endDate);
   };
 
-  selectEndDate = value => {
+  selectEndDate = dateObj => {
+    let value = moment(`${dateObj.year}/${dateObj.month}/${dateObj.day} 23:59}}`, "jYYYY/jM/jD HH:mm").format();
     this.setState({ endDate: value });
-    this.props.getNonAssignOrders(this.props.orders.page, this.state.searchText, this.state.selectedCityId, this.state.selectedProductId, this.state.startDate, value);
   };
 
   viewOrder = item => this.setState({ infoModalStatus: true, selectedItem: item });
 
+  filter = () => {
+    this.props.getNonAssignOrders(this.props.orders.page, this.state.searchText, this.state.selectedCityId, this.state.selectedProductId, this.state.startDate, this.state.endDate);
+  };
+
   render() {
-    const { searchText, datasets, page, selectedRowKeys, modalStatus, products, courierStatus, infoModalStatus, selectedItem, startDate, endDate } = this.state;
+    const { searchText, datasets, page, selectedRowKeys, modalStatus, products, courierStatus, infoModalStatus, selectedItem, dateObj } = this.state;
     const columns = [
       {
         title: "شماره فاکتور",
@@ -217,7 +224,8 @@ class AssingOrder extends Component {
                   optionText="title"
                   onChange={this.selectProductHandler}
                   searchPlaceholder="جستجو"
-                  filter={(item, keyword) => item.value.indexOf(keyword) > -1}
+                  filter={(item, keyword) => item.title.indexOf(keyword) > -1}
+                  emptyText={"ایتمی پیدا نشد."}
                 />
                 <Select
                   name="city"
@@ -228,47 +236,42 @@ class AssingOrder extends Component {
                   optionText="fullName"
                   onChange={this.selectCityHandler}
                   searchPlaceholder="جستجو"
-                  filter={(item, keyword) => item.value.indexOf(keyword) > -1}
+                  filter={(item, keyword) => item.fullName.indexOf(keyword) > -1}
+                  emptyText={"ایتمی پیدا نشد."}
                 />
-                <DatePicker
-                  calendarStyles={{
-                    currentMonth: "currentMonth",
-                    calendarContainer: "calendarContainer",
-                    dayPickerContainer: "dayPickerContainer",
-                    monthsList: "monthsList",
-                    daysOfWeek: "daysOfWeek",
-                    dayWrapper: "dayWrapper",
-                    selected: "selected",
-                    heading: "heading",
-                    next: "next",
-                    prev: "prev",
-                    title: "title"
-                  }}
-                  className={"datepicker-input"}
-                  onChange={value => this.selectStartDate(value)}
-                  value={startDate}
-                  placeholder="test"
-                />
-                <DatePicker
-                  calendarStyles={{
-                    currentMonth: "currentMonth",
-                    calendarContainer: "calendarContainer",
-                    dayPickerContainer: "dayPickerContainer",
-                    monthsList: "monthsList",
-                    daysOfWeek: "daysOfWeek",
-                    dayWrapper: "dayWrapper",
-                    selected: "selected",
-                    heading: "heading",
-                    next: "next",
-                    prev: "prev",
-                    title: "title"
-                  }}
-                  className={"datepicker-input"}
-                  onChange={value => this.selectEndDate(value)}
-                  value={endDate}
-                />
+                <div style={{ position: "relative" }}>
+                  <label className="datepicker-label">تاریخ شروع</label>
+                  <DatePicker
+                    day={dateObj.day}
+                    month={dateObj.month}
+                    year={dateObj.year}
+                    hour={dateObj.hour}
+                    minute={dateObj.minute}
+                    seconds={dateObj.seconds}
+                    onUpdate={this.selectStartDate}
+                    withoutHourAndMinute={false}
+                  />
+                </div>
+                <div style={{ position: "relative" }}>
+                  <label className="datepicker-label">تاریخ اتمام</label>
+                  <DatePicker
+                    day={dateObj.day}
+                    month={dateObj.month}
+                    year={dateObj.year}
+                    hour={dateObj.hour}
+                    minute={dateObj.minute}
+                    seconds={dateObj.seconds}
+                    onUpdate={this.selectEndDate}
+                    withoutHourAndMinute={false}
+                  />
+                </div>
               </div>
-              <SearchInput value={searchText} onChange={this.onSearchChange} placeholder="جستجو" onPressEnter={this.onPressEnter} />
+              <div style={{ display: "inline-flex", flexDirection: "row" }}>
+                <SearchInput value={searchText} onChange={this.onSearchChange} placeholder="جستجو" />
+                <Button type="primary" className="filter-btn" onClick={this.filter}>
+                  اعمال فیلتر
+                </Button>
+              </div>
             </div>
             <Table
               emptyLabel={"هیچ آیتمی در این لیست وجود ندارد."}

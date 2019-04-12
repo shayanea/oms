@@ -6,7 +6,7 @@ import { getAllOrders } from "../../actions/orderActions";
 import * as moment from "moment-jalaali";
 import axios from "../../utils/requestConfig";
 import City from "../../assets/city.json";
-import { DatePicker } from "react-persian-datepicker";
+import DatePicker from "../../components/order/datepicker";
 import { saveAs } from "file-saver";
 
 import { Layout, Breadcrumb, SearchInput, Table, Select, Notify, Sweetalert, Button } from "zent";
@@ -28,10 +28,18 @@ class OrderList extends Component {
         current: 0,
         totalItem: this.props.orders.total
       },
+      dateObj: {
+        day: Number(moment().jDate()),
+        month: Number(moment().format("jMM")),
+        year: Number(moment().jYear()),
+        hour: moment().format("HH"),
+        minute: moment().format("mm")
+      },
       datasets: [],
       products: [],
       couriers: [],
       loading: true,
+      isExcelLoading: false,
       searchText: "",
       modalStatus: false,
       courierStatus: false,
@@ -118,42 +126,36 @@ class OrderList extends Component {
         totalItem: this.props.orders.total
       }
     });
-    this.props.getAllOrders(conf.current, this.props.orders.search);
+    this.props.getAllOrders(
+      conf.current,
+      this.state.searchText,
+      this.state.selectedCityId,
+      this.state.selectedProductId,
+      this.state.selectedCourierId,
+      this.state.selectedStatusId
+    );
   }
 
   onSearchChange = evt => {
     this.setState({
       searchText: evt.target.value
     });
-    if (evt.fromClearButton || evt.target.value === "") {
-      this.props.getAllOrders(this.props.orders.page, evt.target.value, this.state.selectedCityId, this.state.selectedProductId, this.state.selectedCourierId);
-    }
-  };
-
-  onPressEnter = () => {
-    if (this.state.searchText !== "")
-      this.props.getAllOrders(this.props.orders.page, this.state.searchText, this.state.selectedCityId, this.state.selectedProductId, this.state.selectedCourierId);
   };
 
   selectProductHandler = (event, selected) => {
     this.setState({ selectedProductId: selected.value });
-    this.props.getAllOrders(this.props.orders.page, this.state.searchText, this.state.selectedCityId, selected.value, this.state.selectedCourierId);
   };
 
   selectCityHandler = (event, selected) => {
     this.setState({ selectedCityId: selected.value });
-    this.props.getAllOrders(this.props.orders.page, this.state.searchText, selected.value, this.state.selectedProductId, this.state.selectedCourierId);
   };
 
   selectCourierHandler = (event, selected) => {
     this.setState({ selectedCourierId: selected.value });
-    this.props.getAllOrders(this.props.orders.page, this.state.searchText, this.state.selectedCityId, this.state.selectedProductId, selected.value);
   };
 
   selectStatusHandler = (event, selected) => {
     this.setState({ selectedStatusId: selected.value });
-    console.log(selected.value);
-    this.props.getAllOrders(this.props.orders.page, this.state.searchText, this.state.selectedCityId, this.state.selectedProductId, this.state.selectedCourierId, selected.value);
   };
 
   onSelect(selectedRowKeys, selectedRows, currentRow) {
@@ -251,47 +253,20 @@ class OrderList extends Component {
 
   onChangeStatus = () => {
     this.setState({ modalStatus: false, selectedRowKeys: [] });
-    this.props.getAllOrders(
-      this.props.orders.page,
-      this.state.searchText,
-      this.state.selectedCityId,
-      this.state.selectedProductId,
-      this.state.selectedCourierId,
-      this.state.selectedStatusId,
-      this.state.startDate,
-      this.state.endDate
-    );
   };
 
-  selectStartDate = value => {
+  selectStartDate = dateObj => {
+    let value = moment(`${dateObj.year}/${dateObj.month}/${dateObj.day} 00:00}`, "jYYYY/jM/jD HH:mm").format();
     this.setState({ startDate: value });
-    this.props.getAllOrders(
-      this.props.orders.page,
-      this.state.searchText,
-      this.state.selectedCityId,
-      this.state.selectedProductId,
-      this.state.selectedCourierId,
-      this.state.selectedStatusId,
-      value,
-      this.state.endDate
-    );
   };
 
-  selectEndDate = value => {
+  selectEndDate = dateObj => {
+    let value = moment(`${dateObj.year}/${dateObj.month}/${dateObj.day} 00:00}`, "jYYYY/jM/jD HH:mm").format();
     this.setState({ endDate: value });
-    this.props.getAllOrders(
-      this.props.orders.page,
-      this.state.searchText,
-      this.state.selectedCityId,
-      this.state.selectedProductId,
-      this.state.selectedCourierId,
-      this.state.selectedStatusId,
-      this.state.startDate,
-      value
-    );
   };
 
   exoprtExcel = () => {
+    this.setState({ isExcelLoading: true });
     let searchQuery =
       this.state.searchText !== ""
         ? `&Address=${this.state.searchText}&Address_op=has&Address_combineOp=or&FirstPhoneNumber=${this.state.searchText}&FirstPhoneNumber_op=has&FirstPhoneNumber_combineOp=or`
@@ -306,7 +281,7 @@ class OrderList extends Component {
         responseType: "arraybuffer"
       })
       .then((res, status, headers) => {
-        console.log(res.request);
+        this.setState({ isExcelLoading: false });
         const blob = new Blob([res.data], {
           type: "application/xlsx"
         });
@@ -321,6 +296,19 @@ class OrderList extends Component {
 
   viewOrderHistory = item => this.setState({ historyModalStatus: true, selectedItem: item });
 
+  filter = () => {
+    this.props.getAllOrders(
+      this.props.orders.page,
+      this.state.searchText,
+      this.state.selectedCityId,
+      this.state.selectedProductId,
+      this.state.selectedCourierId,
+      this.state.selectedStatusId,
+      this.state.startDate,
+      this.state.endDate
+    );
+  };
+
   render() {
     const {
       searchText,
@@ -333,9 +321,9 @@ class OrderList extends Component {
       courierStatus,
       selectedItem,
       infoModalStatus,
-      startDate,
-      endDate,
-      historyModalStatus
+      dateObj,
+      historyModalStatus,
+      isExcelLoading
     } = this.state;
     const columns = [
       {
@@ -401,12 +389,12 @@ class OrderList extends Component {
         bodyRender: data => {
           return (
             <React.Fragment>
-              <span className="remove-item" onClick={() => this.removeOrder(data.id)} />
               <Link to={`/order/edit/${data.id}`}>
                 <span className="edit-item" />
               </Link>
               <span className="view-item" onClick={() => this.viewOrder(data)} />
               <span className="history-item" onClick={() => this.viewOrderHistory(data)} />
+              <span className="remove-item" onClick={() => this.removeOrder(data.id)} />
             </React.Fragment>
           );
         }
@@ -470,7 +458,8 @@ class OrderList extends Component {
                   optionText="title"
                   onChange={this.selectProductHandler}
                   searchPlaceholder="جستجو"
-                  filter={(item, keyword) => item.value.indexOf(keyword) > -1}
+                  filter={(item, keyword) => item.title.indexOf(keyword) > -1}
+                  emptyText={"ایتمی پیدا نشد."}
                 />
                 <Select
                   name="city"
@@ -482,45 +471,43 @@ class OrderList extends Component {
                   onChange={this.selectCityHandler}
                   searchPlaceholder="جستجو"
                   filter={(item, keyword) => item.fullName.indexOf(keyword) > -1}
+                  emptyText={"ایتمی پیدا نشد."}
                 />
-                <DatePicker
-                  calendarStyles={{
-                    currentMonth: "currentMonth",
-                    calendarContainer: "calendarContainer",
-                    dayPickerContainer: "dayPickerContainer",
-                    monthsList: "monthsList",
-                    daysOfWeek: "daysOfWeek",
-                    dayWrapper: "dayWrapper",
-                    selected: "selected",
-                    heading: "heading",
-                    next: "next",
-                    prev: "prev",
-                    title: "title"
-                  }}
-                  className={"datepicker-input"}
-                  onChange={value => this.selectStartDate(value)}
-                  value={startDate}
-                />
-                <DatePicker
-                  calendarStyles={{
-                    currentMonth: "currentMonth",
-                    calendarContainer: "calendarContainer",
-                    dayPickerContainer: "dayPickerContainer",
-                    monthsList: "monthsList",
-                    daysOfWeek: "daysOfWeek",
-                    dayWrapper: "dayWrapper",
-                    selected: "selected",
-                    heading: "heading",
-                    next: "next",
-                    prev: "prev",
-                    title: "title"
-                  }}
-                  className={"datepicker-input"}
-                  onChange={value => this.selectEndDate(value)}
-                  value={endDate}
-                />
+                <div style={{ position: "relative" }}>
+                  <label className="datepicker-label">تاریخ شروع</label>
+                  <DatePicker
+                    style={{ flexDirection: "column", alignItems: "flex-start" }}
+                    day={dateObj.day}
+                    month={dateObj.month}
+                    year={dateObj.year}
+                    hour={dateObj.hour}
+                    minute={dateObj.minute}
+                    seconds={dateObj.seconds}
+                    onUpdate={this.selectStartDate}
+                    withoutHourAndMinute={false}
+                  />
+                </div>
+                <div style={{ position: "relative" }}>
+                  <label className="datepicker-label">تاریخ اتمام</label>
+                  <DatePicker
+                    style={{ flexDirection: "column", alignItems: "flex-start" }}
+                    day={dateObj.day}
+                    month={dateObj.month}
+                    year={dateObj.year}
+                    hour={dateObj.hour}
+                    minute={dateObj.minute}
+                    seconds={dateObj.seconds}
+                    onUpdate={this.selectEndDate}
+                    withoutHourAndMinute={false}
+                  />
+                </div>
               </div>
-              <SearchInput value={searchText} onChange={this.onSearchChange} placeholder="جستجو" onPressEnter={this.onPressEnter} />
+              <div style={{ display: "inline-flex", flexDirection: "row" }}>
+                <SearchInput value={searchText} onChange={this.onSearchChange} placeholder="جستجو" />
+                <Button type="primary" className="filter-btn" onClick={this.filter}>
+                  اعمال فیلتر
+                </Button>
+              </div>
             </div>
             <Table
               emptyLabel={"هیچ آیتمی در این لیست وجود ندارد."}
@@ -549,7 +536,15 @@ class OrderList extends Component {
             >
               تغییر وضعیت
             </Button>
-            <Button htmlType="submit" className="submit-btn" type="primary" size="large" style={{ marginTop: "15px", marginRight: "15px" }} onClick={this.exoprtExcel}>
+            <Button
+              htmlType="submit"
+              className="submit-btn"
+              type="primary"
+              size="large"
+              style={{ marginTop: "15px", marginRight: "15px" }}
+              loading={isExcelLoading}
+              onClick={this.exoprtExcel}
+            >
               خروجی Excel
             </Button>
           </Col>

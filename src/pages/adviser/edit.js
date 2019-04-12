@@ -12,6 +12,7 @@ class EditAdviser extends Component {
     firstName: "",
     lastName: "",
     firstPhoneNumber: "",
+    secondPhoneNumber: "",
     nationalCode: "",
     isActive: false
   };
@@ -29,6 +30,7 @@ class EditAdviser extends Component {
           lastName: res.data.data[0].lastName,
           nationalCode: res.data.data[0].nationalCode,
           firstPhoneNumber: res.data.data[0].firstPhoneNumber,
+          secondPhoneNumber: res.data.data[0].secondPhoneNumber,
           isActive: res.data.data[0].isActive
         });
       })
@@ -56,7 +58,7 @@ class EditAdviser extends Component {
 
   render() {
     const { handleSubmit } = this.props;
-    const { firstName, lastName, nationalCode, firstPhoneNumber, isActive } = this.state;
+    const { firstName, lastName, nationalCode, firstPhoneNumber, secondPhoneNumber, isActive } = this.state;
     return (
       <div className="container">
         <div style={{ position: "relative" }}>
@@ -139,6 +141,25 @@ class EditAdviser extends Component {
                 }}
                 required
                 value={firstPhoneNumber}
+              />
+              <FormInputField
+                name="secondPhoneNumber"
+                type="text"
+                placeholder="شماره تلفن ثابت"
+                maxLength="11"
+                validateOnChange={false}
+                validateOnBlur={false}
+                validations={{
+                  matchRegex: /^[0-9 || {InArabic}&&[^۰-۹]+$/,
+                  maxLength: 11,
+                  minLength: 11
+                }}
+                validationErrors={{
+                  matchRegex: "شماره تلفن ثابت را درست وارد نمایید.",
+                  maxLength: "شماره تلفن ثابت باید ۱۱ رقمی باشد.",
+                  minLength: "شماره تلفن ثابت باید ۱۱ رقمی باشد."
+                }}
+                value={secondPhoneNumber}
               />
               <FormCheckboxField name="isActive" checked={isActive} onChange={e => this.setState({ isActive: e.target.checked })}>
                 فعال

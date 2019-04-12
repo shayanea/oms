@@ -32,6 +32,7 @@ class CourierList extends Component {
     if (prevProps.courier.items !== this.props.courier.items) {
       this.setState({
         page: {
+          pageSize: 10,
           current: this.props.courier.pageNumber,
           totalItem: this.props.courier.total
         },
@@ -106,10 +107,10 @@ class CourierList extends Component {
         bodyRender: data => {
           return (
             <React.Fragment>
-              <span className="remove-item" onClick={() => this.removeCourier(data.id)} />
               <Link to={`/courier/edit/${data.id}`}>
                 <span className="edit-item" />
               </Link>
+              <span className="remove-item" onClick={() => this.removeCourier(data.id)} />
             </React.Fragment>
           );
         }

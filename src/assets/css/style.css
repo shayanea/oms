@@ -253,8 +253,8 @@ select:-webkit-autofill {
 }
 
 .container .zent-search-input .zent-input-wrapper {
-  height: 40px;
-  line-height: 46px;
+  height: 30px;
+  line-height: 36px;
 }
 
 .container .zent-search-input .zent-input-wrapper .zent-input {
@@ -386,31 +386,6 @@ select:-webkit-autofill {
   background-color: #f5eeb0;
 }
 
-.calendarContainer .heading>button:first-child {
-  width: auto;
-}
-
-.calendarContainer .selected button,
-.calendarContainer .selected button:hover,
-.calendarContainer .selected button:active,
-.calendarContainer .selected button:focus {
-  background-color: #38f;
-}
-
-.datepicker-input {
-  border: 1px solid #e3e9f3;
-  border-radius: 4px;
-  box-shadow: none;
-  font-size: 12px;
-  text-overflow: ellipsis;
-  white-space: nowrap;
-  overflow: hidden;
-  padding: 5px 20px 5px 10px;
-  outline: none;
-  width: 80px;
-  margin-left: 5px;
-}
-
 .react-autosuggest__container {
   position: relative;
   display: flex;
@@ -473,6 +448,10 @@ select:-webkit-autofill {
 
 .react-autosuggest__suggestion--highlighted {
   background-color: #ddd;
+}
+
+.zent-pagination .pagination-list .pager--jump {
+  display: none;
 }
 
 @media print {

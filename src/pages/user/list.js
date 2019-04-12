@@ -1,6 +1,7 @@
 import React, { Component } from "react";
 import { connect } from "react-redux";
 import PropTypes from "prop-types";
+import { Link } from "react-router-dom";
 import * as moment from "moment-jalaali";
 import { getUsers } from "../../actions/userAction";
 import axios from "../../utils/requestConfig";
@@ -107,10 +108,10 @@ class UsersList extends Component {
         bodyRender: data => {
           return (
             <React.Fragment>
-              <span className="remove-item" onClick={() => this.removeUser(data.id)} />
-              {/* <Link to={`/user/edit/${data.id}`}>
+              <Link to={`/user/edit/${data.id}`}>
                 <span className="edit-item" />
-              </Link> */}
+              </Link>
+              <span className="remove-item" onClick={() => this.removeUser(data.id)} />
             </React.Fragment>
           );
         }

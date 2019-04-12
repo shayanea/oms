@@ -3,6 +3,8 @@ import { Switch, Route, Redirect, Router } from "react-router-dom";
 import { Provider } from "react-redux";
 import { history } from "./utils/history";
 import store from "./store";
+import { I18nProvider } from "zent";
+import enUS from "zent/lib/i18n/zh-CN";
 
 import "zent/css/index.css";
 import "./assets/css/style.css";
@@ -150,45 +152,47 @@ class Main extends Component {
     return (
       <Provider store={store}>
         <Router history={history}>
-          <main className={disable ? "App dashboard" : "App dashboard enable-zoom"}>
-            {!disable ? <MainView /> : null}
-            <Switch>
-              {/* main route */}
-              <AuthRoute exact path="/" component={Dashboard} />
-              {/* order route */}
-              <AuthRoute exact path="/orders/list" component={OrderList} />
-              <AuthRoute exact path="/orders/manage" component={ManageOrder} />
-              <AuthRoute exact path="/orders/assign" component={AssingOrder} />
-              <AuthRoute exact path="/order/add" component={AddOrder} />
-              <AuthRoute exact path="/order/edit/:id" component={EditOrder} />
-              {/* product route */}
-              <AuthRoute exact path="/products/list" component={ProductList} />
-              <AuthRoute exact path="/product/add" component={AddProduct} />
-              <AuthRoute exact path="/product/edit/:id" component={EditProduct} />
-              {/* user route */}
-              <AuthRoute exact path="/users/list" component={UserList} />
-              <AuthRoute exact path="/user/add" component={AddUser} />
-              <AuthRoute exact path="/user/edit/:id" component={EditUser} />
-              {/* courier route */}
-              <AuthRoute exact path="/couriers/dashboard" component={CourierDashboard} />
-              <AuthRoute exact path="/couriers/list" component={CourierList} />
-              <AuthRoute exact path="/courier/add" component={AddCourier} />
-              <AuthRoute exact path="/courier/edit/:id" component={EditCourier} />
-              <AuthRoute exact path="/courier/orders" component={CourierOrderList} />
-              <AuthRoute exact path="/courier/orders/manage" component={CourierOrderManage} />
-              {/* adviser route */}
-              <AuthRoute exact path="/advisers/list" component={AdviserList} />
-              <AuthRoute exact path="/adviser/add" component={AddAdviser} />
-              <AuthRoute exact path="/adviser/edit/:id" component={EditAdviser} />
-              {/* account route */}
-              <Route path="/login" component={Login} />
-              <Route path="/verify/emailAddress" component={Email} />
-              <Route path="/forgotpassword" component={ForgotPassword} />
-              <Route path="/resetpassword" component={ResetPassword} />
-              {/* 404 */}
-              <Route component={NoMatch} />
-            </Switch>
-          </main>
+          <I18nProvider i18n={enUS}>
+            <main className={disable ? "App dashboard" : "App dashboard enable-zoom"}>
+              {!disable ? <MainView /> : null}
+              <Switch>
+                {/* main route */}
+                <AuthRoute exact path="/" component={Dashboard} />
+                {/* order route */}
+                <AuthRoute exact path="/orders/list" component={OrderList} />
+                <AuthRoute exact path="/orders/manage" component={ManageOrder} />
+                <AuthRoute exact path="/orders/assign" component={AssingOrder} />
+                <AuthRoute exact path="/order/add" component={AddOrder} />
+                <AuthRoute exact path="/order/edit/:id" component={EditOrder} />
+                {/* product route */}
+                <AuthRoute exact path="/products/list" component={ProductList} />
+                <AuthRoute exact path="/product/add" component={AddProduct} />
+                <AuthRoute exact path="/product/edit/:id" component={EditProduct} />
+                {/* user route */}
+                <AuthRoute exact path="/users/list" component={UserList} />
+                <AuthRoute exact path="/user/add" component={AddUser} />
+                <AuthRoute exact path="/user/edit/:id" component={EditUser} />
+                {/* courier route */}
+                <AuthRoute exact path="/couriers/dashboard" component={CourierDashboard} />
+                <AuthRoute exact path="/couriers/list" component={CourierList} />
+                <AuthRoute exact path="/courier/add" component={AddCourier} />
+                <AuthRoute exact path="/courier/edit/:id" component={EditCourier} />
+                <AuthRoute exact path="/courier/orders" component={CourierOrderList} />
+                <AuthRoute exact path="/courier/orders/manage" component={CourierOrderManage} />
+                {/* adviser route */}
+                <AuthRoute exact path="/advisers/list" component={AdviserList} />
+                <AuthRoute exact path="/adviser/add" component={AddAdviser} />
+                <AuthRoute exact path="/adviser/edit/:id" component={EditAdviser} />
+                {/* account route */}
+                <Route path="/login" component={Login} />
+                <Route path="/verify/emailAddress" component={Email} />
+                <Route path="/forgotpassword" component={ForgotPassword} />
+                <Route path="/resetpassword" component={ResetPassword} />
+                {/* 404 */}
+                <Route component={NoMatch} />
+              </Switch>
+            </main>
+          </I18nProvider>
         </Router>
       </Provider>
     );

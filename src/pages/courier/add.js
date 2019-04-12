@@ -18,7 +18,7 @@ class AddCourier extends Component {
   searchForUser = data => {
     if (data.length > 3) {
       axios
-        .get(`/accounts?Email=${data}&Email_op=has`)
+        .get(`/accounts?Email=${data}&Email_op=has&RoleFlags=32&RoleFlags_op=mask`)
         .then(res => {
           if (res.data.data.length > 0) this.setState({ autoCompleteResult: res.data.data, showAutoComplete: true });
         })
