@@ -62,7 +62,7 @@ class AssingOrder extends Component {
       confirmType: "success",
       confirmText: "بله",
       cancelText: "منصرف شدم",
-      content: "آیا مطمیین به حذف این محصول هستید ؟",
+      content: "آیا مطمئن به حذف این کالا هستید ؟",
       title: "",
       className: "custom-sweetalert",
       maskClosable: true,
@@ -148,7 +148,7 @@ class AssingOrder extends Component {
               rowKey="id"
             />
             <Button htmlType="submit" className="submit-btn" type="primary" size="large" style={{ marginTop: "15px" }} onClick={() => this.props.history.push("/product/add")}>
-              درج محصول
+              درج کالا
             </Button>
           </Col>
         </Row>

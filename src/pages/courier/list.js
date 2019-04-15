@@ -59,7 +59,7 @@ class CourierList extends Component {
       confirmType: "success",
       confirmText: "بله",
       cancelText: "منصرف شدم",
-      content: "آیا مطمیین به حذف این واحد ارسال هستید ؟",
+      content: "آیا مطمئن به حذف این واحد ارسال هستید ؟",
       title: "",
       className: "custom-sweetalert",
       maskClosable: true,

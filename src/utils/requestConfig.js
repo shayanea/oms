@@ -4,7 +4,7 @@ import { LOGOUT } from "../actions/type";
 import { history } from "./history";
 
 var axiosInstance = axios.create({
-  baseURL: "http://37.156.29.54:8083/",
+  baseURL: "http://37.156.29.54:8081/",
   responseType: "json",
   headers: {
     "Content-Type": "application/json;charset=UTF-8",

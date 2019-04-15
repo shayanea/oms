@@ -142,9 +142,7 @@ export const getAllOrders = (page, search, city = null, product = null, courier 
   let statusQuery = status !== null ? `&StatusId=${status}&StatusId_op=in&` : "";
   let dateQuery =
     startDate !== ""
-      ? `&CreationDateTime=${encodeURIComponent(startDate.format())},${
-          endDate === "" ? encodeURIComponent(startDate.format()) : encodeURIComponent(endDate.format())
-        }&CreationDateTime_op=between`
+      ? `&CreationDateTime=${encodeURIComponent(startDate)},${endDate === "" ? encodeURIComponent(startDate) : encodeURIComponent(endDate)}&CreationDateTime_op=between`
       : "";
   dispatch({
     type: type.FETCH_ORDERS,

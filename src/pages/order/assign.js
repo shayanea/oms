@@ -229,7 +229,7 @@ class AssingOrder extends Component {
                 />
                 <Select
                   name="city"
-                  placeholder="انتخاب شهر یا استان."
+                  placeholder="انتخاب شهر یا استان"
                   data={[{ id: null, fullName: "همه شهر‌ها" }, ...City]}
                   autoWidth
                   optionValue="id"

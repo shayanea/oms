@@ -261,7 +261,7 @@ class AddOrder extends Component {
       confirmType: "success",
       confirmText: "بله",
       cancelText: "منصرف شدم",
-      content: "آیا مطمیین به حذف این سفارش هستید ؟",
+      content: "آیا مطمئن به حذف این سفارش هستید ؟",
       title: "",
       className: "custom-sweetalert",
       maskClosable: true,
@@ -624,7 +624,7 @@ class AddOrder extends Component {
                   افزودن کالا
                 </Button>
               </div>
-              <Table emptyLabel={"هیچ کالای در این لیست وجود ندارد."} columns={columns2} datasets={selectedProduct} onChange={this.onProductChange.bind(this)} />
+              <Table emptyLabel={"هیچ کالایی در این لیست وجود ندارد."} columns={columns2} datasets={selectedProduct} onChange={this.onProductChange.bind(this)} />
               <div className="product-list__footer">
                 <span>مبلغ فاکتور</span>
                 <div className="invoice-total">{parseFloat(this.calculateTotalPrice()).toLocaleString("fa")} ریال</div>

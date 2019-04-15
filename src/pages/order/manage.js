@@ -217,7 +217,7 @@ class OrderList extends Component {
       confirmType: "success",
       confirmText: "بله",
       cancelText: "منصرف شدم",
-      content: "آیا مطمیین به حذف این سفارش هستید ؟",
+      content: "آیا مطمئن به حذف این سفارش هستید ؟",
       title: "",
       className: "custom-sweetalert",
       maskClosable: true,
@@ -261,7 +261,7 @@ class OrderList extends Component {
   };
 
   selectEndDate = dateObj => {
-    let value = moment(`${dateObj.year}/${dateObj.month}/${dateObj.day} 00:00}`, "jYYYY/jM/jD HH:mm").format();
+    let value = moment(`${dateObj.year}/${dateObj.month}/${dateObj.day} 23:59}}`, "jYYYY/jM/jD HH:mm").format();
     this.setState({ endDate: value });
   };
 

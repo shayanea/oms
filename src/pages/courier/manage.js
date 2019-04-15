@@ -222,7 +222,7 @@ class OrderList extends Component {
   };
 
   selectEndDate = dateObj => {
-    let value = moment(`${dateObj.year}/${dateObj.month}/${dateObj.day} 00:00}`, "jYYYY/jM/jD HH:mm").format();
+    let value = moment(`${dateObj.year}/${dateObj.month}/${dateObj.day} 23:59}}`, "jYYYY/jM/jD HH:mm").format();
     this.setState({ endDate: value });
   };
 
@@ -414,6 +414,7 @@ class OrderList extends Component {
                 <div style={{ position: "relative" }}>
                   <label className="datepicker-label">تاریخ شروع</label>
                   <DatePicker
+                    style={{ flexDirection: "column", alignItems: "flex-start" }}
                     day={dateObj.day}
                     month={dateObj.month}
                     year={dateObj.year}
@@ -427,6 +428,7 @@ class OrderList extends Component {
                 <div style={{ position: "relative" }}>
                   <label className="datepicker-label">تاریخ اتمام</label>
                   <DatePicker
+                    style={{ flexDirection: "column", alignItems: "flex-start" }}
                     day={dateObj.day}
                     month={dateObj.month}
                     year={dateObj.year}

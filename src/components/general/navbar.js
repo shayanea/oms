@@ -14,7 +14,7 @@ class Navbar extends Component {
     super(props);
     this.userInfo = JSON.parse(localStorage.getItem("USER_INFO"));
     this.state = {
-      currentDate: moment().format("jYY jMMMM jD")
+      currentDate: moment().format("jD jMMMM jYY")
     };
   }
 

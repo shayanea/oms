@@ -155,7 +155,7 @@ class Modal extends Component {
                 </Row>
                 <Row style={{ borderBottom: "0px" }}>
                   <Col span={24}>
-                    <Table emptyLabel={"هیچ کالای در این لیست وجود ندارد."} columns={columns} datasets={item.products} />
+                    <Table emptyLabel={"هیچ کالایی در این لیست وجود ندارد."} columns={columns} datasets={item.products} />
                   </Col>
                 </Row>
                 <Row>

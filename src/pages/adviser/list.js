@@ -63,7 +63,7 @@ class AdviserList extends Component {
       confirmType: "success",
       confirmText: "بله",
       cancelText: "منصرف شدم",
-      content: "آیا مطمیین به حذف این مشاور هستید ؟",
+      content: "آیا مطمئن به حذف این مشاور هستید ؟",
       title: "",
       className: "custom-sweetalert",
       maskClosable: true,

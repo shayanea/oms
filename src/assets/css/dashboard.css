@@ -324,7 +324,7 @@
 .grid-layout__container .add-order__form .product-list__footer {
   display: flex;
   align-items: center;
-  justify-content: space-between;
+  justify-content: flex-end;
   margin: 15px 0;
 }
 
@@ -332,6 +332,7 @@
   font-size: 16px;
   color: #444;
   font-family: "SAMIMBOLD";
+  margin-left: 15px;
 }
 
 .grid-layout__container .add-order__form .product-list__footer .invoice-total {

@@ -67,7 +67,7 @@ class Login extends Component {
         </div>
         <div className="forgot-password__btn">
           اگر کلمه‌ی عبور‌ خود را فراموش کرده‌اید،
-          <div style={{ display: "inline-block" }}>
+          <div style={{ display: "inline-block", marginRight: 5 }}>
             <Link className="send-link" to="/forgotpassword">
               اینجا را کلیک کنید
             </Link>

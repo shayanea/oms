@@ -272,7 +272,7 @@ class EditOrder extends Component {
       confirmType: "success",
       confirmText: "بله",
       cancelText: "منصرف شدم",
-      content: "آیا مطمیین به حذف این سفارش هستید ؟",
+      content: "آیا مطمئن به حذف این سفارش هستید ؟",
       title: "",
       className: "custom-sweetalert",
       maskClosable: true,
@@ -558,7 +558,7 @@ class EditOrder extends Component {
                 </Button>
               </div>
               <Table
-                emptyLabel={"هیچ کالای در این لیست وجود ندارد."}
+                emptyLabel={"هیچ کالایی در این لیست وجود ندارد."}
                 columns={columns}
                 datasets={selectedProduct}
                 onChange={this.onProductChange.bind(this)}

@@ -70,10 +70,12 @@ class ForgotPassword extends Component {
               validateOnChange={false}
               validateOnBlur={false}
               validations={{
-                equalsField: "password"
+                equalsField: "password",
+                minLength: 6
               }}
               validationErrors={{
-                equalsField: "کلمه عبور وارد شده با کلمه عبور جدید شما همخوانی ندارد."
+                equalsField: "کلمه عبور وارد شده با کلمه عبور جدید شما همخوانی ندارد.",
+                minLength: " کلمه عبور حداقل ۶ کاراکتر است."
               }}
             />
             <Button htmlType="submit" className="submit-btn" type="primary" size="large" loading={isLoading}>
