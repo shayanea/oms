@@ -37,7 +37,7 @@ class AddUser extends Component {
       <div className="container">
         <div style={{ position: "relative" }}>
           <Breadcrumb breads={dataList} />
-          <div onClick={() => this.props.history.goBack()} style={{ position: "absolute", left: "15px", top: "12px", fontSize: "12px", color: "#38f", cursor: "pointer" }}>
+          <div onClick={() => this.props.history.goBack()} style={{ position: "absolute", left: "15px", top: "12px", fontSize: "12px", color: "#c79803", cursor: "pointer" }}>
             بازگشت
           </div>
         </div>

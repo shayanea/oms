@@ -56,8 +56,8 @@
 
 .login-container .login-form .zent-input-wrapper .zent-input:focus,
 .login-container .login-form .zent-input-wrapper .zent-input:active {
-  box-shadow: 0 0 5px #bdf;
-  border: 1px solid #38f;
+  box-shadow: 0 0 5px #faefc9;
+  border: 1px solid #FFCC2B;
 }
 
 .login-container .login-form .zent-input-wrapper {
@@ -83,7 +83,7 @@
 }
 
 .login-container .forgot-password__btn a {
-  color: #3498db;
+  color: #fecc2a;
 }
 
 .verify-container {

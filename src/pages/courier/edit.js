@@ -95,7 +95,7 @@ class EditCourier extends Component {
       <div className="container">
         <div style={{ position: "relative" }}>
           <Breadcrumb breads={dataList} />
-          <div onClick={() => this.props.history.goBack()} style={{ position: "absolute", left: "15px", top: "12px", fontSize: "12px", color: "#38f", cursor: "pointer" }}>
+          <div onClick={() => this.props.history.goBack()} style={{ position: "absolute", left: "15px", top: "12px", fontSize: "12px", color: "#c79803", cursor: "pointer" }}>
             بازگشت
           </div>
         </div>
@@ -131,7 +131,7 @@ class EditCourier extends Component {
               <FormInputField name="contactNumber" type="text" label="شماره تماس مسئول واحد" placeholder="شماره تماس مسئول واحد" value={contactNumber} />
               <div className="zent-form__control-group ">
                 <label className="zent-form__control-label">
-                  <em class="zent-form__required">*</em>مدیر واحد
+                  <em className="zent-form__required">*</em>مدیر واحد
                 </label>
                 <div className="zent-form__controls">
                   <div className="zent-input-wrapper" style={{ height: "40px", maxHeight: "46px" }}>

@@ -77,7 +77,7 @@ class EditProduct extends Component {
       <div className="container">
         <div style={{ position: "relative" }}>
           <Breadcrumb breads={dataList} />
-          <div onClick={() => this.props.history.goBack()} style={{ position: "absolute", left: "15px", top: "12px", fontSize: "12px", color: "#38f", cursor: "pointer" }}>
+          <div onClick={() => this.props.history.goBack()} style={{ position: "absolute", left: "15px", top: "12px", fontSize: "12px", color: "#c79803", cursor: "pointer" }}>
             بازگشت
           </div>
         </div>
@@ -112,7 +112,7 @@ class EditProduct extends Component {
                 <FormInputField name="code" type="text" label="کد" placeholder="کد" value={code} />
                 <div className="zent-form__control-group ">
                   <label className="zent-form__control-label">
-                    قیمت (ریال)<em class="zent-form__required">*</em>
+                    قیمت (ریال)<em className="zent-form__required">*</em>
                   </label>
                   <div className="zent-form__controls">
                     <div className="zent-input-wrapper">

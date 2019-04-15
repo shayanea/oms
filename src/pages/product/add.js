@@ -95,7 +95,7 @@ class AddProduct extends Component {
               left: "15px",
               top: "12px",
               fontSize: "12px",
-              color: "#38f",
+              color: "#c79803",
               cursor: "pointer"
             }}
           >
@@ -131,7 +131,7 @@ class AddProduct extends Component {
               <FormInputField name="code" type="text" label="کد" placeholder="کد" />
               <div className="zent-form__control-group ">
                 <label className="zent-form__control-label">
-                  قیمت (ریال)<em class="zent-form__required">*</em>
+                  قیمت (ریال)<em className="zent-form__required">*</em>
                 </label>
                 <div className="zent-form__controls">
                   <div className="zent-input-wrapper">
