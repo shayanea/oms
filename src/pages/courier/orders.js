@@ -5,13 +5,14 @@ import * as moment from "moment-jalaali";
 import { getAssignOrders } from "../../actions/orderActions";
 import axios from "../../utils/requestConfig";
 import City from "../../assets/city.json";
+import { saveAs } from "file-saver";
 
 import { Layout, SearchInput, Table, Select, Notify, Button, Breadcrumb } from "zent";
 import ChangeStatus from "../../components/order/changeStatus";
 import ViewOrder from "../../components/order/viewOrder";
 
 const { Col, Row } = Layout;
-const dataList = [{ name: "پیشخوان", href: "/couriers/dashboard" }, { name: "لیست کاربران" }];
+const dataList = [{ name: "پیشخوان", href: "/couriers/dashboard" }, { name: "سفارش‌های جدید" }];
 
 class OrderList extends Component {
   constructor(props) {
@@ -36,7 +37,8 @@ class OrderList extends Component {
       courierId: "",
       selectedRowKeys: [],
       infoModalStatus: false,
-      selectedItem: null
+      selectedItem: null,
+      isExcelLoading: false
     };
   }
 
@@ -167,8 +169,31 @@ class OrderList extends Component {
     this.props.getAssignOrders(this.props.orders.page, this.state.searchText, this.state.selectedCityId, this.state.selectedProductId, this.state.selectedCourierId);
   };
 
+  exoprtExcel = () => {
+    this.setState({ isExcelLoading: true });
+    let searchQuery = this.state.searchText !== "" ? `&_searchParameters=name,FirstPhoneNumber,PostalCode,Address,Notes&_search=${this.state.searchText}` : "";
+    let cityQuery = this.state.selectedCityId !== null ? `&CityId=${this.state.selectedCityId}&CityId_op=in&` : "";
+    let productQuery = this.state.selectedProductId !== null ? `&ProductId=${this.state.selectedProductId}&ProductId_op=in&` : "";
+    let courierQuery = this.state.selectedCourierId !== null ? `&CourierId=${this.state.selectedCourierId}&CourierId_op=in&` : "";
+    axios
+      .get(`/orders?_sort=-CreationDateTime&StatusId=201${cityQuery}${productQuery}${courierQuery}${searchQuery}`, {
+        headers: { Accept: "application/xlsx" },
+        responseType: "arraybuffer"
+      })
+      .then((res, status, headers) => {
+        this.setState({ isExcelLoading: false });
+        const blob = new Blob([res.data], {
+          type: "application/xlsx"
+        });
+        saveAs(blob, `order_${moment().format("jDD jMMMM jYYYY - HH:mm")}.xlsx`);
+      })
+      .catch(err => {
+        Notify.error(err.data !== null && typeof err.data !== "undefined" ? err.data.error.errorDescription : "در برقراری ارتباط مشکلی به وجود آمده است.", 5000);
+      });
+  };
+
   render() {
-    const { searchText, datasets, page, products, selectedRowKeys, modalStatus, infoModalStatus, selectedItem } = this.state;
+    const { searchText, datasets, page, products, selectedRowKeys, modalStatus, infoModalStatus, selectedItem, isExcelLoading } = this.state;
     const columns = [
       {
         title: "شماره فاکتور",
@@ -236,7 +261,7 @@ class OrderList extends Component {
     let self = this;
     return (
       <div className="container">
-        <h2 className="page-title">پیگیری سفارش‌ها</h2>
+        <h2 className="page-title">سفارش‌های جدید</h2>
         <div style={{ position: "relative" }}>
           <Breadcrumb breads={dataList} />
           <div onClick={() => this.props.history.goBack()} style={{ position: "absolute", left: "15px", top: "12px", fontSize: "12px", color: "#38f", cursor: "pointer" }}>
@@ -305,6 +330,17 @@ class OrderList extends Component {
               onClick={this.onToggleModal}
             >
               تغییر وضعیت
+            </Button>
+            <Button
+              htmlType="submit"
+              className="submit-btn"
+              type="primary"
+              size="large"
+              style={{ marginTop: "15px", marginRight: "15px" }}
+              loading={isExcelLoading}
+              onClick={this.exoprtExcel}
+            >
+              خروجی Excel
             </Button>
           </Col>
         </Row>

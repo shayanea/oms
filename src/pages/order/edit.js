@@ -84,7 +84,8 @@ class EditOrder extends Component {
       day: moment().format("jD"),
       loading: true,
       productModalStatus: false,
-      selectedCity: "",
+      selectedCityName: "",
+      selectedCityId: null,
       products: [],
       advisers: [],
       selectedProduct: [],
@@ -150,9 +151,11 @@ class EditOrder extends Component {
         res.data.data.products.forEach(item => {
           array.push({ id: item.productId, number: item.count, price: item.perUnitPrice });
         });
+        console.log(this.findCityIdByName(res.data.data.cityId));
         this.setState({
           loading: false,
-          selectedCity: this.findCityById(res.data.data.cityId),
+          selectedCityId: res.data.data.cityId,
+          selectedCityName: this.findCityIdByName(res.data.data.cityId),
           orderObject: {
             adviserId: res.data.data.adviserId,
             name: res.data.data.name,
@@ -163,11 +166,11 @@ class EditOrder extends Component {
             secondPhoneNumber: res.data.data.secondPhoneNumber,
             deliveryTimeId: res.data.data.deliveryTimeId,
             notes: res.data.data.notes,
-            hasHighPriority: res.data.data.hasHighPriority,
-            isPaid: res.data.data.isPaid,
             deliveryCostId: res.data.data.deliveryCostId,
             discount: res.data.data.discount
           },
+          hasHighPriority: res.data.data.hasHighPriority,
+          isPaid: res.data.data.isPaid,
           day: Number(moment(res.data.data.deliveryDate).jDate()),
           month: Number(moment(res.data.data.deliveryDate).format("jMM")),
           year: Number(moment(res.data.data.deliveryDate).jYear()),
@@ -238,14 +241,14 @@ class EditOrder extends Component {
     return result ? result.title : "";
   };
 
-  findCityById = id => {
+  findCityIdByName = id => {
     let result = City.find(item => item.id === id);
     return result ? result.fullName : "";
   };
 
   onSelectCity = name => {
     let result = City.find(item => item.fullName === name);
-    return result && this.setState({ selectedCity: result.id });
+    return result && this.setState({ selectedCityId: result.id, selectedCityName: name });
   };
 
   calculateDate = (day, month, year) => {
@@ -331,7 +334,7 @@ class EditOrder extends Component {
           deliveryCostId: this.state.orderObject.deliveryCostId,
           discount: this.toEnglishDigits(this.state.discount),
           name: data.name,
-          cityId: this.state.selectedCity,
+          cityId: this.state.selectedCityId,
           postalCode: data.postalCode,
           address: data.address,
           firstPhoneNumber: this.toEnglishDigits(data.firstPhoneNumber),
@@ -357,7 +360,7 @@ class EditOrder extends Component {
 
   render() {
     const { handleSubmit } = this.props;
-    const { year, month, day, selectedProduct, productModalStatus, products, advisers, isLoading, orderObject, selectedCity } = this.state;
+    const { year, month, day, selectedProduct, productModalStatus, products, advisers, isLoading, orderObject, selectedCityName } = this.state;
     const columns = [
       {
         title: "کالا",
@@ -411,7 +414,7 @@ class EditOrder extends Component {
               borderRadius: 6
             }}
           >
-            <Form disableEnterSubmit={false} vertical className={"add-order__form"} onSubmit={handleSubmit(this.submit)}>
+            <Form disableEnterSubmit={true} vertical className={"add-order__form"} onSubmit={handleSubmit(this.submit)}>
               <FormInputField
                 name="name"
                 type="text"
@@ -443,7 +446,7 @@ class EditOrder extends Component {
               </div>
               <Row style={{ display: "flex", flexDirection: "row" }}>
                 <Col className="col-padding" span={12}>
-                  <Autocomplete value={selectedCity} onSelectCity={this.onSelectCity} />
+                  <Autocomplete value={selectedCityName} onSelectCity={this.onSelectCity} />
                 </Col>
                 <Col className="col-padding" span={12}>
                   <FormInputField name="postalCode" type="text" placeholder="کد پستی" value={orderObject.postalCode} />
@@ -601,13 +604,14 @@ class EditOrder extends Component {
                   </div>
                 </Col>
               </Row>
+              <p>{this.state.hasHighPriority}</p>
               {!this.state.loading && (
                 <React.Fragment>
                   <div className="zent-form__control-group" style={{ fontSize: "12px" }}>
                     <input
                       tabIndex="0"
                       type="checkbox"
-                      defaultChecked={orderObject.hasHighPriority}
+                      defaultChecked={this.state.hasHighPriority}
                       onClick={this.handleProrityChange}
                       name="hasHighPriority"
                       value={this.state.hasHighPriority}
@@ -615,7 +619,7 @@ class EditOrder extends Component {
                     ارسال فوری سفارش در الویت ارسال قرار گیرد
                   </div>
                   <div className="zent-form__control-group" style={{ fontSize: "12px" }}>
-                    <input tabIndex="0" type="checkbox" onClick={this.handlePaidChange} defaultChecked={orderObject.isPaid} name="isPaid" value={this.state.isPaid} />
+                    <input tabIndex="0" type="checkbox" onClick={this.handlePaidChange} defaultChecked={this.state.isPaid} name="isPaid" value={this.state.isPaid} />
                     تسویه شده است
                   </div>
                 </React.Fragment>

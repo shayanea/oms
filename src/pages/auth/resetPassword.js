@@ -55,10 +55,10 @@ class ForgotPassword extends Component {
               validateOnBlur={false}
               validations={{
                 required: true,
-                minlenght: 6
+                minLength: 6
               }}
               validationErrors={{
-                minlenght: " کلمه عبور حداقل ۶ کاراکتر است.",
+                minLength: " کلمه عبور حداقل ۶ کاراکتر است.",
                 required: "کلمه عبور خود را وارد نمایید."
               }}
             />

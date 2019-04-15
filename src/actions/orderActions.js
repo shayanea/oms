@@ -60,7 +60,9 @@ export const getNonAssignOrders = (page, search, city = null, product = null, st
     }
   });
   axios
-    .get(`/orders?_pageNumber=${page}&_pageSize=30&StatusId=101&_sort=-CreationDateTime${cityQuery}${productQuery}${dateQuery}${searchQuery}`)
+    .get(
+      `/orders?_pageNumber=${page}&_pageSize=30&StatusId=101,301,302,303,304,601,602,603,604,605,606&StatusId_op=in&_sort=-CreationDateTime${cityQuery}${productQuery}${dateQuery}${searchQuery}`
+    )
     .then(res => {
       dispatch({
         type: type.FETCH_ORDERS,

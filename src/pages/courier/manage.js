@@ -13,7 +13,7 @@ import ChangeStatus from "../../components/order/changeStatus";
 import ViewOrder from "../../components/order/viewOrder";
 
 const { Col, Row } = Layout;
-const dataList = [{ name: "پیشخوان", href: "/couriers/dashboard" }, { name: "لیست کاربران" }];
+const dataList = [{ name: "پیشخوان", href: "/couriers/dashboard" }, { name: "آرشیو سفارش‌ها" }];
 
 class OrderList extends Component {
   constructor(props) {

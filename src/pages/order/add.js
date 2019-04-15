@@ -101,7 +101,8 @@ class AddOrder extends Component {
       loading: true,
       searchText: "",
       productModalStatus: false,
-      selectedCity: "",
+      selectedCityName: "",
+      selectedCityId: null,
       products: [],
       advisers: [],
       adviserId: null,
@@ -236,7 +237,7 @@ class AddOrder extends Component {
 
   onSelectCity = name => {
     let result = City.find(item => item.fullName === name);
-    return result && this.setState({ selectedCity: result.id });
+    return result && this.setState({ selectedCityId: result.id, selectedCityName: name });
   };
 
   calculateDate = (day, month, year) => {
@@ -322,7 +323,7 @@ class AddOrder extends Component {
           deliveryCostId: this.state.deliveryCostId,
           discount: this.toEnglishDigits(this.state.discount),
           name: data.name,
-          cityId: this.state.selectedCity,
+          cityId: this.state.selectedCityId,
           postalCode: data.postalCode,
           address: data.address,
           firstPhoneNumber: this.toEnglishDigits(data.firstPhoneNumber),
@@ -340,7 +341,8 @@ class AddOrder extends Component {
           this.setState({
             isLoading: false,
             selectedProduct: [],
-            selectedCity: "",
+            selectedCityName: "",
+            selectedCityId: null,
             datasets: this.state.datasets,
             discount: 0,
             deliveryTimeId: "1",
