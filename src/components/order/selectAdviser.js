@@ -23,7 +23,7 @@ class AdviserModal extends Component {
 
   fetchAdvisers = () => {
     return axios
-      .get(`/advisers`)
+      .get(`/advisers/profiles`)
       .then(res => {
         this.setState({ datasets: res.data.data });
       })

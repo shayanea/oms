@@ -51,10 +51,11 @@ class AddAdviser extends Component {
               borderRadius: 6
             }}
           >
-            <Form disableEnterSubmit={false} vertical className={"add-order__form"} onSubmit={handleSubmit(this.submit)}>
+            <Form disableEnterSubmit={false} vertical className={"add-costum__form"} onSubmit={handleSubmit(this.submit)}>
               <FormInputField
                 name="firstName"
                 type="text"
+                label="نام"
                 placeholder="نام"
                 validateOnChange={false}
                 validateOnBlur={false}
@@ -64,10 +65,12 @@ class AddAdviser extends Component {
                 validationErrors={{
                   required: " نام اجباری است."
                 }}
+                required
               />
               <FormInputField
                 name="lastName"
                 type="text"
+                label="نام خانوادگی"
                 placeholder="نام خانوادگی"
                 validateOnChange={false}
                 validateOnBlur={false}
@@ -77,10 +80,12 @@ class AddAdviser extends Component {
                 validationErrors={{
                   required: " نام خانوادگی اجباری است."
                 }}
+                required
               />
               <FormInputField
                 name="nationalCode"
                 type="text"
+                label="کد ملی"
                 placeholder="کد ملی"
                 validateOnChange={false}
                 validateOnBlur={false}
@@ -92,8 +97,28 @@ class AddAdviser extends Component {
                 }}
               />
               <FormInputField
+                name="secondPhoneNumber"
+                type="text"
+                label="شماره تلفن ثابت"
+                placeholder="شماره تلفن ثابت"
+                maxLength="11"
+                validateOnChange={false}
+                validateOnBlur={false}
+                validations={{
+                  matchRegex: /^[0-9 || {InArabic}&&[^۰-۹]+$/,
+                  maxLength: 11,
+                  minLength: 11
+                }}
+                validationErrors={{
+                  matchRegex: "شماره تلفن ثابت را درست وارد نمایید.",
+                  maxLength: "شماره تلفن ثابت باید ۱۱ رقمی باشد.",
+                  minLength: "شماره تلفن ثابت باید ۱۱ رقمی باشد."
+                }}
+              />
+              <FormInputField
                 name="firstPhoneNumber"
                 type="text"
+                label="شماره موبایل"
                 placeholder="شماره موبایل"
                 maxLength="11"
                 validateOnChange={false}
@@ -111,24 +136,6 @@ class AddAdviser extends Component {
                   minLength: "شماره موبایل باید ۱۱ رقمی باشد."
                 }}
                 required
-              />
-              <FormInputField
-                name="secondPhoneNumber"
-                type="text"
-                placeholder="شماره تلفن ثابت"
-                maxLength="11"
-                validateOnChange={false}
-                validateOnBlur={false}
-                validations={{
-                  matchRegex: /^[0-9 || {InArabic}&&[^۰-۹]+$/,
-                  maxLength: 11,
-                  minLength: 11
-                }}
-                validationErrors={{
-                  matchRegex: "شماره تلفن ثابت را درست وارد نمایید.",
-                  maxLength: "شماره تلفن ثابت باید ۱۱ رقمی باشد.",
-                  minLength: "شماره تلفن ثابت باید ۱۱ رقمی باشد."
-                }}
               />
               <FormCheckboxField name="isActive">فعال</FormCheckboxField>
               <Button htmlType="submit" className="submit-btn" type="primary" size="large" loading={this.state.isLoading}>

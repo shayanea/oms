@@ -29,6 +29,9 @@ class AddCourier extends Component {
   };
 
   submit = data => {
+    if (this.state.selectAccountId === null) {
+      return Notify.error("ایمیل وارد شده برای مدیر واحد ارسال معتبر نسیت.", 5000);
+    }
     if (this.state.selectAccountId !== null) {
       this.setState({ isLoading: true });
       axios
@@ -72,11 +75,12 @@ class AddCourier extends Component {
               borderRadius: 6
             }}
           >
-            <Form disableEnterSubmit={false} vertical className={"add-order__form"} onSubmit={handleSubmit(this.submit)}>
-              <FormInputField name="code" type="text" placeholder="کد" />
+            <Form disableEnterSubmit={false} vertical className={"add-costum__form"} onSubmit={handleSubmit(this.submit)}>
+              <FormInputField name="code" type="text" label="کد" placeholder="کد" />
               <FormInputField
                 name="title"
                 type="text"
+                label="عنوان"
                 placeholder="عنوان"
                 validateOnChange={false}
                 validateOnBlur={false}
@@ -86,12 +90,14 @@ class AddCourier extends Component {
                 validationErrors={{
                   required: " عنوان اجباری است."
                 }}
+                required
               />
-              <FormInputField name="description" type="text" placeholder="توضیحات" />
-              <FormInputField name="contactPerson" type="text" placeholder="نام مسئول واحد" />
+              <FormInputField name="description" type="text" label="توضیحات" placeholder="توضیحات" />
+              <FormInputField name="contactPerson" type="text" label="نام مسئول واحد" placeholder="نام مسئول واحد" />
               <FormInputField
                 name="contactNumber"
                 type="text"
+                label="شماره تماس مسئول واحد"
                 placeholder="شماره تماس مسئول واحد"
                 maxLength="11"
                 validateOnChange={false}
@@ -107,38 +113,43 @@ class AddCourier extends Component {
                   minLength: "شماره تماس باید ۱۱ رقمی باشد."
                 }}
               />
-              <div className="zent-form__controls" style={{ marginBottom: "10px" }}>
-                <div className="zent-input-wrapper" style={{ height: "40px", maxHeight: "46px" }}>
-                  <input
-                    ref={searchInput => {
-                      this.searchInput = searchInput;
-                    }}
-                    className="zent-input"
-                    type="text"
-                    placeholder="مدیر واحد"
-                    onChange={e => this.searchForUser(e.target.value)}
-                  />
-                  {showAutoComplete && (
-                    <div className="autocomplete-result">
-                      {autoCompleteResult.map(item => (
-                        <div
-                          key={item.id}
-                          onClick={() => {
-                            this.searchInput.value = item.email;
-                            this.setState({ selectAccountId: item.id, showAutoComplete: false });
-                          }}
-                        >
-                          {item.email}
-                        </div>
-                      ))}
-                    </div>
-                  )}
+              <div className="zent-form__control-group ">
+                <label className="zent-form__control-label">
+                  <em class="zent-form__required">*</em>مدیر واحد
+                </label>
+                <div className="zent-form__controls">
+                  <div className="zent-input-wrapper" style={{ height: "40px", maxHeight: "46px" }}>
+                    <input
+                      ref={searchInput => {
+                        this.searchInput = searchInput;
+                      }}
+                      className="zent-input"
+                      type="text"
+                      placeholder="مدیر واحد"
+                      onChange={e => this.searchForUser(e.target.value)}
+                    />
+                    {showAutoComplete && (
+                      <div className="autocomplete-result">
+                        {autoCompleteResult.map(item => (
+                          <div
+                            key={item.id}
+                            onClick={() => {
+                              this.searchInput.value = item.email;
+                              this.setState({ selectAccountId: item.id, showAutoComplete: false });
+                            }}
+                          >
+                            {item.email}
+                          </div>
+                        ))}
+                      </div>
+                    )}
+                  </div>
+                  {selectAccountId === null ? (
+                    <p style={{ color: "#f44" }} className="zent-form__error-desc">
+                      انتخاب مدیر واحد اجباری است.
+                    </p>
+                  ) : null}
                 </div>
-                {selectAccountId === null ? (
-                  <p style={{ color: "#f44" }} className="zent-form__error-desc">
-                    عنوان اجباری است.
-                  </p>
-                ) : null}
               </div>
               <FormCheckboxField name="isActive">فعال</FormCheckboxField>
               <Button htmlType="submit" className="submit-btn" type="primary" size="large" loading={this.state.isLoading}>

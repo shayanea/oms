@@ -136,7 +136,7 @@ class AddOrder extends Component {
 
   fetchAdvisers = () => {
     return axios
-      .get(`/advisers`)
+      .get(`/advisers/profiles`)
       .then(res => {
         this.setState({ advisers: res.data.data, adviserId: res.data.data[0].id });
       })
@@ -311,7 +311,19 @@ class AddOrder extends Component {
   }
 
   submit = data => {
-    if (this.state.selectedProduct.length && this.state.adviserId !== null && this.state.deliveryTimeId !== null && this.state.deliveryCostId !== null) {
+    if (!this.state.selectedProduct.length) {
+      return Notify.error("هیچ کالایی انتخاب نشده است.", 5000);
+    }
+    if (this.state.selectedCityId === null) {
+      return Notify.error("شهر مورد نظر خود را انتخاب نمایید.", 5000);
+    }
+    if (
+      this.state.selectedProduct.length &&
+      this.state.adviserId !== null &&
+      this.state.deliveryTimeId !== null &&
+      this.state.deliveryCostId !== null &&
+      this.state.selectedCityId !== null
+    ) {
       this.setState({ isLoading: true });
       let array = [];
       this.state.selectedProduct.forEach(item => {
@@ -365,36 +377,30 @@ class AddOrder extends Component {
     const columns1 = [
       {
         title: "شماره فاکتور",
-        width: "15%",
         name: "id"
       },
       {
         title: "نام",
-        width: "20%",
         name: "name"
       },
       {
         title: "شماره تماس",
-        width: "15%",
         name: "firstPhoneNumber"
       },
       {
         title: "استان و شهر",
-        width: "25%",
         bodyRender: data => {
           return this.findCityById(data.cityId);
         }
       },
       {
         title: "مجموع",
-        width: "20%",
         bodyRender: data => {
           return <React.Fragment>{parseFloat(data.finalAmount).toLocaleString("fa")} ریال</React.Fragment>;
         }
       },
       {
         title: "عملیات",
-        width: "10%",
         bodyRender: data => {
           return (
             <React.Fragment>
@@ -470,7 +476,7 @@ class AddOrder extends Component {
               borderRadius: 6
             }}
           >
-            <Form disableEnterSubmit={true} vertical className={"add-order__form"} onSubmit={handleSubmit(this.submit)}>
+            <Form disableEnterSubmit={true} vertical className={"add-costum__form hide-label"} onSubmit={handleSubmit(this.submit)}>
               <div className="zent-form__controls" style={{ marginBottom: "10px" }}>
                 <div className="zent-input-wrapper" style={{ height: "40px", maxHeight: "46px" }}>
                   <select

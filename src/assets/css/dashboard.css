@@ -285,23 +285,26 @@
   line-height: 46px;
 }
 
-.grid-layout__container .add-order__form .zent-form__control-label {
+.grid-layout__container .add-costum__form .zent-form__control-label {
   position: relative;
+}
+
+.grid-layout__container .hide-label .zent-form__control-label {
   display: none;
 }
 
-.grid-layout__container .add-order__form .zent-form__control-label .zent-form__required {
+.grid-layout__container .add-costum__form .zent-form__control-label .zent-form__required {
   position: absolute;
   right: -15px;
 }
 
-.grid-layout__container .add-order__form .border-line {
+.grid-layout__container .add-costum__form .border-line {
   border-bottom: 1px solid #eee;
   display: block;
   margin-bottom: 15px;
 }
 
-.grid-layout__container .add-order__form .product-list__header {
+.grid-layout__container .add-costum__form .product-list__header {
   display: flex;
   align-items: center;
   justify-content: space-between;
@@ -316,26 +319,26 @@
   box-shadow: 0px 3px 11px 0px rgba(0, 0, 0, 0.45);
 }
 
-.grid-layout__container .add-order__form .product-list__header .add-new__product span {
+.grid-layout__container .add-costum__form .product-list__header .add-new__product span {
   margin-left: 0;
   margin-right: 8px;
 }
 
-.grid-layout__container .add-order__form .product-list__footer {
+.grid-layout__container .add-costum__form .product-list__footer {
   display: flex;
   align-items: center;
-  justify-content: flex-end;
+  justify-content: flex-start;
   margin: 15px 0;
 }
 
-.grid-layout__container .add-order__form .product-list__footer span {
+.grid-layout__container .add-costum__form .product-list__footer span {
   font-size: 16px;
   color: #444;
   font-family: "SAMIMBOLD";
   margin-left: 15px;
 }
 
-.grid-layout__container .add-order__form .product-list__footer .invoice-total {
+.grid-layout__container .add-costum__form .product-list__footer .invoice-total {
   background-color: #eee;
   color: #444;
   font-size: 14px;
@@ -348,7 +351,7 @@
   position: absolute;
   left: 50%;
   top: 50%;
-  transform: translate3d(-50%, -50%, 0);
+  transform: translate(-50%, -50%);
   border: 1px solid #d3d3d3;
   border-Radius: 6px;
   background: #fff;
@@ -482,25 +485,27 @@
   font-size: 12px;
 }
 
-.grid-layout__container .control-contaianer .right-control .datepicker-group {
+.grid-layout__container .datepicker-group {
   display: flex;
   flex-direction: row;
 }
 
-.grid-layout__container .control-contaianer .right-control .datepicker-group .day,
-.grid-layout__container .control-contaianer .right-control .datepicker-group .year,
-.grid-layout__container .control-contaianer .right-control .datepicker-group .month {
+.grid-layout__container .datepicker-group .day,
+.grid-layout__container .datepicker-group .year,
+.grid-layout__container .datepicker-group .month {
   width: auto;
+  margin-left: 5px;
 }
 
-.grid-layout__container .control-contaianer .right-control .datepicker-group .day .zent-select-text {
+.grid-layout__container .datepicker-group .day .zent-select-text {
   width: 60px;
 }
 
-.grid-layout__container .control-contaianer .right-control .datepicker-group .year .zent-select-text {
+.grid-layout__container .datepicker-group .year .zent-select-text {
   width: 70px;
+  margin-left: 0;
 }
 
-.grid-layout__container .control-contaianer .right-control .datepicker-group .month .zent-select-text {
+.grid-layout__container .datepicker-group .month .zent-select-text {
   width: 90px;
 }

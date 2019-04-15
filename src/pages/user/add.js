@@ -51,10 +51,11 @@ class AddUser extends Component {
               borderRadius: 6
             }}
           >
-            <Form disableEnterSubmit={false} vertical className={"add-order__form"} onSubmit={handleSubmit(this.submit)}>
+            <Form disableEnterSubmit={false} vertical className={"add-costum__form"} onSubmit={handleSubmit(this.submit)}>
               <FormInputField
                 name="name"
                 type="text"
+                label="نام و نام خانوادگی"
                 placeholder="نام و نام خانوادگی"
                 validateOnChange={false}
                 validateOnBlur={false}
@@ -64,10 +65,12 @@ class AddUser extends Component {
                 validationErrors={{
                   required: " نام و نام خانوادگی اجباری است."
                 }}
+                required
               />
               <FormInputField
                 name="password"
                 type="password"
+                label="رمز عبور"
                 placeholder="رمز عبور"
                 validateOnChange={false}
                 validateOnBlur={false}
@@ -77,10 +80,12 @@ class AddUser extends Component {
                 validationErrors={{
                   required: " رمز عبور اجباری است."
                 }}
+                required
               />
               <FormInputField
                 name="email"
                 type="email"
+                label="ایمیل"
                 placeholder="ایمیل"
                 validateOnChange={false}
                 validateOnBlur={false}
@@ -90,10 +95,12 @@ class AddUser extends Component {
                 validationErrors={{
                   required: " ایمیل اجباری است."
                 }}
+                required
               />
               <FormInputField
                 name="phoneNumber"
                 type="text"
+                label="شماره تماس"
                 placeholder="شماره تماس"
                 maxLength={11}
                 validateOnChange={false}
@@ -104,6 +111,7 @@ class AddUser extends Component {
                 validationErrors={{
                   required: " شماره تماس اجباری است."
                 }}
+                required
               />
               <FormSelectField
                 name="roleIds"

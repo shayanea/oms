@@ -45,7 +45,10 @@ class EditAdviser extends Component {
       .put(`/advisers/${this.props.match.params.id}`, {
         firstName: data.firstName,
         lastName: data.lastName,
-        isActive: data.isActive
+        firstPhoneNumber: data.firstPhoneNumber,
+        secondPhoneNumber: data.secondPhoneNumber,
+        nationalCode: data.nationalCode,
+        isActive: data.isActive !== ""
       })
       .then(res => {
         this.props.history.push("/advisers/list");
@@ -77,10 +80,11 @@ class EditAdviser extends Component {
               borderRadius: 6
             }}
           >
-            <Form disableEnterSubmit={false} vertical className={"add-order__form"} onSubmit={handleSubmit(this.submit)}>
+            <Form disableEnterSubmit={false} vertical className={"add-costum__form"} onSubmit={handleSubmit(this.submit)}>
               <FormInputField
                 name="firstName"
                 type="text"
+                label="نام"
                 placeholder="نام"
                 validateOnChange={false}
                 validateOnBlur={false}
@@ -91,10 +95,12 @@ class EditAdviser extends Component {
                   required: " نام اجباری است."
                 }}
                 value={firstName}
+                required
               />
               <FormInputField
                 name="lastName"
                 type="text"
+                label="نام خانوادگی"
                 placeholder="نام خانوادگی"
                 validateOnChange={false}
                 validateOnBlur={false}
@@ -105,10 +111,12 @@ class EditAdviser extends Component {
                   required: " نام خانوادگی اجباری است."
                 }}
                 value={lastName}
+                required
               />
               <FormInputField
                 name="nationalCode"
                 type="text"
+                label="کد ملی"
                 placeholder="کد ملی"
                 validateOnChange={false}
                 validateOnBlur={false}
@@ -121,8 +129,29 @@ class EditAdviser extends Component {
                 value={nationalCode}
               />
               <FormInputField
+                name="secondPhoneNumber"
+                type="text"
+                label="شماره تلفن ثابت"
+                placeholder="شماره تلفن ثابت"
+                maxLength="11"
+                validateOnChange={false}
+                validateOnBlur={false}
+                validations={{
+                  matchRegex: /^[0-9 || {InArabic}&&[^۰-۹]+$/,
+                  maxLength: 11,
+                  minLength: 11
+                }}
+                validationErrors={{
+                  matchRegex: "شماره تلفن ثابت را درست وارد نمایید.",
+                  maxLength: "شماره تلفن ثابت باید ۱۱ رقمی باشد.",
+                  minLength: "شماره تلفن ثابت باید ۱۱ رقمی باشد."
+                }}
+                value={secondPhoneNumber}
+              />
+              <FormInputField
                 name="firstPhoneNumber"
                 type="text"
+                label="شماره تماس"
                 placeholder="شماره تماس"
                 maxLength="11"
                 validateOnChange={false}
@@ -142,25 +171,7 @@ class EditAdviser extends Component {
                 required
                 value={firstPhoneNumber}
               />
-              <FormInputField
-                name="secondPhoneNumber"
-                type="text"
-                placeholder="شماره تلفن ثابت"
-                maxLength="11"
-                validateOnChange={false}
-                validateOnBlur={false}
-                validations={{
-                  matchRegex: /^[0-9 || {InArabic}&&[^۰-۹]+$/,
-                  maxLength: 11,
-                  minLength: 11
-                }}
-                validationErrors={{
-                  matchRegex: "شماره تلفن ثابت را درست وارد نمایید.",
-                  maxLength: "شماره تلفن ثابت باید ۱۱ رقمی باشد.",
-                  minLength: "شماره تلفن ثابت باید ۱۱ رقمی باشد."
-                }}
-                value={secondPhoneNumber}
-              />
+
               <FormCheckboxField name="isActive" checked={isActive} onChange={e => this.setState({ isActive: e.target.checked })}>
                 فعال
               </FormCheckboxField>

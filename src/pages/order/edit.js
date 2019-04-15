@@ -134,7 +134,7 @@ class EditOrder extends Component {
 
   fetchAdvisers = () => {
     return axios
-      .get(`/advisers`)
+      .get(`/advisers/profiles`)
       .then(res => {
         this.setState({ advisers: res.data.data });
       })
@@ -151,7 +151,6 @@ class EditOrder extends Component {
         res.data.data.products.forEach(item => {
           array.push({ id: item.productId, number: item.count, price: item.perUnitPrice });
         });
-        console.log(this.findCityIdByName(res.data.data.cityId));
         this.setState({
           loading: false,
           selectedCityId: res.data.data.cityId,
@@ -332,7 +331,7 @@ class EditOrder extends Component {
         .put(`/orders/${this.props.match.params.id}`, {
           adviserId: this.state.orderObject.adviserId,
           deliveryCostId: this.state.orderObject.deliveryCostId,
-          discount: this.toEnglishDigits(this.state.discount),
+          discount: this.toEnglishDigits(this.state.orderObject.discount),
           name: data.name,
           cityId: this.state.selectedCityId,
           postalCode: data.postalCode,
@@ -348,7 +347,6 @@ class EditOrder extends Component {
           statusId: this.state.statusId
         })
         .then(res => {
-          console.log("update");
           this.props.history.goBack();
         })
         .catch(err => {
@@ -414,7 +412,7 @@ class EditOrder extends Component {
               borderRadius: 6
             }}
           >
-            <Form disableEnterSubmit={true} vertical className={"add-order__form"} onSubmit={handleSubmit(this.submit)}>
+            <Form disableEnterSubmit={true} vertical className={"add-costum__form hide-label"} onSubmit={handleSubmit(this.submit)}>
               <FormInputField
                 name="name"
                 type="text"
@@ -592,9 +590,7 @@ class EditOrder extends Component {
                     <div className="zent-form__controls">
                       <div className="zent-input-wrapper">
                         <input
-                          onChange={e => {
-                            this.setState({ discount: e.target.value });
-                          }}
+                          onChange={e => this.setState({ orderObject: { ...orderObject, discount: e.target.value } })}
                           className="zent-input"
                           placeholder="تخفیف (ریال)"
                           value={orderObject.discount}

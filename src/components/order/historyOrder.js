@@ -135,7 +135,7 @@ class Modal extends Component {
         style={{ background: "rgba(0, 0, 0, 0.2)", zIndex: 100 }}
         useLayerForClickAway
       >
-        <div className="add-custom__modal view-order__modal" style={{ minWidth: "80%" }}>
+        <div className="add-custom__modal view-order__modal" style={{ minWidth: "80%", maxHeight: "80%", overflow: "auto" }}>
           <div className="add-custom__modal__overlay">
             <h2>تاریخچه سفارش</h2>
             <Table emptyLabel={"هیچ آیتمی در این لیست وجود ندارد."} columns={columns} datasets={datasets} pageInfo={page} rowKey="id" />

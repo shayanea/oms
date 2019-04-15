@@ -92,10 +92,11 @@ class EditProduct extends Component {
             }}
           >
             {hasLoaded ? (
-              <Form disableEnterSubmit={false} vertical className={"add-order__form"} onSubmit={handleSubmit(this.submit)}>
+              <Form disableEnterSubmit={false} vertical className={"add-costum__form"} onSubmit={handleSubmit(this.submit)}>
                 <FormInputField
                   name="title"
                   type="text"
+                  label="نام کالا"
                   placeholder="نام کالا"
                   value={title}
                   validateOnChange={false}
@@ -106,17 +107,20 @@ class EditProduct extends Component {
                   validationErrors={{
                     required: " نام کالا اجباری است."
                   }}
+                  required
                 />
-                <FormInputField name="code" type="text" placeholder="کد" value={code} />
+                <FormInputField name="code" type="text" label="کد" placeholder="کد" value={code} />
                 <div className="zent-form__control-group ">
-                  <label className="zent-form__control-label" />
+                  <label className="zent-form__control-label">
+                    قیمت (ریال)<em class="zent-form__required">*</em>
+                  </label>
                   <div className="zent-form__controls">
                     <div className="zent-input-wrapper">
                       <CurrencyInput onChangeEvent={this.handleChange} value={price} className="zent-input" placeholder="قیمت (ریال)" precision="0" />
                     </div>
                   </div>
                 </div>
-                <FormInputField name="description" type="textarea" value={description} placeholder="توضیحات" />
+                <FormInputField name="description" type="textarea" value={description} label="توضیحات" placeholder="توضیحات" />
                 <FormCheckboxField name="isAvailable" checked={isAvailable} onChange={e => this.setState({ isAvailable: e.target.checked })}>
                   موجود
                 </FormCheckboxField>

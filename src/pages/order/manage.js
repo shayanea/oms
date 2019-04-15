@@ -132,7 +132,9 @@ class OrderList extends Component {
       this.state.selectedCityId,
       this.state.selectedProductId,
       this.state.selectedCourierId,
-      this.state.selectedStatusId
+      this.state.selectedStatusId,
+      this.state.startDate,
+      this.state.endDate
     );
   }
 
@@ -275,8 +277,14 @@ class OrderList extends Component {
     let productQuery = this.state.selectedProductId !== null ? `&ProductId=${this.state.selectedProductId}&ProductId_op=in&` : "";
     let courierQuery = this.state.selectedCourierId !== null ? `&CourierId=${this.state.selectedCourierId}&CourierId_op=in&` : "";
     let statusQuery = this.state.selectedStatusId !== null ? `&StatusId=${this.state.selectedStatusId}&StatusId_op=in&` : "";
+    let dateQuery =
+      this.state.startDate !== ""
+        ? `&CreationDateTime=${encodeURIComponent(this.state.startDate)},${
+            this.state.endDate === "" ? encodeURIComponent(this.state.startDate) : encodeURIComponent(this.state.endDate)
+          }&CreationDateTime_op=between`
+        : "";
     axios
-      .get(`/orders?_sort=-CreationDateTime${cityQuery}${productQuery}${courierQuery}${statusQuery}${searchQuery}`, {
+      .get(`/orders?_sort=-CreationDateTime${cityQuery}${productQuery}${courierQuery}${statusQuery}${dateQuery}${searchQuery}`, {
         headers: { Accept: "application/xlsx" },
         responseType: "arraybuffer"
       })
@@ -473,40 +481,40 @@ class OrderList extends Component {
                   filter={(item, keyword) => item.fullName.indexOf(keyword) > -1}
                   emptyText={"ایتمی پیدا نشد."}
                 />
-                <div style={{ position: "relative" }}>
-                  <label className="datepicker-label">تاریخ شروع</label>
-                  <DatePicker
-                    style={{ flexDirection: "column", alignItems: "flex-start" }}
-                    day={dateObj.day}
-                    month={dateObj.month}
-                    year={dateObj.year}
-                    hour={dateObj.hour}
-                    minute={dateObj.minute}
-                    seconds={dateObj.seconds}
-                    onUpdate={this.selectStartDate}
-                    withoutHourAndMinute={false}
-                  />
-                </div>
-                <div style={{ position: "relative" }}>
-                  <label className="datepicker-label">تاریخ اتمام</label>
-                  <DatePicker
-                    style={{ flexDirection: "column", alignItems: "flex-start" }}
-                    day={dateObj.day}
-                    month={dateObj.month}
-                    year={dateObj.year}
-                    hour={dateObj.hour}
-                    minute={dateObj.minute}
-                    seconds={dateObj.seconds}
-                    onUpdate={this.selectEndDate}
-                    withoutHourAndMinute={false}
-                  />
-                </div>
               </div>
               <div style={{ display: "inline-flex", flexDirection: "row" }}>
                 <SearchInput value={searchText} onChange={this.onSearchChange} placeholder="جستجو" />
                 <Button type="primary" className="filter-btn" onClick={this.filter}>
                   اعمال فیلتر
                 </Button>
+              </div>
+            </div>
+            <div style={{ display: "flex", marginTop: 30 }}>
+              <div style={{ position: "relative", marginLeft: 15 }}>
+                <label className="datepicker-label">تاریخ شروع</label>
+                <DatePicker
+                  day={dateObj.day}
+                  month={dateObj.month}
+                  year={dateObj.year}
+                  hour={dateObj.hour}
+                  minute={dateObj.minute}
+                  seconds={dateObj.seconds}
+                  onUpdate={this.selectStartDate}
+                  withoutHourAndMinute={false}
+                />
+              </div>
+              <div style={{ position: "relative" }}>
+                <label className="datepicker-label">تاریخ اتمام</label>
+                <DatePicker
+                  day={dateObj.day}
+                  month={dateObj.month}
+                  year={dateObj.year}
+                  hour={dateObj.hour}
+                  minute={dateObj.minute}
+                  seconds={dateObj.seconds}
+                  onUpdate={this.selectEndDate}
+                  withoutHourAndMinute={false}
+                />
               </div>
             </div>
             <Table
