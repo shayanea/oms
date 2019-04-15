@@ -85,6 +85,7 @@ class CourierList extends Component {
   };
 
   render() {
+    const { isLoading } = this.props.courier;
     const { datasets, page } = this.state;
     const columns = [
       {
@@ -133,6 +134,7 @@ class CourierList extends Component {
               datasets={datasets}
               onChange={this.onChange.bind(this)}
               getRowConf={this.getRowConf}
+              loading={isLoading}
               pageInfo={page}
               rowKey="id"
             />

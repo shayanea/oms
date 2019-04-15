@@ -88,6 +88,7 @@ class UsersList extends Component {
   };
 
   render() {
+    const { isLoading } = this.props.users;
     const { datasets, page } = this.state;
     const columns = [
       {
@@ -134,6 +135,7 @@ class UsersList extends Component {
               datasets={datasets}
               onChange={this.onChange.bind(this)}
               getRowConf={this.getRowConf}
+              loading={isLoading}
               pageInfo={page}
               rowKey="id"
             />

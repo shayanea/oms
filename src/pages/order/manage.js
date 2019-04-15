@@ -318,6 +318,7 @@ class OrderList extends Component {
   };
 
   render() {
+    const { isLoading } = this.props.orders;
     const {
       searchText,
       datasets,
@@ -524,6 +525,7 @@ class OrderList extends Component {
               onChange={this.onChange.bind(this)}
               getRowConf={this.getRowConf}
               pageInfo={page}
+              loading={isLoading}
               rowKey="id"
               selection={{
                 selectedRowKeys: this.state.selectedRowKeys,

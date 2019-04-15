@@ -184,6 +184,7 @@ class OrderList extends Component {
   };
 
   render() {
+    const { isLoading } = this.props.orders;
     const { searchText, datasets, page, products, couriers, selectedRowKeys, modalStatus, infoModalStatus, historyModalStatus, selectedItem } = this.state;
     const columns = [
       {
@@ -319,6 +320,7 @@ class OrderList extends Component {
               getRowConf={this.getRowConf}
               pageInfo={page}
               rowKey="id"
+              loading={isLoading}
               selection={{
                 selectedRowKeys: this.state.selectedRowKeys,
                 needCrossPage: true,

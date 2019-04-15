@@ -89,6 +89,7 @@ class AdviserList extends Component {
   };
 
   render() {
+    const { isLoading } = this.props.advisers;
     const { datasets, page } = this.state;
     const columns = [
       {
@@ -133,6 +134,7 @@ class AdviserList extends Component {
               datasets={datasets}
               onChange={this.onChange.bind(this)}
               getRowConf={this.getRowConf}
+              loading={isLoading}
               pageInfo={page}
               rowKey="id"
             />

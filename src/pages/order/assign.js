@@ -50,11 +50,6 @@ class AssingOrder extends Component {
   componentDidMount() {
     this.props.getNonAssignOrders(this.props.orders.page, this.props.orders.search, null, null, this.state.startDate, this.state.endDate);
     this.fetchProducts();
-    console.log(
-      moment()
-        .endOf("day")
-        .format()
-    );
   }
 
   fetchProducts = () => {
@@ -150,6 +145,7 @@ class AssingOrder extends Component {
   };
 
   render() {
+    const { isLoading } = this.props.orders;
     const { searchText, datasets, page, selectedRowKeys, modalStatus, products, courierStatus, infoModalStatus, selectedItem, dateObj } = this.state;
     const columns = [
       {
@@ -281,6 +277,7 @@ class AssingOrder extends Component {
               getRowConf={this.getRowConf}
               pageInfo={page}
               rowKey="id"
+              loading={isLoading}
               selection={{
                 selectedRowKeys: this.state.selectedRowKeys,
                 needCrossPage: true,

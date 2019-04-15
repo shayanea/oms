@@ -51,22 +51,22 @@ export default class dashboard extends Component {
     return (
       <div className="container">
         <div className="report-item__container">
-          <div className="report-items__container">
+          <Link to="/orders/manage" className="report-items__container">
             <p className="report-items__title">تعداد کل سفارش‌ها</p>
             <span className="report-items__value">{totalOrders}</span>
-          </div>
-          <div className="report-items__container">
+          </Link>
+          <Link to="/orders/manage" className="report-items__container">
             <p className="report-items__title">سفارش‌های تحویل شده</p>
             <span className="report-items__value">{recievedOrders}</span>
-          </div>
-          <div className="report-items__container">
+          </Link>
+          <Link to="/orders/manage" className="report-items__container">
             <p className="report-items__title">سفارش‌های کنسل شده</p>
             <span className="report-items__value">{canceledOrders}</span>
-          </div>
-          <div className="report-items__container">
+          </Link>
+          <Link to="/products/list" className="report-items__container">
             <p className="report-items__title">تعداد کالا‌ها</p>
             <span className="report-items__value">{totalProducts}</span>
-          </div>
+          </Link>
         </div>
         <div className="action-item__container">
           <Link to="/order/add" className="action-items__container">

@@ -42,7 +42,6 @@ class AssingOrder extends Component {
         loading: this.props.products.loading,
         datasets: this.props.products.items
       });
-      console.log(this.props.products.total);
     }
   }
 
@@ -88,6 +87,7 @@ class AssingOrder extends Component {
   };
 
   render() {
+    const { isLoading } = this.props.products;
     const { datasets, page } = this.state;
     const columns = [
       {
@@ -145,6 +145,7 @@ class AssingOrder extends Component {
               onChange={this.onChange.bind(this)}
               getRowConf={this.getRowConf}
               pageInfo={page}
+              loading={isLoading}
               rowKey="id"
             />
             <Button htmlType="submit" className="submit-btn" type="primary" size="large" style={{ marginTop: "15px" }} onClick={() => this.props.history.push("/product/add")}>
