@@ -180,7 +180,7 @@ class OrderList extends Component {
   viewOrderHistory = item => this.setState({ historyModalStatus: true, selectedItem: item });
 
   filter = () => {
-    this.props.getAssignOrders(this.props.orders.page, this.state.searchText, this.state.selectedCityId, this.state.selectedProductId, this.state.selectedCourierI);
+    this.props.getAssignOrders(1, this.state.searchText, this.state.selectedCityId, this.state.selectedProductId, this.state.selectedCourierI);
   };
 
   render() {
@@ -329,6 +329,7 @@ class OrderList extends Component {
                 }
               }}
             />
+            {!isLoading && <div className="total-page__number">مجموع: {page.totalItem}</div>}
             <Button
               htmlType="submit"
               className="submit-btn"

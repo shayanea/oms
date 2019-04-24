@@ -166,7 +166,7 @@ class OrderList extends Component {
   viewOrder = item => this.setState({ infoModalStatus: true, selectedItem: item });
 
   filter = () => {
-    this.props.getAssignOrders(this.props.orders.page, this.state.searchText, this.state.selectedCityId, this.state.selectedProductId, this.state.selectedCourierId);
+    this.props.getAssignOrders(1, this.state.searchText, this.state.selectedCityId, this.state.selectedProductId, this.state.selectedCourierId);
   };
 
   exoprtExcel = () => {

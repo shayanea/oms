@@ -9,7 +9,6 @@ import DatePicker from "../../components/order/datepicker";
 import { saveAs } from "file-saver";
 
 import { Layout, SearchInput, Table, Select, Notify, Button, Breadcrumb } from "zent";
-import ChangeStatus from "../../components/order/changeStatus";
 import ViewOrder from "../../components/order/viewOrder";
 
 const { Col, Row } = Layout;
@@ -39,7 +38,6 @@ class OrderList extends Component {
       loading: true,
       isExcelLoading: false,
       searchText: "",
-      modalStatus: false,
       courierStatus: false,
       selectedCityId: null,
       selectedProductId: null,
@@ -158,12 +156,6 @@ class OrderList extends Component {
     this.setState({ selectedStatusId: selected.value });
   };
 
-  onSelect(selectedRowKeys, selectedRows, currentRow) {
-    this.setState({
-      selectedRowKeys
-    });
-  }
-
   findStatusById = type => {
     switch (Number(type)) {
       case 101:
@@ -212,15 +204,17 @@ class OrderList extends Component {
     return product ? product.title : "";
   };
 
-  onToggleModal = () => this.setState({ modalStatus: !this.state.modalStatus });
-
-  onChangeStatus = () => {
-    this.setState({ modalStatus: false, selectedRowKeys: [] });
-  };
-
   selectStartDate = dateObj => {
     let value = moment(`${dateObj.year}/${dateObj.month}/${dateObj.day} 00:00}`, "jYYYY/jM/jD HH:mm").format();
     this.setState({ startDate: value });
+    if (this.state.endDate === "") {
+      this.setState({
+        endDate: moment()
+          .add(1, "day")
+          .startOf("day")
+          .format()
+      });
+    }
   };
 
   selectEndDate = dateObj => {
@@ -265,7 +259,7 @@ class OrderList extends Component {
 
   filter = () => {
     this.props.getAllOrders(
-      this.props.orders.page,
+      1,
       this.state.searchText,
       this.state.selectedCityId,
       this.state.selectedProductId,
@@ -278,7 +272,7 @@ class OrderList extends Component {
 
   render() {
     const { isLoading } = this.props.orders;
-    const { searchText, datasets, page, products, couriers, selectedRowKeys, modalStatus, courierStatus, selectedItem, infoModalStatus, dateObj, isExcelLoading } = this.state;
+    const { searchText, datasets, page, products, couriers, courierStatus, selectedItem, infoModalStatus, dateObj, isExcelLoading } = this.state;
     const columns = [
       {
         title: "شماره فاکتور",
@@ -349,7 +343,6 @@ class OrderList extends Component {
         }
       }
     ];
-    let self = this;
     return (
       <div className="container">
         <h2 className="page-title">آرشیو سفارش‌ها</h2>
@@ -428,7 +421,7 @@ class OrderList extends Component {
                 </Button>
               </div>
             </div>
-            <div style={{ display: "flex", marginTop: 30 }}>
+            <div className="control-contaianer" style={{ marginTop: 30, justifyContent: "flex-start" }}>
               <div style={{ position: "relative", marginLeft: 15 }}>
                 <label className="datepicker-label">تاریخ شروع</label>
                 <DatePicker
@@ -465,25 +458,8 @@ class OrderList extends Component {
               pageInfo={page}
               rowKey="id"
               loading={isLoading}
-              selection={{
-                selectedRowKeys: this.state.selectedRowKeys,
-                needCrossPage: true,
-                onSelect: (selectedRowKeys, selectedRows, currentRow) => {
-                  self.onSelect(selectedRowKeys, selectedRows, currentRow);
-                }
-              }}
             />
-            <Button
-              htmlType="submit"
-              className="submit-btn"
-              type="primary"
-              size="large"
-              style={{ marginTop: "15px" }}
-              disabled={!selectedRowKeys.length}
-              onClick={this.onToggleModal}
-            >
-              تغییر وضعیت
-            </Button>
+            {!isLoading && <div className="total-page__number">مجموع: {page.totalItem}</div>}
             <Button
               htmlType="submit"
               className="submit-btn"
@@ -497,7 +473,6 @@ class OrderList extends Component {
             </Button>
           </Col>
         </Row>
-        <ChangeStatus modalStatus={modalStatus} onToggleModal={this.onToggleModal} onChangeStatus={this.onChangeStatus} selectedRowKeys={selectedRowKeys} />
         <ViewOrder
           infoModalStatus={infoModalStatus}
           selectedItem={selectedItem}

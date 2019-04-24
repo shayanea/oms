@@ -10,6 +10,7 @@ import DatePicker from "../../components/order/datepicker";
 import { Layout, Breadcrumb, SearchInput, Table, Button, Select, Notify } from "zent";
 import AddAssign from "../../components/order/addAssign";
 import ViewOrder from "../../components/order/viewOrder";
+import HistoryOrder from "../../components/order/historyOrder";
 
 const { Col, Row } = Layout;
 const dataList = [{ name: "پیشخوان", href: "/" }, { name: "انتساب سفارش‌ها" }];
@@ -38,8 +39,10 @@ class AssingOrder extends Component {
       selectedRowKeys: [],
       products: [],
       selectedProductId: null,
+      selectedStatusId: null,
       modalStatus: false,
       infoModalStatus: false,
+      historyModalStatus: false,
       selectedItem: null,
       courierStatus: false,
       startDate: "",
@@ -48,7 +51,15 @@ class AssingOrder extends Component {
   }
 
   componentDidMount() {
-    this.props.getNonAssignOrders(this.props.orders.page, this.props.orders.search, null, null, this.state.startDate, this.state.endDate);
+    this.props.getNonAssignOrders(
+      this.props.orders.page,
+      this.props.orders.search,
+      this.state.selectedCityId,
+      this.state.selectedProductId,
+      this.state.selectedStatusId,
+      this.state.startDate,
+      this.state.endDate
+    );
     this.fetchProducts();
   }
 
@@ -85,8 +96,20 @@ class AssingOrder extends Component {
         totalItem: this.props.orders.total
       }
     });
-    this.props.getNonAssignOrders(conf.current, this.props.orders.search, this.state.selectedCityId, this.state.selectedProductId, this.state.startDate, this.state.endDate);
+    this.props.getNonAssignOrders(
+      conf.current,
+      this.props.orders.search,
+      this.state.selectedCityId,
+      this.state.selectedProductId,
+      this.state.selectedStatusId,
+      this.state.startDate,
+      this.state.endDate
+    );
   }
+
+  selectStatusHandler = (event, selected) => {
+    this.setState({ selectedStatusId: selected.value });
+  };
 
   onSearchChange = evt => {
     this.setState({
@@ -115,7 +138,15 @@ class AssingOrder extends Component {
       selectedRowKeys: [],
       modalStatus: false
     });
-    this.props.getNonAssignOrders(this.props.orders.page, this.state.searchText, this.state.selectedCityId, this.state.selectedProductId, this.state.startDate, this.state.endDate);
+    this.props.getNonAssignOrders(
+      this.props.orders.page,
+      this.state.searchText,
+      this.state.selectedCityId,
+      this.state.selectedProductId,
+      this.state.selectedStatusId,
+      this.state.startDate,
+      this.state.endDate
+    );
   };
 
   findCityById = id => {
@@ -131,6 +162,14 @@ class AssingOrder extends Component {
   selectStartDate = dateObj => {
     let value = moment(`${dateObj.year}/${dateObj.month}/${dateObj.day} 00:00}`, "jYYYY/jM/jD HH:mm").format();
     this.setState({ startDate: value });
+    if (this.state.endDate === "") {
+      this.setState({
+        endDate: moment()
+          .add(1, "day")
+          .startOf("day")
+          .format()
+      });
+    }
   };
 
   selectEndDate = dateObj => {
@@ -140,13 +179,23 @@ class AssingOrder extends Component {
 
   viewOrder = item => this.setState({ infoModalStatus: true, selectedItem: item });
 
+  viewOrderHistory = item => this.setState({ historyModalStatus: true, selectedItem: item });
+
   filter = () => {
-    this.props.getNonAssignOrders(this.props.orders.page, this.state.searchText, this.state.selectedCityId, this.state.selectedProductId, this.state.startDate, this.state.endDate);
+    this.props.getNonAssignOrders(
+      1,
+      this.state.searchText,
+      this.state.selectedCityId,
+      this.state.selectedProductId,
+      this.state.selectedStatusId,
+      this.state.startDate,
+      this.state.endDate
+    );
   };
 
   render() {
     const { isLoading } = this.props.orders;
-    const { searchText, datasets, page, selectedRowKeys, modalStatus, products, courierStatus, infoModalStatus, selectedItem, dateObj } = this.state;
+    const { searchText, datasets, page, selectedRowKeys, modalStatus, products, courierStatus, infoModalStatus, historyModalStatus, selectedItem, dateObj } = this.state;
     const columns = [
       {
         title: "شماره فاکتور",
@@ -192,6 +241,7 @@ class AssingOrder extends Component {
           return (
             <React.Fragment>
               <span className="view-item" onClick={() => this.viewOrder(data)} />
+              <span className="history-item" onClick={() => this.viewOrderHistory(data)} />
             </React.Fragment>
           );
         }
@@ -211,6 +261,28 @@ class AssingOrder extends Component {
           <Col span={24}>
             <div className="control-contaianer">
               <div className="right-control">
+                <Select
+                  name="status"
+                  placeholder="انتخاب وضعیت سفارش"
+                  data={[
+                    { id: null, title: "همه" },
+                    { id: 301, title: "مرجوعی - عدم موجودی کالا" },
+                    { id: 302, title: "مرجوعی - خارج از محدوده" },
+                    { id: 303, title: "مرجوعی - تکمیل ظرفیت ارسال" },
+                    { id: 304, title: "مرجوعی - به درخواست فروشگاه" },
+                    { id: 501, title: "وصول شد" },
+                    { id: 601, title: "کنسلی - آدرس اشتباه" },
+                    { id: 602, title: "کنسلی - کنسلی تلفنی" },
+                    { id: 603, title: "کنسلی - عدم حضور مشتری" },
+                    { id: 604, title: "کنسلی - کالای معیوب" },
+                    { id: 605, title: "کنسلی - کنسلی حضوری" },
+                    { id: 606, title: "کنسلی - مشتری بعدا سفارش خواهد داد" }
+                  ]}
+                  autoWidth
+                  optionValue="id"
+                  optionText="title"
+                  onChange={this.selectStatusHandler}
+                />
                 <Select
                   name="product"
                   placeholder="انتخاب کالا"
@@ -235,38 +307,40 @@ class AssingOrder extends Component {
                   filter={(item, keyword) => item.fullName.indexOf(keyword) > -1}
                   emptyText={"ایتمی پیدا نشد."}
                 />
-                <div style={{ position: "relative" }}>
-                  <label className="datepicker-label">تاریخ شروع</label>
-                  <DatePicker
-                    day={dateObj.day}
-                    month={dateObj.month}
-                    year={dateObj.year}
-                    hour={dateObj.hour}
-                    minute={dateObj.minute}
-                    seconds={dateObj.seconds}
-                    onUpdate={this.selectStartDate}
-                    withoutHourAndMinute={false}
-                  />
-                </div>
-                <div style={{ position: "relative" }}>
-                  <label className="datepicker-label">تاریخ اتمام</label>
-                  <DatePicker
-                    day={dateObj.day}
-                    month={dateObj.month}
-                    year={dateObj.year}
-                    hour={dateObj.hour}
-                    minute={dateObj.minute}
-                    seconds={dateObj.seconds}
-                    onUpdate={this.selectEndDate}
-                    withoutHourAndMinute={false}
-                  />
-                </div>
               </div>
               <div style={{ display: "inline-flex", flexDirection: "row" }}>
                 <SearchInput value={searchText} onChange={this.onSearchChange} placeholder="جستجو" />
                 <Button type="primary" className="filter-btn" onClick={this.filter}>
                   اعمال فیلتر
                 </Button>
+              </div>
+            </div>
+            <div className="control-contaianer" style={{ marginTop: 30, justifyContent: "flex-start" }}>
+              <div style={{ position: "relative", marginLeft: 15 }}>
+                <label className="datepicker-label">تاریخ شروع</label>
+                <DatePicker
+                  day={dateObj.day}
+                  month={dateObj.month}
+                  year={dateObj.year}
+                  hour={dateObj.hour}
+                  minute={dateObj.minute}
+                  seconds={dateObj.seconds}
+                  onUpdate={this.selectStartDate}
+                  withoutHourAndMinute={false}
+                />
+              </div>
+              <div style={{ position: "relative" }}>
+                <label className="datepicker-label">تاریخ اتمام</label>
+                <DatePicker
+                  day={dateObj.day}
+                  month={dateObj.month}
+                  year={dateObj.year}
+                  hour={dateObj.hour}
+                  minute={dateObj.minute}
+                  seconds={dateObj.seconds}
+                  onUpdate={this.selectEndDate}
+                  withoutHourAndMinute={false}
+                />
               </div>
             </div>
             <Table
@@ -286,6 +360,7 @@ class AssingOrder extends Component {
                 }
               }}
             />
+            {!isLoading && <div className="total-page__number">مجموع: {page.totalItem}</div>}
             {!courierStatus && (
               <Button
                 htmlType="submit"
@@ -310,6 +385,7 @@ class AssingOrder extends Component {
           products={products}
           printable
         />
+        <HistoryOrder historyModalStatus={historyModalStatus} selectedItem={selectedItem} onCloseModal={() => this.setState({ historyModalStatus: false, selectedItem: null })} />
       </div>
     );
   }

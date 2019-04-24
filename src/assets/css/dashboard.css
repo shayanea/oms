@@ -299,9 +299,9 @@
   flex-direction: row;
 }
 
-.grid-layout__container .control-contaianer .right-control .zent-select-text {
+.grid-layout__container .control-contaianer .zent-select-text {
   width: 200px;
-  margin: 0 5px;
+  margin-left: 5px;
 }
 
 .grid-layout__container .zent-select {
@@ -590,7 +590,6 @@
 .grid-layout__container .datepicker-group .year,
 .grid-layout__container .datepicker-group .month {
   width: auto;
-  margin-left: 5px;
 }
 
 .grid-layout__container .datepicker-group .day .zent-select-text {
@@ -604,4 +603,11 @@
 
 .grid-layout__container .datepicker-group .month .zent-select-text {
   width: 90px;
+}
+
+.grid-layout__container .total-page__number {
+  text-align: left;
+  font-size: 13px;
+  color: #222;
+  margin-top: -30px;
 }

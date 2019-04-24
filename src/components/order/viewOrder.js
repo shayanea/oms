@@ -104,7 +104,7 @@ class Modal extends Component {
         style={{ background: "rgba(0, 0, 0, 0.2)", zIndex: 100 }}
         useLayerForClickAway
       >
-        <div className="add-custom__modal view-order__modal" style={{ minWidth: "750px" }}>
+        <div className="add-custom__modal view-order__modal" style={{ minWidth: "750px", maxHeight: "90%", overflow: "auto" }}>
           <div className="add-custom__modal__overlay">
             <h2>مشخصات سفارش</h2>
             {item && (

@@ -260,6 +260,14 @@ class OrderList extends Component {
   selectStartDate = dateObj => {
     let value = moment(`${dateObj.year}/${dateObj.month}/${dateObj.day} 00:00}`, "jYYYY/jM/jD HH:mm").format();
     this.setState({ startDate: value });
+    if (this.state.endDate === "") {
+      this.setState({
+        endDate: moment()
+          .add(1, "day")
+          .startOf("day")
+          .format()
+      });
+    }
   };
 
   selectEndDate = dateObj => {
@@ -278,11 +286,7 @@ class OrderList extends Component {
     let courierQuery = this.state.selectedCourierId !== null ? `&CourierId=${this.state.selectedCourierId}&CourierId_op=in&` : "";
     let statusQuery = this.state.selectedStatusId !== null ? `&StatusId=${this.state.selectedStatusId}&StatusId_op=in&` : "";
     let dateQuery =
-      this.state.startDate !== ""
-        ? `&CreationDateTime=${encodeURIComponent(this.state.startDate)},${
-            this.state.endDate === "" ? encodeURIComponent(this.state.startDate) : encodeURIComponent(this.state.endDate)
-          }&CreationDateTime_op=between`
-        : "";
+      this.state.startDate !== "" ? `&CreationDateTime=${encodeURIComponent(this.state.startDate)},${encodeURIComponent(this.state.endDate)}&CreationDateTime_op=between` : "";
     axios
       .get(`/orders?_sort=-CreationDateTime${cityQuery}${productQuery}${courierQuery}${statusQuery}${dateQuery}${searchQuery}`, {
         headers: { Accept: "application/xlsx" },
@@ -306,7 +310,7 @@ class OrderList extends Component {
 
   filter = () => {
     this.props.getAllOrders(
-      this.props.orders.page,
+      1,
       this.state.searchText,
       this.state.selectedCityId,
       this.state.selectedProductId,
@@ -490,7 +494,7 @@ class OrderList extends Component {
                 </Button>
               </div>
             </div>
-            <div style={{ display: "flex", marginTop: 30 }}>
+            <div className="control-contaianer" style={{ marginTop: 30, justifyContent: "flex-start" }}>
               <div style={{ position: "relative", marginLeft: 15 }}>
                 <label className="datepicker-label">تاریخ شروع</label>
                 <DatePicker
@@ -535,6 +539,7 @@ class OrderList extends Component {
                 }
               }}
             />
+            {!isLoading && <div className="total-page__number">مجموع: {page.totalItem}</div>}
             <Button
               htmlType="submit"
               className="submit-btn"
