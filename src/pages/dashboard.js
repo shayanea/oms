@@ -59,28 +59,28 @@ export default class dashboard extends Component {
                 <div className="report-items__cover" data-type="1" />
                 <div>
                   <p className="report-items__title">تعداد کل سفارش‌ها</p>
-                  <span className="report-items__value">{totalOrders}</span>
+                  <span className="report-items__value">{parseFloat(totalOrders).toLocaleString("fa")}</span>
                 </div>
               </Link>
               <Link to="/orders/manage" className="report-items__container">
                 <div className="report-items__cover" data-type="2" />
                 <div>
                   <p className="report-items__title">سفارش‌های تحویل شده</p>
-                  <span className="report-items__value">{recievedOrders}</span>
+                  <span className="report-items__value">{parseFloat(recievedOrders).toLocaleString("fa")}</span>
                 </div>
               </Link>
               <Link to="/orders/manage" className="report-items__container">
                 <div className="report-items__cover" data-type="3" />
                 <div>
                   <p className="report-items__title">سفارش‌های کنسل شده</p>
-                  <span className="report-items__value">{canceledOrders}</span>
+                  <span className="report-items__value">{parseFloat(canceledOrders).toLocaleString("fa")}</span>
                 </div>
               </Link>
               <Link to="/products/list" className="report-items__container">
                 <div className="report-items__cover" data-type="4" />
                 <div>
                   <p className="report-items__title">تعداد کالا‌ها</p>
-                  <span className="report-items__value">{totalProducts}</span>
+                  <span className="report-items__value">{parseFloat(totalProducts).toLocaleString("fa")}</span>
                 </div>
               </Link>
             </React.Fragment>

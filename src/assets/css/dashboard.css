@@ -6,7 +6,7 @@
   align-items: center;
   justify-content: flex-start;
   padding: 50px 25px;
-  border-bottom: 1px solid #e3e9f3;
+  border-bottom: 1px solid hsl(0, 0%, 80%);
   background-image: linear-gradient(to right, rgb(255, 236, 139) 0%, rgb(244, 208, 63) 100%);
   overflow: hidden;
 }
@@ -111,7 +111,7 @@
   width: 150px;
   padding: 20px;
   background-color: #fff;
-  box-shadow: 0 2px 4px 0 #e3e9f3;
+  box-shadow: 0 2px 4px 0 hsl(0, 0%, 80%);
   margin-left: 30px;
   border-radius: 6px;
   text-align: center;
@@ -302,6 +302,17 @@
 .grid-layout__container .control-contaianer .zent-select-text {
   width: 200px;
   margin-left: 5px;
+  padding: 9px 20px 9px 10px;
+}
+
+.grid-layout__container .control-contaianer .zent-select-text__control {
+  font-size: 13px;
+  width: 200px;
+  margin-left: 5px;
+}
+
+.zent-select-text__indicator-separator {
+  display: none;
 }
 
 .grid-layout__container .zent-select {
@@ -309,13 +320,15 @@
   margin-right: 0;
 }
 
-.grid-layout__container .zent-select .zent-select-text {
+.grid-layout__container .zent-select .zent-select-text,
+.grid-layout__container .zent-select .zent-select-text__control {
   text-align: right;
   border-radius: 4px;
-  border-color: #e3e9f3;
+  border-color: hsl(0, 0%, 80%);
 }
 
-.grid-layout__container .zent-select .zent-select-text::after {
+.grid-layout__container .zent-select .zent-select-text::after,
+.grid-layout__container .zent-select .zent-select-tags::after {
   right: auto;
   left: 10px;
 }
@@ -323,7 +336,7 @@
 .grid-layout__container .zent-form .zent-input-wrapper .zent-input,
 .grid-layout__container .zent-form .zent-input-wrapper .zent-textarea {
   border-radius: 4px;
-  border-color: #e3e9f3;
+  border-color: hsl(0, 0%, 80%);
 }
 
 .grid-layout__container .zent-form .zent-input-wrapper .zent-input:focus,
@@ -348,7 +361,7 @@
   outline: none;
   box-shadow: none;
   border-radius: 4px;
-  border: 1px solid #e3e9f3;
+  border: 1px solid hsl(0, 0%, 80%);
   font-size: 13px;
   color: #333;
   box-sizing: border-box;
@@ -472,7 +485,7 @@
 .add-custom__modal .add-custom__modal__overlay .zent-select .zent-select-text {
   text-align: right;
   border-radius: 4px;
-  border-color: #e3e9f3;
+  border-color: hsl(0, 0%, 80%);
 }
 
 .add-custom__modal .add-custom__modal__overlay .zent-select .zent-select-text::after {
@@ -482,7 +495,7 @@
 
 .add-custom__modal .add-custom__modal__overlay .zent-number-input-wrapper.zent-number-input-count-wrapper .zent-input {
   border-radius: 4px;
-  border-color: #e3e9f3;
+  border-color: hsl(0, 0%, 80%);
 }
 
 .add-custom__modal .add-custom__modal__overlay .zent-number-input-wrapper .zent-number-input-arrow {
@@ -502,7 +515,7 @@
   outline: none;
   box-shadow: none;
   border-radius: 4px;
-  border: 1px solid #e3e9f3;
+  border: 1px solid hsl(0, 0%, 80%);
   font-size: 13px;
   color: #333;
   box-sizing: border-box;

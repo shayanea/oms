@@ -41,11 +41,10 @@ export const getOrders = (page, search) => dispatch => {
     });
 };
 
-export const getNonAssignOrders = (page, search, city = null, product = null, status = null, startDate = "", endDate) => dispatch => {
+export const getNonAssignOrders = (page, search, city = null, product = null, startDate = "", endDate) => dispatch => {
   let searchQuery = search !== "" ? `&_searchParameters=name,FirstPhoneNumber,PostalCode,Address,Notes&_search=${search}` : "";
   let cityQuery = city !== null ? `&CityId=${city}&CityId_op=in&` : "";
-  let productQuery = product !== null ? `&ProductId=${product}&ProductId_op=in&` : "";
-  let statusQuery = status !== null ? `&StatusId=${status}&StatusId_op=in&` : "";
+  let productQuery = product !== null && product.length > 0 ? `&ProductId=${product.map(e => e.value).join(",")}&ProductId_op=in&` : "";
   let dateQuery =
     startDate !== ""
       ? `&CreationDateTime=${encodeURIComponent(startDate)},${endDate === "" ? encodeURIComponent(startDate) : encodeURIComponent(endDate)}&CreationDateTime_op=between`
@@ -62,7 +61,7 @@ export const getNonAssignOrders = (page, search, city = null, product = null, st
   });
   axios
     .get(
-      `/orders?_pageNumber=${page}&_pageSize=30&StatusId=101,301,302,303,304,601,602,603,604,605,606&StatusId_op=in&_sort=-CreationDateTime${cityQuery}${productQuery}${statusQuery}${dateQuery}${searchQuery}`
+      `/orders?_pageNumber=${page}&_pageSize=30&StatusId=101,301,302,303,304,601,602,603,604,605,606&StatusId_op=in&_sort=-CreationDateTime${cityQuery}${productQuery}${dateQuery}${searchQuery}`
     )
     .then(res => {
       dispatch({
@@ -94,8 +93,8 @@ export const getNonAssignOrders = (page, search, city = null, product = null, st
 export const getAssignOrders = (page, search, city = null, product = null, courier = null) => dispatch => {
   let searchQuery = search !== "" ? `&_searchParameters=name,FirstPhoneNumber,PostalCode,Address,Notes&_search=${search}` : "";
   let cityQuery = city !== null ? `&CityId=${city}&CityId_op=in&` : "";
-  let productQuery = product !== null ? `&ProductId=${product}&ProductId_op=in&` : "";
-  let courierQuery = courier !== null ? `&CourierId=${courier}&CourierId_op=in&` : "";
+  let productQuery = product !== null && product.length > 0 ? `&ProductId=${product.map(e => e.value).join(",")}&ProductId_op=in&` : "";
+  let courierQuery = courier !== null && courier.length > 0 ? `&CourierId=${courier.map(e => e.value).join(",")}&CourierId_op=in&` : "";
   dispatch({
     type: type.FETCH_ORDERS,
     payload: {
@@ -138,9 +137,9 @@ export const getAssignOrders = (page, search, city = null, product = null, couri
 export const getAllOrders = (page, search, city = null, product = null, courier = null, status = null, startDate = "", endDate) => dispatch => {
   let searchQuery = search !== "" ? `&_searchParameters=name,FirstPhoneNumber,PostalCode,Address,Notes&_search=${search}` : "";
   let cityQuery = city !== null ? `&CityId=${city}&CityId_op=in&` : "";
-  let productQuery = product !== null ? `&ProductId=${product}&ProductId_op=in&` : "";
-  let courierQuery = courier !== null ? `&CourierId=${courier}&CourierId_op=in&` : "";
-  let statusQuery = status !== null ? `&StatusId=${status}&StatusId_op=in&` : "";
+  let productQuery = product !== null && product.length > 0 ? `&ProductId=${product.map(e => e.value).join(",")}&ProductId_op=in&` : "";
+  let courierQuery = courier !== null && courier.length > 0 ? `&CourierId=${courier.map(e => e.value).join(",")}&CourierId_op=in&` : "";
+  let statusQuery = status !== null && status.length > 0 ? `&StatusId=${status.map(e => e.value).join(",")}&StatusId_op=in&` : "";
   let dateQuery =
     startDate !== ""
       ? `&CreationDateTime=${encodeURIComponent(startDate)},${endDate === "" ? encodeURIComponent(startDate) : encodeURIComponent(endDate)}&CreationDateTime_op=between`

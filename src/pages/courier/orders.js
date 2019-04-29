@@ -6,6 +6,7 @@ import { getAssignOrders } from "../../actions/orderActions";
 import axios from "../../utils/requestConfig";
 import City from "../../assets/city.json";
 import { saveAs } from "file-saver";
+import MultiSelect from "react-select";
 
 import { Layout, SearchInput, Table, Select, Notify, Button, Breadcrumb } from "zent";
 import ChangeStatus from "../../components/order/changeStatus";
@@ -27,7 +28,7 @@ class OrderList extends Component {
       },
       datasets: [],
       products: [],
-      couriers: [],
+      productDropDown: [],
       loading: true,
       searchText: "",
       modalStatus: false,
@@ -51,7 +52,11 @@ class OrderList extends Component {
     axios
       .get(`/products`)
       .then(res => {
-        this.setState({ products: res.data.data });
+        let array = [];
+        res.data.data.forEach(item => {
+          array.push({ value: item.id, label: item.title });
+        });
+        this.setState({ products: res.data.data, productDropDown: array });
       })
       .catch(err => {
         Notify.error(err.data !== null && typeof err.data !== "undefined" ? err.data.error.errorDescription : "در برقراری ارتباط مشکلی به وجود آمده است.", 5000);
@@ -97,14 +102,10 @@ class OrderList extends Component {
       this.props.getAssignOrders(this.props.orders.page, this.state.searchText, this.state.selectedCityId, this.state.selectedProductId, this.state.selectedCourierId);
   };
 
-  selectProductHandler = (event, selected) => {
-    this.setState({ selectedProductId: selected.value });
-    this.props.getAssignOrders(this.props.orders.page, this.state.searchText, this.state.selectedCityId, selected.value, this.state.selectedCourierId);
-  };
+  selectProductHandler = selectedProductId => this.setState({ selectedProductId });
 
   selectCityHandler = (event, selected) => {
     this.setState({ selectedCityId: selected.value });
-    this.props.getAssignOrders(this.props.orders.page, this.state.searchText, selected.value, this.state.selectedProductId, this.state.selectedCourierId);
   };
 
   onSelect(selectedRowKeys, selectedRows, currentRow) {
@@ -193,7 +194,7 @@ class OrderList extends Component {
   };
 
   render() {
-    const { searchText, datasets, page, products, selectedRowKeys, modalStatus, infoModalStatus, selectedItem, isExcelLoading } = this.state;
+    const { searchText, datasets, page, products, selectedRowKeys, modalStatus, infoModalStatus, selectedItem, isExcelLoading, productDropDown } = this.state;
     const columns = [
       {
         title: "شماره فاکتور",
@@ -272,17 +273,13 @@ class OrderList extends Component {
           <Col span={24}>
             <div className="control-contaianer">
               <div className="right-control">
-                <Select
-                  name="product"
-                  placeholder="انتخاب کالا"
-                  data={[{ id: null, title: "همه محصولات" }, ...products]}
-                  autoWidth
-                  optionValue="id"
-                  optionText="title"
+                <MultiSelect
+                  classNamePrefix="zent-select-text"
+                  value={this.state.selectedProductId}
                   onChange={this.selectProductHandler}
-                  searchPlaceholder="جستجو"
-                  filter={(item, keyword) => item.title.indexOf(keyword) > -1}
-                  emptyText={"ایتمی پیدا نشد."}
+                  placeholder="انتخاب کالا"
+                  isMulti
+                  options={[{ value: null, label: "همه محصولات" }, ...productDropDown]}
                 />
                 <Select
                   name="city"

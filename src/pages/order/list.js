@@ -5,6 +5,7 @@ import * as moment from "moment-jalaali";
 import { getAssignOrders } from "../../actions/orderActions";
 import axios from "../../utils/requestConfig";
 import City from "../../assets/city.json";
+import MultiSelect from "react-select";
 
 import { Layout, Breadcrumb, SearchInput, Table, Select, Notify, Button } from "zent";
 import ChangeStatus from "../../components/order/changeStatus";
@@ -28,6 +29,7 @@ class OrderList extends Component {
       datasets: [],
       products: [],
       couriers: [],
+      productDropDown: [],
       loading: true,
       searchText: "",
       modalStatus: false,
@@ -52,7 +54,11 @@ class OrderList extends Component {
     axios
       .get(`/products`)
       .then(res => {
-        this.setState({ products: res.data.data });
+        let array = [];
+        res.data.data.forEach(item => {
+          array.push({ value: item.id, label: item.title });
+        });
+        this.setState({ products: res.data.data, productDropDown: array });
       })
       .catch(err => {
         Notify.error(err.data !== null && typeof err.data !== "undefined" ? err.data.error.errorDescription : "در برقراری ارتباط مشکلی به وجود آمده است.", 5000);
@@ -64,7 +70,11 @@ class OrderList extends Component {
     axios
       .get(url)
       .then(res => {
-        this.setState({ couriers: res.data.data });
+        let array = [];
+        res.data.data.forEach(item => {
+          array.push({ value: item.id, label: item.title });
+        });
+        this.setState({ couriers: array });
       })
       .catch(err => {
         Notify.error(err.data !== null && typeof err.data !== "undefined" ? err.data.error.errorDescription : "در برقراری ارتباط مشکلی به وجود آمده است.", 5000);
@@ -102,16 +112,12 @@ class OrderList extends Component {
     });
   };
 
-  selectProductHandler = (event, selected) => {
-    this.setState({ selectedProductId: selected.value });
-  };
+  selectCourierHandler = selectedCourierId => this.setState({ selectedCourierId });
+
+  selectProductHandler = selectedProductId => this.setState({ selectedProductId });
 
   selectCityHandler = (event, selected) => {
     this.setState({ selectedCityId: selected.value });
-  };
-
-  selectCourierHandler = (event, selected) => {
-    this.setState({ selectedCourierId: selected.value });
   };
 
   onSelect(selectedRowKeys, selectedRows, currentRow) {
@@ -154,8 +160,8 @@ class OrderList extends Component {
   };
 
   findCourierById = id => {
-    let result = this.state.couriers.find(item => item.id === id);
-    return result ? result.title : "";
+    let result = this.state.couriers.find(item => item.value === id);
+    return result ? result.label : "";
   };
 
   findCityById = id => {
@@ -185,7 +191,7 @@ class OrderList extends Component {
 
   render() {
     const { isLoading } = this.props.orders;
-    const { searchText, datasets, page, products, couriers, selectedRowKeys, modalStatus, infoModalStatus, historyModalStatus, selectedItem } = this.state;
+    const { searchText, datasets, page, products, couriers, selectedRowKeys, modalStatus, infoModalStatus, historyModalStatus, selectedItem, productDropDown } = this.state;
     const columns = [
       {
         title: "شماره فاکتور",
@@ -271,26 +277,21 @@ class OrderList extends Component {
           <Col span={24}>
             <div className="control-contaianer">
               <div className="right-control">
-                <Select
-                  name="courier"
-                  placeholder="انتخاب واحد ارسال"
-                  data={[{ id: null, title: "همه واحد‌های ارسال" }, ...couriers]}
-                  autoWidth
-                  optionValue="id"
-                  optionText="title"
+                <MultiSelect
+                  classNamePrefix="zent-select-text"
+                  value={this.state.selectedCourierId}
                   onChange={this.selectCourierHandler}
+                  placeholder="انتخاب واحد ارسال"
+                  isMulti
+                  options={[{ value: null, label: "همه واحد‌های ارسال" }, ...couriers]}
                 />
-                <Select
-                  name="product"
-                  placeholder="انتخاب کالا"
-                  data={[{ id: null, title: "همه محصولات" }, ...products]}
-                  autoWidth
-                  optionValue="id"
-                  optionText="title"
+                <MultiSelect
+                  classNamePrefix="zent-select-text"
+                  value={this.state.selectedProductId}
                   onChange={this.selectProductHandler}
-                  searchPlaceholder="جستجو"
-                  filter={(item, keyword) => item.title.indexOf(keyword) > -1}
-                  emptyText={"ایتمی پیدا نشد."}
+                  placeholder="انتخاب کالا"
+                  isMulti
+                  options={[{ value: null, label: "همه محصولات" }, ...productDropDown]}
                 />
                 <Select
                   name="city"
@@ -329,7 +330,7 @@ class OrderList extends Component {
                 }
               }}
             />
-            {!isLoading && <div className="total-page__number">مجموع: {page.totalItem}</div>}
+            {!isLoading && datasets.length > 0 ? <div className="total-page__number">مجموع: {page.totalItem}</div> : null}
             <Button
               htmlType="submit"
               className="submit-btn"

@@ -44,7 +44,7 @@ class Modal extends Component {
 
   findProductName = id => {
     let result = this.props.products.find(item => item.id === id);
-    return result ? result.title : "---";
+    return result ? result.title : "";
   };
 
   findDeliveryTime = id => {
@@ -55,11 +55,6 @@ class Modal extends Component {
   findCityById = id => {
     let result = this.props.City.find(item => item.id === id);
     return result ? result.fullName : "---";
-  };
-
-  findProductById = id => {
-    let product = this.props.products.find(item => item.id === id);
-    return product ? product.title : "---";
   };
 
   print = () => window.print();

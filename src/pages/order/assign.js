@@ -6,6 +6,7 @@ import { getNonAssignOrders } from "../../actions/orderActions";
 import axios from "../../utils/requestConfig";
 import City from "../../assets/city.json";
 import DatePicker from "../../components/order/datepicker";
+import MultiSelect from "react-select";
 
 import { Layout, Breadcrumb, SearchInput, Table, Button, Select, Notify } from "zent";
 import AddAssign from "../../components/order/addAssign";
@@ -38,8 +39,8 @@ class AssingOrder extends Component {
       selectedCityId: null,
       selectedRowKeys: [],
       products: [],
+      productDropDown: [],
       selectedProductId: null,
-      selectedStatusId: null,
       modalStatus: false,
       infoModalStatus: false,
       historyModalStatus: false,
@@ -56,7 +57,6 @@ class AssingOrder extends Component {
       this.props.orders.search,
       this.state.selectedCityId,
       this.state.selectedProductId,
-      this.state.selectedStatusId,
       this.state.startDate,
       this.state.endDate
     );
@@ -67,7 +67,11 @@ class AssingOrder extends Component {
     return axios
       .get(`/products`)
       .then(res => {
-        this.setState({ products: res.data.data });
+        let array = [];
+        res.data.data.forEach(item => {
+          array.push({ value: item.id, label: item.title });
+        });
+        this.setState({ products: res.data.data, productDropDown: array });
       })
       .catch(err => {
         Notify.error(err.data !== null && typeof err.data !== "undefined" ? err.data.error.errorDescription : "در برقراری ارتباط مشکلی به وجود آمده است.", 5000);
@@ -96,20 +100,8 @@ class AssingOrder extends Component {
         totalItem: this.props.orders.total
       }
     });
-    this.props.getNonAssignOrders(
-      conf.current,
-      this.props.orders.search,
-      this.state.selectedCityId,
-      this.state.selectedProductId,
-      this.state.selectedStatusId,
-      this.state.startDate,
-      this.state.endDate
-    );
+    this.props.getNonAssignOrders(conf.current, this.props.orders.search, this.state.selectedCityId, this.state.selectedProductId, this.state.startDate, this.state.endDate);
   }
-
-  selectStatusHandler = (event, selected) => {
-    this.setState({ selectedStatusId: selected.value });
-  };
 
   onSearchChange = evt => {
     this.setState({
@@ -117,9 +109,7 @@ class AssingOrder extends Component {
     });
   };
 
-  selectProductHandler = (event, selected) => {
-    this.setState({ selectedProductId: selected.value });
-  };
+  selectProductHandler = selectedProductId => this.setState({ selectedProductId });
 
   selectCityHandler = (event, selected) => {
     this.setState({ selectedCityId: selected.value });
@@ -138,15 +128,7 @@ class AssingOrder extends Component {
       selectedRowKeys: [],
       modalStatus: false
     });
-    this.props.getNonAssignOrders(
-      this.props.orders.page,
-      this.state.searchText,
-      this.state.selectedCityId,
-      this.state.selectedProductId,
-      this.state.selectedStatusId,
-      this.state.startDate,
-      this.state.endDate
-    );
+    this.props.getNonAssignOrders(this.props.orders.page, this.state.searchText, this.state.selectedCityId, this.state.selectedProductId, this.state.startDate, this.state.endDate);
   };
 
   findCityById = id => {
@@ -182,20 +164,25 @@ class AssingOrder extends Component {
   viewOrderHistory = item => this.setState({ historyModalStatus: true, selectedItem: item });
 
   filter = () => {
-    this.props.getNonAssignOrders(
-      1,
-      this.state.searchText,
-      this.state.selectedCityId,
-      this.state.selectedProductId,
-      this.state.selectedStatusId,
-      this.state.startDate,
-      this.state.endDate
-    );
+    this.props.getNonAssignOrders(1, this.state.searchText, this.state.selectedCityId, this.state.selectedProductId, this.state.startDate, this.state.endDate);
   };
 
   render() {
     const { isLoading } = this.props.orders;
-    const { searchText, datasets, page, selectedRowKeys, modalStatus, products, courierStatus, infoModalStatus, historyModalStatus, selectedItem, dateObj } = this.state;
+    const {
+      searchText,
+      datasets,
+      page,
+      selectedRowKeys,
+      modalStatus,
+      products,
+      courierStatus,
+      infoModalStatus,
+      historyModalStatus,
+      selectedItem,
+      dateObj,
+      productDropDown
+    } = this.state;
     const columns = [
       {
         title: "شماره فاکتور",
@@ -261,39 +248,13 @@ class AssingOrder extends Component {
           <Col span={24}>
             <div className="control-contaianer">
               <div className="right-control">
-                <Select
-                  name="status"
-                  placeholder="انتخاب وضعیت سفارش"
-                  data={[
-                    { id: null, title: "همه" },
-                    { id: 301, title: "مرجوعی - عدم موجودی کالا" },
-                    { id: 302, title: "مرجوعی - خارج از محدوده" },
-                    { id: 303, title: "مرجوعی - تکمیل ظرفیت ارسال" },
-                    { id: 304, title: "مرجوعی - به درخواست فروشگاه" },
-                    { id: 501, title: "وصول شد" },
-                    { id: 601, title: "کنسلی - آدرس اشتباه" },
-                    { id: 602, title: "کنسلی - کنسلی تلفنی" },
-                    { id: 603, title: "کنسلی - عدم حضور مشتری" },
-                    { id: 604, title: "کنسلی - کالای معیوب" },
-                    { id: 605, title: "کنسلی - کنسلی حضوری" },
-                    { id: 606, title: "کنسلی - مشتری بعدا سفارش خواهد داد" }
-                  ]}
-                  autoWidth
-                  optionValue="id"
-                  optionText="title"
-                  onChange={this.selectStatusHandler}
-                />
-                <Select
-                  name="product"
-                  placeholder="انتخاب کالا"
-                  data={[{ id: null, title: "همه محصولات" }, ...products]}
-                  autoWidth
-                  optionValue="id"
-                  optionText="title"
+                <MultiSelect
+                  classNamePrefix="zent-select-text"
+                  value={this.state.selectedProductId}
                   onChange={this.selectProductHandler}
-                  searchPlaceholder="جستجو"
-                  filter={(item, keyword) => item.title.indexOf(keyword) > -1}
-                  emptyText={"ایتمی پیدا نشد."}
+                  placeholder="انتخاب کالا"
+                  isMulti
+                  options={[{ value: null, label: "همه محصولات" }, ...productDropDown]}
                 />
                 <Select
                   name="city"
@@ -360,7 +321,7 @@ class AssingOrder extends Component {
                 }
               }}
             />
-            {!isLoading && <div className="total-page__number">مجموع: {page.totalItem}</div>}
+            {!isLoading && datasets.length > 0 ? <div className="total-page__number">مجموع: {page.totalItem}</div> : null}
             {!courierStatus && (
               <Button
                 htmlType="submit"
